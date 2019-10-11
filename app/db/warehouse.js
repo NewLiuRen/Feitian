@@ -1,28 +1,27 @@
-import { getDB } from './index'
+import { compareObject } from '../utils/check'
+import * as db from './index'
+import warehouseObj from '../constants/warehouse'
 
-const addWarehouse = (params) => {
+const STORE_NAME = 'warehouse'
+
+// 获取所有仓库列表
+export const getWarehouses = () => db.getDataList(STORE_NAME).then(list => list)
+
+// 根据id获取仓库
+export const getWarehouseById = key => db.getDataById(STORE_NAME, key).then(warehouse => warehouse)
+
+// 添加仓库
+export const addWarehouse = params => {
+  compareObject(warehouseObj, params);
   const { name, ware_index } = params;
-  return new Promise((resolve, reject) => {
-    getDB().then(db => {
-      const count = db.count();
-      console.log('count :', count);
-      const request = db.transaction(['warehouse'], 'readwrite')
-                      .objectStore('warehouse')
-                      .add({ name, ware_index });
-  
-      request.onsuccess = function (event) {
-        console.log('数据写入成功');
-        resolve({success: true});
-      };
-      
-      request.onerror = function (event) {
-        console.log('数据写入失败');
-        resolve({success: false});
-      }
-    })
-  })
+  return db.dataCount(STORE_NAME).then(count => db.addData(STORE_NAME, { name, ware_index: ware_index || ++count })).then(res => res)
 }
 
-export {
-  addWarehouse,
+// 更新仓库
+export const updateWarehouse = params => {
+  compareObject(warehouseObj, params);
+  return db.updateData(STORE_NAME, { ...params }).then(res => res)
 }
+
+// 删除仓库
+export const deleteWarehouse = key => db.updateData(STORE_NAME, { id: key, is_del: true }).then(res => res)

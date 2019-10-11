@@ -4,7 +4,10 @@ import { AppContainer } from 'react-hot-loader';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './app.global.css';
+import { initStores } from './db';
 
+// 初始化数据库
+initStores();
 const store = configureStore();
 
 render(
