@@ -16,6 +16,7 @@ import { join } from 'path';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { checkDB, createDB } from './main/sql';
+import './main/communication';
 
 export default class AppUpdater {
   constructor() {
@@ -27,11 +28,14 @@ export default class AppUpdater {
 
 let mainWindow = null;
 
+// 生成数据库
 checkDB().then(flag => {
   console.log('db exist :', flag)
   if (!flag) return createDB()
 }).then(msg => {
-  console.log('create DB :', msg);
+  console.log('create DB : success');
+}).catch(err => {
+  console.error(err)
 })
 
 if (process.env.NODE_ENV === 'production') {
