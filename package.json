@@ -268,6 +268,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "redux": "^4.0.1",
+    "redux-saga": "^1.1.1",
     "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.9",
     "sql.js": "^1.0.0"

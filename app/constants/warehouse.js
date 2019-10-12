@@ -1,11 +1,13 @@
 /**
  * 仓库数据
  * name 名称 
- * ware_index 序号 
+ * description 描述信息 
+ * warehouse_index 序号 
  * is_del 是否删除 
  */
 export const WAREHOUSE = {
   name: '',
+  description: '',
   warehouse_index: -1,
   is_del: false,
 }

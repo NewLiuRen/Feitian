@@ -4,24 +4,59 @@ import warehouseObj from '../constants/warehouse'
 
 const STORE_NAME = 'warehouse'
 
+// 获取所有未冻结仓库列表
+export const getWarehouses = () => db.getDataList(STORE_NAME).then(list => list.filter(w => w.is_del === false));
+
 // 获取所有仓库列表
-export const getWarehouses = () => db.getDataList(STORE_NAME).then(list => list)
+export const getWarehousesWithDel = () => db.getDataList(STORE_NAME).then(list => list);
 
 // 根据id获取仓库
-export const getWarehouseById = key => db.getDataById(STORE_NAME, key).then(warehouse => warehouse)
+export const getWarehouseById = key => db.getDataById(STORE_NAME, key).then(warehouse => warehouse);
 
 // 添加仓库
 export const addWarehouse = params => {
   compareObject(warehouseObj, params);
-  const { name, ware_index } = params;
-  return db.dataCount(STORE_NAME).then(count => db.addData(STORE_NAME, { name, ware_index: ware_index || ++count })).then(res => res)
+  const warehouse = Object.assign({}, warehouseObj, params);
+  return db.dataCount(STORE_NAME).then(count => {
+    if (!warehouse.warehouse_index) warehouse.warehouse_index = count + 1;
+    return new Promise(resolve => {
+      db.addData(STORE_NAME, warehouse).then(({success, result}) => {
+        warehouse.id = result;
+        resolve({ success, data: warehouse })
+      })
+    })
+  });
 }
 
 // 更新仓库
 export const updateWarehouse = params => {
   compareObject(warehouseObj, params);
-  return db.updateData(STORE_NAME, { ...params }).then(res => res)
+  const warehouse = Object.assign({}, warehouseObj, params);
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, warehouse).then(({success}) => resolve({ success, data: warehouse }))
+  })
 }
 
-// 删除仓库
-export const deleteWarehouse = key => db.updateData(STORE_NAME, { id: key, is_del: true }).then(res => res)
+// 冻结仓库
+export const freezeWarehouse = key => getWarehouseById(key).then(w => {
+    if (!w) return { success: false }
+    const warehouse = Object.assign({}, warehouseObj, w);
+    warehouse.is_del = true;
+    return new Promise(resolve => {
+      db.updateData(STORE_NAME, warehouse).then(({success}) => {
+        resolve({ success, data: warehouse })
+      })
+    })
+  })
+
+// 恢复仓库
+export const recoverWarehouse = key => getWarehouseById(key).then(w => {
+  if (!w) return { success: false }
+  const warehouse = Object.assign({}, warehouseObj, w);
+  warehouse.is_del = false;
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, warehouse).then(({success}) => {
+      resolve({ success, data: warehouse })
+    })
+  })
+})

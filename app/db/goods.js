@@ -8,16 +8,19 @@ const STORE_NAME = 'goods'
 export const getGoods = () => db.getDataList(STORE_NAME).then(list => list)
 
 // 按照类别查询商品列表
+export const getGoodsByCategory = categoryId => db.getRangeDataByIndex(STORE_NAME, 'category_id', {eq: categoryId}).then(list => list)
 
 // 按照sku查询指定商品
+export const getGoodsBySku = sku => db.getDateByIndex(STORE_NAME, 'sku', sku).then(goods => goods)
 
 // 按照商品名称查询指定商品
+export const getGoodsByName = name => db.getDateByIndex(STORE_NAME, 'name', name).then(goods => goods)
 
 // 添加商品
 export const addGoods = params => {
   compareObject(goodsObj, params);
-  const { name, category_id, sku } = params;
-  return db.addData(STORE_NAME, { name, category_id, sku }).then(res => res)
+  const { name, description, category_id, sku } = params;
+  return db.addData(STORE_NAME, { name, description, category_id, sku }).then(res => res)
 }
 
 // 更新商品

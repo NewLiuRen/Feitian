@@ -1,23 +1,23 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
 import { routerMiddleware, routerActions } from 'connected-react-router';
 import { createLogger } from 'redux-logger';
+import createSagaMiddleware from 'redux-saga';
 import createRootReducer from '../reducers';
-import * as counterActions from '../actions/counter';
-import type { counterStateType } from '../reducers/types';
+import rootSaga from '../sagas';
 
 const history = createHashHistory();
 
 const rootReducer = createRootReducer(history);
 
-const configureStore = (initialState?: counterStateType) => {
+const configureStore = (initialState) => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
 
-  // Thunk Middleware
-  middleware.push(thunk);
+  // saga Middleware
+  const sagaMiddleware = createSagaMiddleware()
+  middleware.push(sagaMiddleware)
 
   // Logging Middleware
   const logger = createLogger({
@@ -36,7 +36,6 @@ const configureStore = (initialState?: counterStateType) => {
 
   // Redux DevTools Configuration
   const actionCreators = {
-    ...counterActions,
     ...routerActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
@@ -55,6 +54,7 @@ const configureStore = (initialState?: counterStateType) => {
 
   // Create Store
   const store = createStore(rootReducer, initialState, enhancer);
+  sagaMiddleware.run(rootSaga);
 
   if (module.hot) {
     module.hot.accept(

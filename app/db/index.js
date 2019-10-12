@@ -154,17 +154,17 @@ export const getDateByIndex = (storeName, index, key) => new Promise((resolve, r
 // 添加记录
 export const addData = (storeName, params) => new Promise((resolve, reject) => {
   operateTmpl(storeName, (objectStore) => objectStore.add({...params}))
-    .then(res => resolve(res.readyState === 'done')).catch(err => reject(err))
+    .then(({readyState, result}) => resolve({success: readyState === 'done', result})).catch(err => reject(err))
 })
 
 // 修改记录
 export const updateData = (storeName, params) => new Promise((resolve, reject) => {
   operateTmpl(storeName, (objectStore) => objectStore.put({...params}))
-    .then(res => resolve(res.readyState === 'done')).catch(err => reject(err))
+    .then(({readyState, result}) => resolve({success: readyState === 'done', result})).catch(err => reject(err))
 })
 
 // 删除记录
 export const deleteData = (storeName, key) => new Promise((resolve, reject) => {
   operateTmpl(storeName, (objectStore) => objectStore.delete(key))
-    .then(res => resolve(res.readyState === 'done')).catch(err => reject(err))
+    .then(({readyState, result}) => resolve({success: readyState === 'done', result})).catch(err => reject(err))
 })
