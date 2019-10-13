@@ -4,30 +4,69 @@ import goodsObj from '../constants/goods'
 
 const STORE_NAME = 'goods'
 
+// 获取所有未冻结商品列表
+export const getGoods = () => db.getDataList(STORE_NAME).then(list => list.filter(g => g.is_del === false));
+
 // 获取所有商品列表
-export const getGoods = () => db.getDataList(STORE_NAME).then(list => list)
+export const getGoodsWithDel = () => db.getDataList(STORE_NAME).then(list => list);
+
+// 根据id获取商品
+export const getGoodsById = key => db.getDataById(STORE_NAME, key).then(goods => goods);
 
 // 按照类别查询商品列表
-export const getGoodsByCategory = categoryId => db.getRangeDataByIndex(STORE_NAME, 'category_id', {eq: categoryId}).then(list => list)
+export const getGoodsByCategoryId = categoryId => db.getRangeDataByIndex(STORE_NAME, 'category_id', {eq: parseInt(categoryId)}).then(list => list)
 
 // 按照sku查询指定商品
 export const getGoodsBySku = sku => db.getDateByIndex(STORE_NAME, 'sku', sku).then(goods => goods)
 
 // 按照商品名称查询指定商品
-export const getGoodsByName = name => db.getDateByIndex(STORE_NAME, 'name', name).then(goods => goods)
+export const getGoodsByName = name => db.getDateByIndex(STORE_NAME, 'name', name).then(goods => {
+  return goods
+})
 
 // 添加商品
 export const addGoods = params => {
   compareObject(goodsObj, params);
-  const { name, description, category_id, sku } = params;
-  return db.addData(STORE_NAME, { name, description, category_id, sku }).then(res => res)
+  const goods = Object.assign({}, goodsObj, params);
+  if (goods.category_id) goods.category_id = parseInt(goods.category_id)
+  return new Promise(resolve => {
+    db.addData(STORE_NAME, goods).then(({success, result}) => {
+      goods.id = result;
+      resolve({ success, data: goods })
+    })
+  })
 }
 
 // 更新商品
 export const updateGoods = params => {
   compareObject(goodsObj, params);
-  return db.updateData(STORE_NAME, { ...params }).then(res => res);
+  const goods = Object.assign({}, goodsObj, params);
+  if (goods.category_id) goods.category_id = parseInt(goods.category_id)
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, goods).then(({success}) => resolve({ success, data: goods }))
+  })
 }
 
-// 删除商品
-export const deleteGoods = key => db.updateData(STORE_NAME, { id: key, is_del: true }).then(res => res)
+// 冻结商品
+export const freezeGoods = key => getGoodsById(key).then(g => {
+    if (!g) return { success: false }
+    const goods = Object.assign({}, goodsObj, g);
+    goods.is_del = true;
+    return new Promise(resolve => {
+      db.updateData(STORE_NAME, goods).then(({success}) => {
+        resolve({ success, data: goods })
+      })
+    })
+  })
+
+// 恢复商品
+export const recoverGoods = key => getGoodsById(key).then(g => {
+  if (!g) return { success: false }
+  const goods = Object.assign({}, goodsObj, g);
+  goods.is_del = false;
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, goods).then(({success}) => {
+      resolve({ success, data: goods })
+    })
+  })
+})

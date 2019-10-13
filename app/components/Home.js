@@ -2,18 +2,28 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
-import { Button, Input } from 'antd';
+import { Row, Col, Button, Input } from 'antd';
 import routes from '../constants/routes';
 import styles from './Home.css';
-import * as actions from '../actions/category';
+import * as actions from '../actions/goods';
+import * as db from '../db/goods'
 
 class Home extends Component {
   constructor (props) {
     super(props)
     this.state = {
       id: 0,
+      name: '商品',
+      categoryId: '',
       count: 1,
+      testList: [],
     }
+  }
+
+  getTestList = () => {
+    db.getGoodsByCategoryId('1').then(data => {
+      if (data) this.setState({testList: data})
+    })
   }
 
   getWarehouseList() {
@@ -22,14 +32,15 @@ class Home extends Component {
   }
 
   addWarehouseFn() {
-    const { count } = this.state
-    this.props.fetchAddWarehouse({name: `种类${count}`, description: 'desc'});
+    const { name, categoryId, count } = this.state
+    this.props.fetchAddWarehouse({name: `${name}-${count}`, sku: `sku-${count}`, category_id: categoryId, description: 'desc'});
     this.setState({ count: count + 1 })
   }
 
   updateWarehouseList(id) {
+    const { categoryId } = this.state
     console.log('id :', id);
-    this.props.fetchUpdateWarehouse({id: parseInt(id), name: `种类x`, description: '描述'})
+    this.props.fetchUpdateWarehouse({id: parseInt(id), name: `商品x`, sku: 'x', category_id: categoryId, description: '描述'})
   }
 
   freezeWarehouseList(id) {
@@ -41,17 +52,23 @@ class Home extends Component {
     this.props.fetchRecoverWarehouse(parseInt(id))
   }
 
-  changeVal(id) {
-    console.log('id :', id);
-    this.setState({ id })
+  changeVal(attr, val) {
+    console.log(attr+' :', val);
+    this.setState({ [attr]: val })
   }
 
   render() {
-    const { category: { list, listWithDel } } = this.props;
-    const { id } = this.state
+    const { goods: { list, listWithDel } } = this.props;
+    const { id, name, categoryId, testList } = this.state
 
     return (
       <div className={styles.container} data-tid="container">
+        <div>
+          <h3>testlist</h3>
+          {
+            testList.map((w, i) => (<span style={{marginLeft: '10px'}} key={ i }>{ `${w.name}(${w.id}: ${w.is_del ? '冻结' : '未冻结'})` }</span>))
+          }
+        </div>
         <div>
           <h3>list</h3>
           {
@@ -64,9 +81,20 @@ class Home extends Component {
             listWithDel.map((w, i) => (<span style={{marginLeft: '10px'}} key={ i }>{ `${w.name}(${w.id}: ${w.is_del ? '冻结' : '未冻结'})` }</span>))
           }
         </div>
+        <Button onClick={ this.getTestList }>test查看</Button>&nbsp;&nbsp;&nbsp;&nbsp;
         <Button onClick={() => { this.getWarehouseList() }}>查看列表</Button>&nbsp;&nbsp;&nbsp;&nbsp;
         <Button onClick={() => { this.addWarehouseFn() }}>新建仓库</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <Input value={id} onChange={ e => this.changeVal(e.target.value) } size="small" placeholder="small size" />&nbsp;&nbsp;&nbsp;&nbsp;
+        <Row gutter={16}>
+          <Col className="gutter-row" span={6}>
+            <div className="gutter-box"><Input value={id} onChange={ e => this.changeVal('id', e.target.value) } size="small" placeholder="id" /></div>
+          </Col>
+          <Col className="gutter-row" span={6}>
+            <div className="gutter-box"><Input value={name} onChange={ e => this.changeVal('name', e.target.value) } size="small" placeholder="name" /></div>
+          </Col>
+          <Col className="gutter-row" span={6}>
+            <div className="gutter-box"><Input value={categoryId} onChange={ e => this.changeVal('categoryId', e.target.value) } size="small" placeholder="categoryId" /></div>
+          </Col>
+        </Row>
         <Button onClick={() => { this.updateWarehouseList(id) }}>修改仓库</Button>&nbsp;&nbsp;&nbsp;&nbsp;
         <Button onClick={() => { this.freezeWarehouseList(id) }}>冻结仓库</Button>&nbsp;&nbsp;&nbsp;&nbsp;
         <Button onClick={() => { this.recoverWarehouseList(id) }}>恢复仓库</Button>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -77,15 +105,15 @@ class Home extends Component {
   }
 }
 
-const mapStateToProps = state => ({ category: state.category })
+const mapStateToProps = state => ({ goods: state.goods })
 
 const mapDispatchToProps = { 
-  fetchGetWarehouseList: actions.fetchGetCategoryList,
-  fetchGetWarehouseWithDelList: actions.fetchGetCategoryWithDelList,
-  fetchAddWarehouse: actions.fetchAddCategory,
-  fetchUpdateWarehouse: actions.fetchUpdateCategory,
-  fetchFreezeWarehouse: actions.fetchFreezeCategory,
-  fetchRecoverWarehouse: actions.fetchRecoverCategory,
+  fetchGetWarehouseList: actions.fetchGetGoodsList,
+  fetchGetWarehouseWithDelList: actions.fetchGetGoodsWithDelList,
+  fetchAddWarehouse: actions.fetchAddGoods,
+  fetchUpdateWarehouse: actions.fetchUpdateGoods,
+  fetchFreezeWarehouse: actions.fetchFreezeGoods,
+  fetchRecoverWarehouse: actions.fetchRecoverGoods,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home)

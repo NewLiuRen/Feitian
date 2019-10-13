@@ -63,6 +63,34 @@ const operateTmpl = (storeName, objectStoreOperateFn, type='readwrite') => {
   })
 }
 
+// 根据索引值获取数据
+export const getDateByIndex = (storeName, index, key) => {
+  let db = null;
+  return new Promise ((resolve, reject) => {
+    const dbOpenRequest = window.indexedDB.open(DB_NAME);
+  
+    dbOpenRequest.onsuccess = () => {
+      db = dbOpenRequest.result;
+      const transaction = db.transaction([storeName], 'readonly');
+  
+      // transaction.oncomplete = () => {};
+      transaction.onerror = () => { reject(new Error('事务操作失败')) };
+  
+      const objectStore = transaction.objectStore(storeName);
+
+      const IDBIndex = objectStore.index(index);
+      const objectStoreRequest = IDBIndex.get(key);
+      objectStoreRequest.onsuccess =  () => {
+        resolve(objectStoreRequest.result)
+      };
+      
+    };
+    dbOpenRequest.onerror =  () => {
+      reject(new Error('数据库打开失败'))
+    };
+  })
+}
+
 // 根据索引及条件搜索表数据
 // EQ 就是 EQUAL等于 =
 // GT 就是 GREATER THAN 大于 ＞
@@ -76,7 +104,7 @@ export const getRangeDataByIndex = (storeName, index, option) => {
   
     dbOpenRequest.onsuccess = () => {
       db = dbOpenRequest.result;
-      const transaction = db.transaction([storeName], type);
+      const transaction = db.transaction([storeName], 'readonly');
   
       // transaction.oncomplete = () => {};
       transaction.onerror = () => { reject(new Error('事务操作失败')) };
@@ -139,15 +167,6 @@ export const getDataList = storeName => new Promise((resolve, reject) => {
 // 获取指定id的记录
 export const getDataById = (storeName, key) => new Promise((resolve, reject) => {
   operateTmpl(storeName, (objectStore) => objectStore.get(key), 'readonly')
-    .then(res => resolve(res.result)).catch(err => reject(err))
-})
-
-// 根据索引值获取数据
-export const getDateByIndex = (storeName, index, key) => new Promise((resolve, reject) => {
-  operateTmpl(storeName, (objectStore) => {
-    const i = objectStore.index(index);
-    return i.get(key);
-  }, 'readonly')
     .then(res => resolve(res.result)).catch(err => reject(err))
 })
 
