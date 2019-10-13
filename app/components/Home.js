@@ -2,11 +2,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
-import { Row, Col, Button, Input } from 'antd';
+import { message, Row, Col, Button, Input } from 'antd';
 import routes from '../constants/routes';
 import styles from './Home.css';
 import * as actions from '../actions/goods';
 import * as db from '../db/goods'
+import * as fileDB from '../db/file'
+import * as recordsDB from '../db/records'
 
 class Home extends Component {
   constructor (props) {
@@ -21,9 +23,30 @@ class Home extends Component {
   }
 
   getTestList = () => {
-    db.getGoodsByCategoryId('1').then(data => {
-      if (data) this.setState({testList: data})
-    })
+    // db.getGoodsByCategoryId('1').then(data => {
+    //   if (data) this.setState({testList: data})
+    // })
+    // fileDB.addFile({name: 'file-1', create_date: Date.now()})
+    // recordDB.addFileRecords(1, [{
+    //   count: 1,
+    //   max_count: 5,
+    //   order_number: '',
+    //   goods_id: 1,
+    //   warehouse_id: 1,
+    // }, {
+    //   count: 2,
+    //   max_count: 6,
+    //   order_number: '',
+    //   goods_id: 2,
+    //   warehouse_id: 1,
+    // }, {
+    //   count: 3,
+    //   max_count: 5,
+    //   order_number: '',
+    //   goods_id: 3,
+    //   warehouse_id: 1,
+    // }]).then(({success}) => success ? message.success('成功') : message.error('失败'))
+    fileDB.deleteFile(1)
   }
 
   getWarehouseList() {

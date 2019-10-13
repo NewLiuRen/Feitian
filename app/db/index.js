@@ -26,7 +26,7 @@ export const initStores = (version = VERSION) => new Promise((resolve, reject) =
       }
       if (!db.objectStoreNames.contains('file')) {
         const objectStore = db.createObjectStore('file', { keyPath: 'id', autoIncrement: true });
-        objectStore.createIndex('create_time', 'create_time', { unique: false });
+        objectStore.createIndex('create_date', 'create_date', { unique: false });
       }
       if (!db.objectStoreNames.contains('records')) {
         const objectStore = db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });

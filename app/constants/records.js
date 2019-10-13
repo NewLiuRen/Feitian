@@ -1,6 +1,5 @@
 /**
  * 记录
- * name 名称 
  * count 数量
  * max_count 最大数量
  * order_number 订单号
@@ -8,7 +7,6 @@
  * warehouse_id 仓库id 
  */
 export const RECORD = {
-  name: '',
   count: 0,
   max_count: 0,
   order_number: '',
