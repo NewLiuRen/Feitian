@@ -20,17 +20,19 @@ export const addCategory = params => {
   return new Promise(resolve => {
     db.addData(STORE_NAME, category).then(({success, result}) => {
       category.id = result;
-      resolve({ success, data: category })
+      return resolve({ success, data: category })
     })
   })
 }
 
 // 更新种类
 export const updateCategory = params => {
-  compareObject(categoryObj, params);
-  const category = Object.assign({}, categoryObj, params);
-  return new Promise(resolve => {
-    db.updateData(STORE_NAME, category).then(({success}) => resolve({ success, data: category }))
+  getCategoryById(params.id).then(c => {
+    compareObject(categoryObj, params);
+    const category = Object.assign({}, c, params);
+    return new Promise(resolve => {
+      db.updateData(STORE_NAME, category).then(({success}) => resolve({ success, data: category }))
+    })
   })
 }
 
@@ -40,9 +42,7 @@ export const freezeCategory = key => getCategoryById(key).then(w => {
     const category = Object.assign({}, categoryObj, w);
     category.is_del = true;
     return new Promise(resolve => {
-      db.updateData(STORE_NAME, category).then(({success}) => {
-        resolve({ success, data: category })
-      })
+      db.updateData(STORE_NAME, category).then(({success}) => resolve({ success, data: category }))
     })
   })
 
@@ -52,8 +52,6 @@ export const recoverCategory = key => getCategoryById(key).then(w => {
   const category = Object.assign({}, categoryObj, w);
   category.is_del = false;
   return new Promise(resolve => {
-    db.updateData(STORE_NAME, category).then(({success}) => {
-      resolve({ success, data: category })
-    })
+    db.updateData(STORE_NAME, category).then(({success}) => resolve({ success, data: category }))
   })
 })

@@ -1,0 +1,68 @@
+export const SET_FILE = 'SET_FILE';
+export const SET_RECORDS = 'SET_RECORDS';
+export const ADD_FILE = 'ADD_FILE';
+export const UPDATE_FILE = 'UPDATE_FILE';
+export const UPDATE_FILE_IMPORT = 'UPDATE_FILE_IMPORT';
+export const ADD_RECORDS = 'ADD_RECORDS';
+export const UPDATE_RECORDS = 'UPDATE_RECORDS';
+export const UPDATE_RECORDS_ORDER_NUMBER = 'UPDATE_RECORDS_ORDER_NUMBER';
+export const CLEAR_FILE_RECORD = 'CLEAR_FILE_RECORD';
+
+export const FETCH_GET_FILE = 'FETCH_GET_FILE';
+export const FETCH_GET_RECORDS = 'FETCH_GET_RECORDS';
+export const FETCH_ADD_FILE = 'FETCH_ADD_FILE';
+export const FETCH_UPDATE_FILE = 'FETCH_UPDATE_FILE';
+export const FETCH_UPDATE_FILE_IMPORT = 'FETCH_UPDATE_FILE_IMPORT';
+export const FETCH_ADD_RECORDS = 'FETCH_ADD_RECORDS';
+export const FETCH_UPDATE_RECORDS = 'FETCH_UPDATE_RECORDS';
+export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUMBER';
+
+// 添加文件基础信息
+export const setFile = file => ({ type: SET_FILE, payload: file })
+
+// 添加记录集
+export const setRecords = records => ({ type: SET_RECORDS, payload: records })
+
+// 向redux中添加文件
+export const addFile = file => ({ type: ADD_FILE, payload: file })
+
+// 向redux中修改文件
+export const updateFile = file => ({ type: UPDATE_FILE, payload: file })
+
+// 向redux中修改文件导入标识
+export const updateFileImport = file => ({ type: UPDATE_FILE_IMPORT, payload: file })
+
+// 向redux中添加记录集
+export const addRecords = records => ({ type: ADD_RECORDS, payload: records })
+
+// 向redux中修改记录集
+export const updateRecords = records => ({ type: UPDATE_RECORDS, payload: records })
+
+// 向redux中修改记录集箱贴
+export const updateRecordsOrderNumber = file => ({ type: UPDATE_RECORDS_ORDER_NUMBER, payload: file })
+
+export const clearFileRecord = () => ({ type: CLEAR_FILE_RECORD })
+
+// 从数据库中获取文件
+export const fetchGetFile = () => ({ type: FETCH_GET_FILE })
+
+// 从数据库中获取记录集
+export const fetchGetRecords = (file) => ({ type: FETCH_GET_RECORDS, payload: file })
+
+// 向数据库中添加文件
+export const fetchAddFile = file => ({ type: FETCH_ADD_FILE, payload: file })
+
+// 向数据库中修改文件
+export const fetchUpdateFile = file => ({ type: FETCH_UPDATE_FILE, payload: file })
+
+// 向数据库中修改文件导入状态
+export const fetchUpdateFileImport = file => ({ type: FETCH_UPDATE_FILE_IMPORT, payload: file })
+
+// 向数据库中添加记录集
+export const fetchAddRecords = (file_id, records) => ({ type: FETCH_ADD_RECORDS, payload: {file_id, records} })
+
+// 向数据库中修改记录集
+export const fetchUpdateRecords = (file_id, records) => ({ type: FETCH_UPDATE_RECORDS, payload: {file_id, records} })
+
+// 向数据库中修改记录集箱贴
+export const fetchUpdateRecordsOrderNumber = (file_id, records) => ({ type: FETCH_UPDATE_RECORDS_ORDER_NUMBER, payload: {file_id, records} })

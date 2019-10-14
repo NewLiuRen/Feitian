@@ -22,7 +22,7 @@ export const addWarehouse = params => {
     return new Promise(resolve => {
       db.addData(STORE_NAME, warehouse).then(({success, result}) => {
         warehouse.id = result;
-        resolve({ success, data: warehouse })
+        return resolve({ success, data: warehouse })
       })
     })
   });
@@ -30,10 +30,12 @@ export const addWarehouse = params => {
 
 // 更新仓库
 export const updateWarehouse = params => {
-  compareObject(warehouseObj, params);
-  const warehouse = Object.assign({}, warehouseObj, params);
-  return new Promise(resolve => {
-    db.updateData(STORE_NAME, warehouse).then(({success}) => resolve({ success, data: warehouse }))
+  getWarehouseById(params.id).then(w => {
+    compareObject(warehouseObj, params);
+    const warehouse = Object.assign({}, w, params);
+    return new Promise(resolve => {
+      db.updateData(STORE_NAME, warehouse).then(({success}) => resolve({ success, data: warehouse }))
+    })
   })
 }
 
@@ -43,9 +45,7 @@ export const freezeWarehouse = key => getWarehouseById(key).then(w => {
     const warehouse = Object.assign({}, warehouseObj, w);
     warehouse.is_del = true;
     return new Promise(resolve => {
-      db.updateData(STORE_NAME, warehouse).then(({success}) => {
-        resolve({ success, data: warehouse })
-      })
+      db.updateData(STORE_NAME, warehouse).then(({success}) => resolve({ success, data: warehouse }))
     })
   })
 
@@ -55,8 +55,6 @@ export const recoverWarehouse = key => getWarehouseById(key).then(w => {
   const warehouse = Object.assign({}, warehouseObj, w);
   warehouse.is_del = false;
   return new Promise(resolve => {
-    db.updateData(STORE_NAME, warehouse).then(({success}) => {
-      resolve({ success, data: warehouse })
-    })
+    db.updateData(STORE_NAME, warehouse).then(({success}) => resolve({ success, data: warehouse }))
   })
 })

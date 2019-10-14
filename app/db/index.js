@@ -108,7 +108,7 @@ export const getRangeDataByIndex = (storeName, index, option) => {
   
       // transaction.oncomplete = () => {};
       transaction.onerror = () => { reject(new Error('事务操作失败')) };
-  
+
       const objectStore = transaction.objectStore(storeName);
       let r = null;
 
@@ -133,6 +133,7 @@ export const getRangeDataByIndex = (storeName, index, option) => {
       }
 
       const res = [];
+      console.log('index :', index);
       const i = objectStore.index(index);
       const c = i.openCursor(r);
       c.onsuccess = (e) => {
