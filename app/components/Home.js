@@ -135,7 +135,7 @@ class Home extends Component {
         <Button onClick={() => { this.freezeWarehouseList(id) }}>冻结仓库</Button>&nbsp;&nbsp;&nbsp;&nbsp;
         <Button onClick={() => { this.recoverWarehouseList(id) }}>恢复仓库</Button>&nbsp;&nbsp;&nbsp;&nbsp;
         <br />
-        <Link to={routes.COUNTER}>to Counter</Link>
+        <Link to={routes.File_VIEW}>to Counter</Link>
       </div>
     );
   }

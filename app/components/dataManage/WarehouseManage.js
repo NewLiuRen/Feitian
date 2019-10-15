@@ -1,0 +1,10 @@
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+
+export default class WarehouseManage extends Component {
+  render() {
+    return (
+      <div>WarehouseManage</div>
+    )
+  }
+}

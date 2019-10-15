@@ -4,17 +4,7 @@ import { Link } from 'react-router-dom';
 import styles from './Counter.css';
 import routes from '../constants/routes';
 
-type Props = {
-  increment: () => void,
-  incrementIfOdd: () => void,
-  incrementAsync: () => void,
-  decrement: () => void,
-  counter: number
-};
-
-export default class Counter extends Component<Props> {
-  props: Props;
-
+export default class Counter extends Component {
   render() {
     const {
       increment,
@@ -26,7 +16,7 @@ export default class Counter extends Component<Props> {
     return (
       <div>
         <div className={styles.backButton} data-tid="backButton">
-          <Link to={routes.HOME}>
+          <Link to={routes.File_VIEW}>
             <i className="fa fa-arrow-left fa-3x" />
           </Link>
         </div>
