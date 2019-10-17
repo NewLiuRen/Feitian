@@ -1,0 +1,21 @@
+.file-generate-btn {
+  width: 160px;
+  height: 160px;
+  line-height: 2;
+  padding: 30px;
+  background-color: #1890ff;
+  border: 1px solid #1890ff;
+  border-radius: 50%;
+  color: #ffffff;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color, box-shadow .3s;
+
+  &:hover {
+    background-color: darken( #1890ff, 10%);
+    border: 1px solid rgba(206, 216, 235, 0.6);;
+    box-shadow: 0 0 50px rgba(71, 124, 221, 0.6);
+  }
+}

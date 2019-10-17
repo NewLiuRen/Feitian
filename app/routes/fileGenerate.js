@@ -11,5 +11,6 @@ export default () => (
     <Route path={routes.File_GENERATE_INDEX} component={FileGenerateIndex} />
     <Route path={routes.File_GENERATE_TABLE} component={FileGenerateTable} />
     <Route path={routes.File_GENERATE_PREVIEW} component={FileViewTable} />
+    <Redirect from={routes.File_GENERATE} to={routes.File_GENERATE_INDEX} />  
   </Switch>
 )

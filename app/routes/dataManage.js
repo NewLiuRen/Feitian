@@ -19,6 +19,6 @@ export default () => (
     <Route path={routes.DATA_MANAGE_CATEGORY_MANAGE} component={CategoryManage} />
     <Route path={routes.DATA_MANAGE_GOODS_MANAGE} component={GoodsManage} />
     <Route path={routes.DATA_MANAGE_FILE_MANAGE} component={FileManage} />
-    <Redirect from={routes.DATA_MANAGE} to={routes.DATA_MANAGE_WAREHOUSE}></Redirect>  
+    <Redirect from={routes.DATA_MANAGE} to={routes.DATA_MANAGE_WAREHOUSE} />  
   </Switch>
 )

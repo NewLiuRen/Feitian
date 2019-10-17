@@ -1,0 +1,14 @@
+.card-description {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 144px;
+  border: 1px dashed #1890ff;
+  cursor: pointer;
+}
