@@ -5,7 +5,7 @@ import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './app.global.css';
 
-import { LocaleProvider } from 'antd';
+import { ConfigProvider  } from 'antd';
 import zh_CN from 'antd/es/locale-provider/zh_CN';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
@@ -19,9 +19,9 @@ const store = configureStore();
 
 render(
   <AppContainer>
-    <LocaleProvider locale={zh_CN}>
+    <ConfigProvider locale={zh_CN}>
       <Root store={store} history={history} />
-    </LocaleProvider>
+    </ConfigProvider>
   </AppContainer>,
   document.getElementById('root')
 );
