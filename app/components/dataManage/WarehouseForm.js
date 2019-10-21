@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Form, Icon, Input, } from 'antd';
 import warehouseObj from '../../constants/warehouse';
 
-class Warehouse extends React.Component {
+class Warehouse extends Component {
   render() {
     const { getFieldDecorator } = this.props.form;
 
@@ -13,6 +13,7 @@ class Warehouse extends React.Component {
           {getFieldDecorator('name', {
             rules: [{
               required: true,
+              whitespace: true,
               message: '请输入名称',
             }],
           })(<Input placeholder="请输入名称" />)}

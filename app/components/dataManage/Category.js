@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Modal, Row, Button, Table } from 'antd';
+import { Modal, Row, Button, Table, Popconfirm } from 'antd';
+
 import CategoryForm from './CategoryForm';
 
 const data = [];
@@ -27,14 +28,55 @@ export default class Category extends Component {
     }
   }
 
+  // 弹出新建仓库Modal
+  addCategory = () => {
+    this.setState({visible: true, type: typeMap.create});
+  }
+  
+  // 弹出编辑仓库Modal
+  editCategory = (category) => {
+    const params = Object.assign({}, category);
+    delete params.key;
+    const self = this;
+    this.setState({visible: true, type: typeMap.update}, () => {
+      self.formRef.props.form.setFieldsValue({...params});
+    });
+  }
+
+  // 冻结仓库
+  freezeCategory = (category) => {
+    console.log('category :', category);
+  }
+
+  // 隐藏Modal
+  hideModal = () => {
+    this.setState({visible: false});
+    this.formRef.props.form.resetFields();
+  }
+
+  // 提交Modal
+  submit = () => {
+    const form = this.formRef.props.form;
+    const { type } = this.state;
+
+    form.validateFields((errors, values) => {
+      console.log('errors :', errors);
+      console.log('values :', values);
+      if (type === typeMap.create) {
+        console.log('create');
+      } else if (type === typeMap.update) {
+        console.log('update');
+      }
+    })
+  }
+
   render() {
     const { visible, type, current, pageSize } = this.state;
     const columns = [
       {
-        title: '序号',
-        width: '8%',
+        title: '',
+        width: '5%',
         key: 'index',
-        editable: false,
         render: (text,record,index)=>`${(current - 1) * pageSize + index + 1}`
       },
       {
@@ -42,14 +84,12 @@ export default class Category extends Component {
         dataIndex: 'name',
         width: '30%',
         key: 'name',
-        editable: true,
       },
       {
         title: '描述',
         dataIndex: 'description',
-        width: '47%',
+        width: '50%',
         key: 'description',
-        editable: true,
       },
       {
         title: '操作',
@@ -58,12 +98,18 @@ export default class Category extends Component {
         key: 'operation',
         render: (text, record) => (
             <>
-              <a onClick={() => {}} style={{marginRight: 15}}>
+              <a onClick={() => this.editCategory(record)} style={{marginRight: 15}}>
                 编辑
               </a> 
-              <a onClick={() => {}}>
-                删除
-              </a> 
+              <Popconfirm
+                placement="topRight"
+                title={`是否确定删除，类目： ${record.name}`}
+                onConfirm={() => this.freezeCategory(record)}
+              >
+                <a onClick={() => {}}>
+                  删除
+                </a> 
+              </Popconfirm>
             </>
           ),
       },
@@ -72,20 +118,20 @@ export default class Category extends Component {
     return (
       <>
         <Modal
-          title={`${type === typeMap.create ? '新建' : '编辑'}仓库`}
+          title={`${type === typeMap.create ? '新建' : '编辑'}类目`}
           width={400}
           visible={visible}
           onOk={this.submit}
           onCancel={this.hideModal}
           okText="确定"
           cancelText="取消"
-          forceRender={true}
+          forceRender
         >
-          <CategoryForm />
+          <CategoryForm wrappedComponentRef={form => this.formRef = form} />
         </Modal>
         <Row>
           <div style={{float: 'right'}}>
-            <Button onClick={this.handleAdd} type="primary" style={{marginBottom: 15}}>
+            <Button onClick={this.handleAdd} type="primary" style={{marginBottom: 15}} onClick={() => this.addCategory()}>
               添加类目
             </Button>
           </div>
@@ -94,7 +140,7 @@ export default class Category extends Component {
           rowKey={record => `row-${record.id}`}
           dataSource={data}
           columns={columns}
-          scroll={{ x: false, y: 380 }}
+          scroll={{ x: false, y: 400 }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
       </>

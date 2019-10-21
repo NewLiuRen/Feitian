@@ -13,6 +13,7 @@ class Category extends React.Component {
           {getFieldDecorator('name', {
             rules: [{
               required: true,
+              whitespace: true,
               message: '请输入名称',
             }],
           })(<Input placeholder="请输入名称" />)}

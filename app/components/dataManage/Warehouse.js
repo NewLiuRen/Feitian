@@ -96,7 +96,7 @@ export default class Warehouse extends Component {
           onCancel={this.hideModal}
           okText="确定"
           cancelText="取消"
-          forceRender={true}
+          forceRender
         >
           <WarehouseForm wrappedComponentRef={(form) => this.formRef = form} />
         </Modal>
