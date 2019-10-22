@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Modal, Row, Button, Table, Popconfirm } from 'antd';
+import * as actions from '../../actions/goods';
 
 import GoodsForm from './GoodsForm';
 
@@ -19,7 +21,7 @@ const typeMap = {
   update: 2,
 }
 
-export default class Goods extends Component {
+class Goods extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -73,6 +75,7 @@ export default class Goods extends Component {
   }
 
   render() {
+    const { goodsList } = this.props;
     const { visible, type, current, pageSize } = this.state;
     const columns = [
       {
@@ -152,12 +155,24 @@ export default class Goods extends Component {
         </Row>
         <Table
           rowKey={record => `row-${record.id}`}
-          dataSource={data}
+          dataSource={goodsList}
           columns={columns}
-          scroll={{ x: false, y: 400 }}
+          scroll={{ y: 'calc(100vh - 270px)' }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
       </>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  goodsList: state.goods.list,
+})
+
+const mapDispatchToProps = {
+  addGoods: actions.fetchAddGoods,
+  editGoods: actions.fetchUpdateGoods,
+  freezeGoods: actions.fetchFreezeGoods,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Goods);

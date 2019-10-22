@@ -1,5 +1,6 @@
 const VERSION = 1;
 const DB_NAME = 'feitian';
+export const PRIMARY_KEY = 'id';
 
 // 创建表
 export const initStores = (version = VERSION) => new Promise((resolve, reject) => {
@@ -13,23 +14,23 @@ export const initStores = (version = VERSION) => new Promise((resolve, reject) =
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('warehouse')) {
-        db.createObjectStore('warehouse', { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore('warehouse', { keyPath: PRIMARY_KEY, autoIncrement: true });
       }
       if (!db.objectStoreNames.contains('goods')) {
-        const objectStore = db.createObjectStore('goods', { keyPath: 'id', autoIncrement: true });
+        const objectStore = db.createObjectStore('goods', { keyPath: PRIMARY_KEY, autoIncrement: true });
         objectStore.createIndex('name', 'name', { unique: false });
         objectStore.createIndex('sku', 'sku', { unique: true });
         objectStore.createIndex('category_id', 'category_id', { unique: false });
       }
       if (!db.objectStoreNames.contains('category')) {
-        db.createObjectStore('category', { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore('category', { keyPath: PRIMARY_KEY, autoIncrement: true });
       }
       if (!db.objectStoreNames.contains('file')) {
-        const objectStore = db.createObjectStore('file', { keyPath: 'id', autoIncrement: true });
+        const objectStore = db.createObjectStore('file', { keyPath: PRIMARY_KEY, autoIncrement: true });
         objectStore.createIndex('create_date', 'create_date', { unique: false });
       }
       if (!db.objectStoreNames.contains('records')) {
-        const objectStore = db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+        const objectStore = db.createObjectStore('records', { keyPath: PRIMARY_KEY, autoIncrement: true });
         objectStore.createIndex('file_id', 'file_id', { unique: true });
       }
     }

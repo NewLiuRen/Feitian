@@ -9,7 +9,7 @@ class FileInfo extends Component {
     const date = moment(new Date(), 'YYYY-MM-DD');
     
     return (
-      <Layout>
+      <Layout style={{background: '#fff'}}>
         <Divider orientation="left">基本信息</Divider>
         <Form layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
           {getFieldDecorator('id')(<Input type="hidden" />)}

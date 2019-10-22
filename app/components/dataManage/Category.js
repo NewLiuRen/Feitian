@@ -1,23 +1,16 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Modal, Row, Button, Table, Popconfirm } from 'antd';
+import * as actions from '../../actions/category';
 
 import CategoryForm from './CategoryForm';
 
-const data = [];
-for (let i = 0; i < 100; i++) {
-  data.push({
-    key: i,
-    id: i,
-    name: `Edrward ${i}`,
-    description: `London Park no. ${i}`,
-  });
-}
 const typeMap = {
   create: 1,
   update: 2,
 }
 
-export default class Category extends Component {
+class Category extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -56,21 +49,25 @@ export default class Category extends Component {
 
   // 提交Modal
   submit = () => {
-    const form = this.formRef.props.form;
+    const { addCategory, editCategory } = this.props;
     const { type } = this.state;
+    const form = this.formRef.props.form;
 
-    form.validateFields((errors, values) => {
-      console.log('errors :', errors);
-      console.log('values :', values);
+    form.validateFields((errors, category) => {
+      console.log('category :', category);
       if (type === typeMap.create) {
         console.log('create');
+        addCategory(category);
       } else if (type === typeMap.update) {
         console.log('update');
+        editCategory(category);
       }
+      this.hideModal();
     })
   }
 
   render() {
+    const { categoryList } = this.props;
     const { visible, type, current, pageSize } = this.state;
     const columns = [
       {
@@ -82,7 +79,7 @@ export default class Category extends Component {
       {
         title: '名称',
         dataIndex: 'name',
-        width: '30%',
+        width: '35%',
         key: 'name',
       },
       {
@@ -93,24 +90,13 @@ export default class Category extends Component {
       },
       {
         title: '操作',
-        width: '15%',
+        width: '10%',
         dataIndex: 'operation',
         key: 'operation',
         render: (text, record) => (
-            <>
-              <a onClick={() => this.editCategory(record)} style={{marginRight: 15}}>
-                编辑
-              </a> 
-              <Popconfirm
-                placement="topRight"
-                title={`是否确定删除，类目： ${record.name}`}
-                onConfirm={() => this.freezeCategory(record)}
-              >
-                <a onClick={() => {}}>
-                  删除
-                </a> 
-              </Popconfirm>
-            </>
+            <a onClick={() => this.editCategory(record)} style={{marginRight: 15}}>
+              编辑
+            </a> 
           ),
       },
     ];
@@ -137,13 +123,24 @@ export default class Category extends Component {
           </div>
         </Row>
         <Table
-          rowKey={record => `row-${record.id}`}
-          dataSource={data}
+          rowKey={record => `category-${record.id}`}
+          dataSource={categoryList}
           columns={columns}
-          scroll={{ x: false, y: 400 }}
+          scroll={{ y: 'calc(100vh - 270px)' }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
       </>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  categoryList: state.category.list,
+})
+
+const mapDispatchToProps = {
+  addCategory: actions.fetchAddCategory,
+  editCategory: actions.fetchUpdateCategory,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Category)

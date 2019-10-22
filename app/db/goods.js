@@ -26,6 +26,8 @@ export const getGoodsByName = name => db.getDateByIndex(STORE_NAME, 'name', name
 export const addGoods = params => {
   compareObject(goodsObj, params);
   const goods = Object.assign({}, goodsObj, params);
+  if (db.PRIMARY_KEY in goods) delete goods[db.PRIMARY_KEY];
+
   if (goods.category_id) goods.category_id = parseInt(goods.category_id, 10)
   return new Promise(resolve => {
     db.addData(STORE_NAME, goods).then(({success, result}) => {
@@ -37,7 +39,7 @@ export const addGoods = params => {
 
 // 更新商品
 export const updateGoods = params => {
-  getGoodsById(params.id).then(g => {
+  return getGoodsById(params.id).then(g => {
     compareObject(goodsObj, params);
     const goods = Object.assign({}, g, params);
     if (goods.category_id) goods.category_id = parseInt(goods.category_id, 10)

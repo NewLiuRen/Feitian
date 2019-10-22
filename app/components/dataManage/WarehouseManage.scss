@@ -1,0 +1,11 @@
+.operator-wrap {
+  .clear {
+    color: rgba(50, 50, 50, .35);
+    cursor: pointer;
+    transition: color 0.3s;
+  
+    &:hover {
+      color: rgba(20, 20, 20, .75);
+    }
+  }
+}

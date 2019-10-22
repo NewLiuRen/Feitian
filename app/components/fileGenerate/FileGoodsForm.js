@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Layout, Divider, Form, TreeSelect, Icon, Button } from 'antd';
+import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip } from 'antd';
 import style from './FileGoodsForm.scss';
 
 const { TreeNode } = TreeSelect;
+const ButtonGroup = Button.Group;
 
 let id = 1;
 
@@ -112,15 +113,22 @@ class FileGoods extends Component {
       </Form.Item>
     ));
     return (
-      <Layout>
+      <Layout style={{background: '#fff'}}>
         <Divider orientation="left">商品列表</Divider>
         <div ref="goodsLayout" style={{height: 'calc(100vh - 250px)', marginBottom: 30,  overflow: 'auto'}}>
           <Form onSubmit={this.handleSubmit}>
             {formItems}
             <Form.Item {...formItemLayoutWithOutLabel}>
-              <Button type="dashed" onClick={this.add} style={{ width: '90%' }}>
-                <Icon type="plus" /> 添加商品
-              </Button>
+              <ButtonGroup style={{width: '90%'}}>
+                <Button type="dashed" onClick={this.add} style={{width: '80%'}}>
+                  <Icon type="plus" /> 添加商品
+                </Button>
+                <Tooltip title="无此商品？点击新建">
+                  <Button type="dashed" style={{width: '20%'}}>
+                    <Icon type="question-circle" />
+                  </Button>
+                </Tooltip>
+              </ButtonGroup>
             </Form.Item>
           </Form>
         </div>

@@ -13,7 +13,10 @@ export const getRecordsByFileId = key => db.getDateByIndex(STORE_NAME, 'file_id'
 export const addFileRecords = (file_id, params) => fileDB.getFileById(file_id).then(file => {
     if (!file || file.is_import) return { success: false, msg: '不存在文件或文件已导入至京东后台' }
     if (!Array.isArray(params)) params = [params];
-    params.forEach(p => compareObject(recordObj, p));
+    params.forEach(p => {
+      compareObject(recordObj, p)
+      if (db.PRIMARY_KEY in p) delete p[db.PRIMARY_KEY];
+    });
     const recordsArr = params.map(p => {
       const { count, max_count, goods_id, warehouse_id } = p
       return Object.assign({}, recordObj, { count, max_count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })

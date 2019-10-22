@@ -8,18 +8,24 @@ const { Content, Sider } = Layout;
 const { SubMenu } = Menu;
 
 export default class LayoutDataManagePage extends Component {
-  handleClick = e => {
-    console.log('click ', e);
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      pathname: ''
+    }
+  }
 
   render() {
+    const { location: { pathname } } = this.props;
+
     return (
       <>
         <Sider width={200} style={{ background: '#fff' }}>
           <Menu
             mode="inline"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={[routes.DATA_MANAGE_WAREHOUSE]}
             defaultOpenKeys={['sub1']}
+            selectedKeys={[pathname]}
             style={{ height: '100%' }}
           >
             <SubMenu
@@ -31,10 +37,10 @@ export default class LayoutDataManagePage extends Component {
                 </span>
               }
             >
-              <Menu.Item key="1"><NavLink to={routes.DATA_MANAGE_WAREHOUSE}>仓库数据管理</NavLink></Menu.Item>
-              <Menu.Item key="2"><NavLink to={routes.DATA_MANAGE_CATEGORY}>类目数据管理</NavLink></Menu.Item>
-              <Menu.Item key="3"><NavLink to={routes.DATA_MANAGE_GOODS}>商品数据管理</NavLink></Menu.Item>
-              <Menu.Item key="4"><NavLink to={routes.DATA_MANAGE_FILE_MANAGE}>文件数据管理</NavLink></Menu.Item>
+              <Menu.Item key={routes.DATA_MANAGE_WAREHOUSE}><NavLink to={routes.DATA_MANAGE_WAREHOUSE}>仓库数据管理</NavLink></Menu.Item>
+              <Menu.Item key={routes.DATA_MANAGE_CATEGORY}><NavLink to={routes.DATA_MANAGE_CATEGORY}>类目数据管理</NavLink></Menu.Item>
+              <Menu.Item key={routes.DATA_MANAGE_GOODS}><NavLink to={routes.DATA_MANAGE_GOODS}>商品数据管理</NavLink></Menu.Item>
+              <Menu.Item key={routes.DATA_MANAGE_FILE_MANAGE}><NavLink to={routes.DATA_MANAGE_FILE_MANAGE}>文件数据管理</NavLink></Menu.Item>
             </SubMenu>
             <SubMenu
               key="sub2"
@@ -45,8 +51,8 @@ export default class LayoutDataManagePage extends Component {
                 </span>
               }
             >
-              <Menu.Item key="5"><NavLink to={routes.DATA_MANAGE_WAREHOUSE_MANAGE}>仓库</NavLink></Menu.Item>
-              <Menu.Item key="6"><NavLink to={routes.DATA_MANAGE_GOODS_MANAGE}>商品</NavLink></Menu.Item>
+              <Menu.Item key={routes.DATA_MANAGE_WAREHOUSE_MANAGE}><NavLink to={routes.DATA_MANAGE_WAREHOUSE_MANAGE}>仓库</NavLink></Menu.Item>
+              <Menu.Item key={routes.DATA_MANAGE_GOODS_MANAGE}><NavLink to={routes.DATA_MANAGE_GOODS_MANAGE}>商品</NavLink></Menu.Item>
             </SubMenu>
           </Menu>
         </Sider>

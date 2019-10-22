@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { Row, Col, Skeleton, Card, Icon, Tooltip, Modal, } from 'antd';
+import { connect } from 'react-redux';
+import * as actions from '../../actions/warehouse';
+
 import style from './Warehouse.scss';
 
 import ModalDelete from '../common/ModalDelete';
@@ -11,7 +14,7 @@ const typeMap = {
   update: 2,
 }
 
-export default class Warehouse extends Component {
+class Warehouse extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -35,8 +38,11 @@ export default class Warehouse extends Component {
 
   // 冻结仓库
   freezeWarehouse = (warehouse) => {
+    const { freezeWarehouse } = this.props;
+
     ModalDelete(`仓库：${warehouse.name}`, () => {
       console.log('freeze warehouse success');
+      freezeWarehouse(warehouse.id);
     })
   }
 
@@ -49,21 +55,22 @@ export default class Warehouse extends Component {
   // 提交Modal
   submit = () => {
     const form = this.formRef.props.form;
+    const { addWarehouse, editWarehouse } = this.props;
     const { type } = this.state;
 
-    form.validateFields((errors, values) => {
-      console.log('errors :', errors);
-      console.log('values :', values);
+    form.validateFields((errors, warehouse) => {
       if (type === typeMap.create) {
-        console.log('create');
+        addWarehouse(warehouse);
       } else if (type === typeMap.update) {
-        console.log('update');
+        editWarehouse(warehouse);
       }
+      this.hideModal();
     })
   }
 
   render() {
     const { visible, type } = this.state;
+    const { warehouseList } = this.props;
 
     const warehouseCard = (warehouse) => (
         <Card
@@ -101,31 +108,11 @@ export default class Warehouse extends Component {
           <WarehouseForm wrappedComponentRef={(form) => this.formRef = form} />
         </Modal>
         <Row gutter={16}>
-          <Col span={6}>
-            {
-              warehouseCard({id: 1, name: '1', description: '1-desc,1-desc,1-desc,1-desc,1-desc,1-desc,'})
-            }
-          </Col>
-          <Col span={6}>
-            {
-              warehouseCard({name: '2', description: '2-desc'})
-            }
-          </Col>
-          <Col span={6}>
-            {
-              warehouseCard({name: '3', description: '3-desc'})
-            }
-          </Col>
-          <Col span={6}>
-            {
-              warehouseCard({name: '4', description: '4-desc'})
-            }
-          </Col>
-          <Col span={6}>
-            {
-              warehouseCard({name: '5', description: '5-desc'})
-            }
-          </Col>
+          {
+            warehouseList.map(w => (
+              <Col span={6} key={`warehouse-${w.id}`}>{ warehouseCard(w) }</Col>
+            ))
+          }
           <Col span={6}>
             <div className={style['add-btn']} onClick={this.addWarehouse}>
               <Icon type="plus" style={{fontSize: 48, fontWeight: 'bold', color: '#1890ff'}}/>
@@ -136,3 +123,13 @@ export default class Warehouse extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({ warehouseList: state.warehouse.list })
+
+const mapDispatchToProps = { 
+  addWarehouse: actions.fetchAddWarehouse,
+  editWarehouse: actions.fetchUpdateWarehouse,
+  freezeWarehouse: actions.fetchFreezeWarehouse,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Warehouse)

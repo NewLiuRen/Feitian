@@ -15,6 +15,7 @@ export const getFileById = key => db.getDataById(STORE_NAME, key).then(file => f
 export const addFile = params => {
   compareObject(fileObj, params);
   const file = Object.assign({}, fileObj, params);
+  if (db.PRIMARY_KEY in file) delete file[db.PRIMARY_KEY];
   if (!file.create_date) file.create_date = Date.now();
   return new Promise(resolve => {
     db.addData(STORE_NAME, file).then(({success, result}) => {
@@ -26,7 +27,7 @@ export const addFile = params => {
 
 // 更新文件
 export const updateFile = params => {
-  getFileById(params.id).then(f => {
+  return getFileById(params.id).then(f => {
     compareObject(fileObj, params);
     const { id, name, description } = params
     const file = Object.assign({}, f, { id, name, description });

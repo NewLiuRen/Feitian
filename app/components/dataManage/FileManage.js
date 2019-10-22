@@ -94,7 +94,7 @@ export default class FileManage extends Component {
           rowKey={record => `row-${record.id}`}
           dataSource={data}
           columns={columns}
-          scroll={{ x: false, y: 400 }}
+          scroll={{ y: 'calc(100vh - 270px)' }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
       </>

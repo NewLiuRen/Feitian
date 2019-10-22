@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Row, Col, Tabs, Button, Progress } from 'antd';
 import FileInfoForm from './FileInfoForm';
 import FileGoodsForm from './FileGoodsForm';
+import FileGoodsTable from './FileGoodsTable';
 
 const { TabPane } = Tabs;
 
@@ -17,7 +18,7 @@ export default class FileGenerateTable extends Component {
     ]
     return (
       <>
-        <Row style={{padding: 5}}>
+        <Row style={{padding: 5, background: '#fff'}}>
           <Col span={16}>
             <Progress percent={30} />
           </Col>
@@ -27,7 +28,7 @@ export default class FileGenerateTable extends Component {
         <Tabs
           tabPosition="left"
           defaultActiveKey="baseInfo"
-          style={{ height: '100%' }}
+          style={{ height: '100%', background: '#fff' }}
         >
           <TabPane tab="基本属性" key="baseInfo">
             <Row>
@@ -43,7 +44,7 @@ export default class FileGenerateTable extends Component {
           {
             tabs.map(tab => (
               <TabPane tab={`${tab.name}`} key={`${tab.name}`}>
-                {`${tab.name}`}
+                <FileGoodsTable goods={tab.goods} />
               </TabPane>
             ))
           }

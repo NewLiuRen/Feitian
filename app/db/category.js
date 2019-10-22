@@ -17,6 +17,8 @@ export const getCategoryById = key => db.getDataById(STORE_NAME, key).then(categ
 export const addCategory = params => {
   compareObject(categoryObj, params);
   const category = Object.assign({}, categoryObj, params);
+  if (db.PRIMARY_KEY in category) delete category[db.PRIMARY_KEY];
+
   return new Promise(resolve => {
     db.addData(STORE_NAME, category).then(({success, result}) => {
       category.id = result;
@@ -27,7 +29,7 @@ export const addCategory = params => {
 
 // 更新种类
 export const updateCategory = params => {
-  getCategoryById(params.id).then(c => {
+  return getCategoryById(params.id).then(c => {
     compareObject(categoryObj, params);
     const category = Object.assign({}, c, params);
     return new Promise(resolve => {

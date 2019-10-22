@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Switch, Route, NavLink, Redirect } from 'react-router-dom';
+import { Switch, Route, NavLink, Redirect, withRouter } from 'react-router-dom';
 import { Layout, Menu, Breadcrumb, Icon } from 'antd';
 import routes from '../constants/routes';
 import VERSION from '../constants/version';
@@ -11,8 +11,19 @@ import LayoutDataManagePage from './LayoutDataManagePage';
 
 const { Header, Footer, } = Layout;
 
-export default class LayoutPage extends Component {
+class LayoutPage extends Component {
   render() {
+    const { location: { pathname } } = this.props;
+    const getCurrentPathKey = (pathname) => {
+      if (pathname.includes(routes.DATA_MANAGE)) {
+        return '3';
+      } else if (pathname.includes(routes.File_GENERATE)) {
+        return '2';
+      } else {
+        return '1';
+      }
+    }
+
     return (
       <Layout>
         <Header className="header" style={{ height: '46px' }}>
@@ -20,7 +31,8 @@ export default class LayoutPage extends Component {
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={[routes.File_VIEW]}
+            selectedKeys={[getCurrentPathKey(pathname)]}
           >
             <Menu.Item key="1"><NavLink to={routes.File_VIEW}>文件一览</NavLink></Menu.Item>
             <Menu.Item key="2"><NavLink to={routes.File_GENERATE}>文件生成</NavLink></Menu.Item>
@@ -40,3 +52,5 @@ export default class LayoutPage extends Component {
     )
   }
 }
+
+export default withRouter(LayoutPage);

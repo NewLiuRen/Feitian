@@ -17,6 +17,8 @@ export const getWarehouseById = key => db.getDataById(STORE_NAME, key).then(ware
 export const addWarehouse = params => {
   compareObject(warehouseObj, params);
   const warehouse = Object.assign({}, warehouseObj, params);
+  if (db.PRIMARY_KEY in warehouse) delete warehouse[db.PRIMARY_KEY];
+
   return db.dataCount(STORE_NAME).then(count => {
     if (!warehouse.warehouse_index) warehouse.warehouse_index = count + 1;
     return new Promise(resolve => {
@@ -30,7 +32,7 @@ export const addWarehouse = params => {
 
 // 更新仓库
 export const updateWarehouse = params => {
-  getWarehouseById(params.id).then(w => {
+  return getWarehouseById(params.id).then(w => {
     compareObject(warehouseObj, params);
     const warehouse = Object.assign({}, w, params);
     return new Promise(resolve => {
