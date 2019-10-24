@@ -4,6 +4,8 @@ export const ADD_GOODS = 'ADD_GOODS';
 export const UPDATE_GOODS = 'UPDATE_GOODS';
 export const DELETE_GOODS = 'DELETE_GOODS';
 export const CLEAR_GOODS_WITH_DEL_LIST = 'CLEAR_GOODS_WITH_DEL_LIST';
+// 设置id和对象的映射对象
+export const SET_MAP = 'SET_MAP';
 
 export const FETCH_GET_GOODS_LIST = 'FETCH_GET_GOODS_LIST';
 export const FETCH_GET_GOODS_WITH_DEL_LIST = 'FETCH_GET_GOODS_WITH_DEL_LIST';
@@ -17,6 +19,9 @@ export const setGoodsList = list => ({ type: SET_GOODS_LIST, payload: list })
 
 // 添加种类列表(包含冻结)
 export const setGoodsWithDelList = list => ({ type: SET_GOODS_WITH_DEL_LIST, payload: list })
+
+// 设置映射关系
+export const setMap = () => ({ type: SET_MAP })
 
 // 向redux中添加种类
 export const addGoods = goods => ({ type: ADD_GOODS, payload: goods })

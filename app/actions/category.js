@@ -4,6 +4,8 @@ export const ADD_CATEGORY = 'ADD_CATEGORY';
 export const UPDATE_CATEGORY = 'UPDATE_CATEGORY';
 export const DELETE_CATEGORY = 'DELETE_CATEGORY';
 export const CLEAR_CATEGORY_WITH_DEL_LIST = 'CLEAR_CATEGORY_WITH_DEL_LIST';
+// 设置id和对象的映射对象
+export const SET_MAP = 'SET_MAP';
 
 export const FETCH_GET_CATEGORY_LIST = 'FETCH_GET_CATEGORY_LIST';
 export const FETCH_GET_CATEGORY_WITH_DEL_LIST = 'FETCH_GET_CATEGORY_WITH_DEL_LIST';
@@ -17,6 +19,9 @@ export const setCategoryList = list => ({ type: SET_CATEGORY_LIST, payload: list
 
 // 添加种类列表(包含冻结)
 export const setCategoryWithDelList = list => ({ type: SET_CATEGORY_WITH_DEL_LIST, payload: list })
+
+// 设置映射关系
+export const setMap = () => ({ type: SET_MAP })
 
 // 向redux中添加种类
 export const addCategory = category => ({ type: ADD_CATEGORY, payload: category })

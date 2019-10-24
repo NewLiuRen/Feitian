@@ -24,7 +24,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '2',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -32,7 +32,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '3',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -40,7 +40,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '4',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -48,7 +48,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '5',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -56,7 +56,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '6',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -64,7 +64,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '7',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -72,7 +72,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '8',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -80,7 +80,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '9',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -88,7 +88,7 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '10',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -96,7 +96,39 @@ export default class FileGoodsTable extends Component {
           order_number: '',
         },
         {
-          key: '1',
+          key: '11',
+          goods_id: '2',
+          sku: '11111111',
+          count: '',
+          max_count: '',
+          order_number: '',
+        },
+        {
+          key: '12',
+          goods_id: '2',
+          sku: '11111111',
+          count: '',
+          max_count: '',
+          order_number: '',
+        },
+        {
+          key: '13',
+          goods_id: '2',
+          sku: '11111111',
+          count: '',
+          max_count: '',
+          order_number: '',
+        },
+        {
+          key: '14',
+          goods_id: '2',
+          sku: '11111111',
+          count: '',
+          max_count: '',
+          order_number: '',
+        },
+        {
+          key: '15',
           goods_id: '2',
           sku: '11111111',
           count: '',
@@ -134,21 +166,21 @@ export default class FileGoodsTable extends Component {
         title: '数量',
         dataIndex: 'count',
         width: '10%',
-        render: (text, record) =>
+        render: () =>
           (<Input size="small" />)
       },
       {
         title: '每箱数量',
         dataIndex: 'max_count',
         width: '12%',
-        render: (text, record) =>
+        render: () =>
           (<Input size="small" />)
       },
       {
         title: '箱号',
         dataIndex: 'order_number',
         width: '20%',
-        render: (text, record) =>
+        render: () =>
           (<Input size="small" />)
       },
     ];
@@ -161,9 +193,10 @@ export default class FileGoodsTable extends Component {
           bordered
           dataSource={dataSource}
           columns={columns}
-          scroll={{ y: 'calc(100vh - 270px)' }}
+          scroll={{ y: 'calc(100vh - 230px)' }}
+          pagination={false}
         />
-        <Button type="primary" block ghost>完 成</Button>
+        <Button type="primary" block ghost style={{marginTop: 15}}>完 成</Button>
       </div>
     );
   }

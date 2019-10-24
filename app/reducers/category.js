@@ -1,9 +1,11 @@
 // @flow
 import * as actionTypes from '../actions/category';
+import { generateMap } from '../utils';
 
 const initState = {
   list: [],
   listWithDel: [],
+  map: {},
 }
 
 const category = (state = initState, action) => {
@@ -13,6 +15,8 @@ const category = (state = initState, action) => {
       return Object.assign({}, state, {list: [...payload]});
     case actionTypes.SET_CATEGORY_WITH_DEL_LIST:
       return Object.assign({}, state, {listWithDel: [...payload]});
+    case actionTypes.SET_MAP:
+      return Object.assign({}, state, {map: generateMap(state.list)})
     case actionTypes.ADD_CATEGORY:
       const addList = state.list.concat(payload)
       return Object.assign({}, state, {list: addList});

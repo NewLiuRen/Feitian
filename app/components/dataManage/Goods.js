@@ -1,21 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Row, Button, Table, Popconfirm } from 'antd';
+import { Modal, Row, Button, Table, Popconfirm, Tag } from 'antd';
 import * as actions from '../../actions/goods';
 
 import GoodsForm from './GoodsForm';
 
-const data = [];
-for (let i = 0; i < 100; i++) {
-  data.push({
-    key: i,
-    id: i,
-    sku: `${(i+'').repeat(10)}`,
-    name: `Edrward ${i}`,
-    category_id: `${i}`,
-    description: `London Park no. ${i}`,
-  });
-}
 const typeMap = {
   create: 1,
   update: 2,
@@ -49,7 +38,9 @@ class Goods extends Component {
 
   // 冻结仓库
   freezeGoods = (category) => {
+    const { freezeGoods } = this.props;
     console.log('category :', category);
+    freezeGoods(category.id);
   }
 
   // 隐藏Modal
@@ -60,23 +51,26 @@ class Goods extends Component {
 
   // 提交Modal
   submit = () => {
-    const form = this.formRef.props.form;
+    const { addGoods, editGoods } = this.props;
     const { type } = this.state;
+    const form = this.formRef.props.form;
 
-    form.validateFields((errors, values) => {
-      console.log('errors :', errors);
-      console.log('values :', values);
+    form.validateFields((errors, category) => {
       if (type === typeMap.create) {
         console.log('create');
+        addGoods(category);
       } else if (type === typeMap.update) {
         console.log('update');
+        editGoods(category);
       }
     })
+    this.hideModal();
   }
 
   render() {
-    const { goodsList } = this.props;
+    const { goodsList, categoryMap, categoryList } = this.props;
     const { visible, type, current, pageSize } = this.state;
+    const colorList = ['red', 'blue', 'volcano', 'geekblue', 'orange', 'purple', 'gold', 'green', 'magenta', 'cyan'];
     const columns = [
       {
         title: '',
@@ -101,6 +95,12 @@ class Goods extends Component {
         dataIndex: 'category_id',
         width: '15%',
         key: 'category_id',
+        render: (text, record) => {
+          const index = categoryList.findIndex(c => c.id === record.category_id);
+          return (
+            <Tag color={colorList[index%colorList.length]}>{categoryMap[text].name}</Tag>
+          )
+        }
       },
       {
         title: '描述',
@@ -166,6 +166,8 @@ class Goods extends Component {
 }
 
 const mapStateToProps = state => ({
+  categoryList: state.category.list,
+  categoryMap: state.category.map,
   goodsList: state.goods.list,
 })
 

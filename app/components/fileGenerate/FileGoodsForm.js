@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip } from 'antd';
+import { connect } from 'react-redux';
+import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Modal } from 'antd';
+import GoodsForm from '../dataManage/GoodsForm';
+import { fetchAddGoods } from '../../actions/goods';
 import style from './FileGoodsForm.scss';
 
 const { TreeNode } = TreeSelect;
@@ -8,18 +11,29 @@ const ButtonGroup = Button.Group;
 let id = 1;
 
 class FileGoods extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+    }
+  }
+
   remove = k => {
     const { form } = this.props;
-    // can use data-binding to get
     const keys = form.getFieldValue('keys');
-    // We need at least one passenger
+    const names = form.getFieldValue('names');
+    const index = keys.findIndex(key => key === k);
+console.log('index :', index);
+console.log('names :', names);
     if (keys.length === 1) {
       return;
     }
 
-    // can use data-binding to set
+    names.splice(index, 1);
+
     form.setFieldsValue({
       keys: keys.filter(key => key !== k),
+      names,
     });
   };
 
@@ -31,6 +45,7 @@ class FileGoods extends Component {
     const nextKeys = keys.concat(id++);
     // can use data-binding to set
     // important! notify form to detect changes
+    // 添加后将滚动条移至底部
     form.setFieldsValue({
       keys: nextKeys,
     }, () => layout.scrollTop = layout.scrollHeight);
@@ -47,8 +62,38 @@ class FileGoods extends Component {
     });
   };
 
+  // 弹出新建仓库Modal
+  showModal = () => {
+    this.setState({visible: true});
+  }
+
+  // 隐藏Modal
+  hideModal = () => {
+    this.setState({visible: false});
+    this.formRef.props.form.resetFields();
+  }
+
+  // 提交Modal
+  submitGoods = () => {
+    const { addGoods } = this.props;
+    const form = this.formRef.props.form;
+
+    form.validateFields((errors, category) => {
+      addGoods(category);
+    })
+    this.hideModal();
+  }
+
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { goodsList, categoryMap, form: {getFieldDecorator, getFieldValue} } = this.props;
+    const { visible } = this.state;
+    const treeData = {};
+
+    goodsList.forEach(g => {
+      if (!treeData[g.category_id]) treeData[g.category_id] = [];
+      treeData[g.category_id].push(g);
+    })
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -86,20 +131,24 @@ class FileGoods extends Component {
           <TreeSelect
             showSearch
             style={{ width: '90%', marginRight: 8 }}
-            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            dropdownStyle={{ maxHeight: 300, overflow: 'auto' }}
             placeholder="请选择商品"
+            treeNodeFilterProp="title"
             allowClear
             treeDefaultExpandAll
           >
-            <TreeNode value="parent 1" title="parent 1" key="0-1">
-              <TreeNode value="parent 1-0" title="parent 1-0" key="0-1-1">
-                <TreeNode value="leaf1" title="my leaf" key="random" />
-                <TreeNode value="leaf2" title="your leaf" key="random1" />
-              </TreeNode>
-              <TreeNode value="parent 1-1" title="parent 1-1" key="random2">
-                <TreeNode value="sss" title={<b style={{ color: '#08c' }}>sss</b>} key="random3" />
-              </TreeNode>
-            </TreeNode>
+            {
+              Object.entries(treeData).map(([k, gList]) => (
+                  <TreeNode value={`category-${k}`} title={categoryMap[k].name} key={`category-${k}`} isLeaf={false} selectable={false}>
+                    {
+                      gList.map(g => (
+                        <TreeNode value={g.id} title={g.name} key={`goods-${g.id}`} isLeaf={true} />
+                      ))
+                    }
+                  </TreeNode>
+                )
+              )
+            }
           </TreeSelect>
         )}
         {keys.length > 1 ? (
@@ -114,6 +163,18 @@ class FileGoods extends Component {
     ));
     return (
       <Layout style={{background: '#fff'}}>
+        <Modal
+          title="新建商品"
+          width={400}
+          visible={visible}
+          onOk={this.submitGoods}
+          onCancel={this.hideModal}
+          okText="确定"
+          cancelText="取消"
+          forceRender
+        >
+          <GoodsForm wrappedComponentRef={form => this.formRef = form} />
+        </Modal>
         <Divider orientation="left">商品列表</Divider>
         <div ref="goodsLayout" style={{height: 'calc(100vh - 250px)', marginBottom: 30,  overflow: 'auto'}}>
           <Form onSubmit={this.handleSubmit}>
@@ -124,7 +185,7 @@ class FileGoods extends Component {
                   <Icon type="plus" /> 添加商品
                 </Button>
                 <Tooltip title="无此商品？点击新建">
-                  <Button type="dashed" style={{width: '20%'}}>
+                  <Button type="dashed" style={{width: '20%'}} onClick={this.showModal}>
                     <Icon type="question-circle" />
                   </Button>
                 </Tooltip>
@@ -139,4 +200,13 @@ class FileGoods extends Component {
 
 const FileGoodsForm = Form.create()(FileGoods);
 
-export default FileGoodsForm;
+const mapStateToProps = state => ({
+  categoryMap: state.category.map,
+  goodsList: state.goods.list,
+})
+
+const mapDispatchToProps = {
+  addGoods: fetchAddGoods,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FileGoodsForm);

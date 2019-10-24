@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Form, Input, Select } from 'antd';
 import goodsObj from '../../constants/goods';
 
+const Option = Select.Option;
+
 class Goods extends React.Component {
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { form: { getFieldDecorator }, categoryList } = this.props;
 
     return (
       <Form layout="horizontal" labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
@@ -35,13 +38,13 @@ class Goods extends React.Component {
           )}
         </Form.Item>
         <Form.Item label="类目">
-          {getFieldDecorator('category_id', {
-            initialValue: '1',
-          })(
+          {getFieldDecorator('category_id')(
             <Select>
-              <Option value="1">Option 1</Option>
-              <Option value="2">Option 2</Option>
-              <Option value="3">Option 3</Option>
+              {
+                categoryList.map(c => (
+                  <Option key={`category-option-${c.id}`} value={c.id}>{c.name}</Option>
+                ))
+              }
             </Select>
           )}
         </Form.Item>
@@ -52,4 +55,8 @@ class Goods extends React.Component {
 
 const CategoryForm = Form.create(goodsObj)(Goods);
 
-export default CategoryForm;
+const mapStateToProps = state => ({
+  categoryList: state.category.list
+})
+
+export default connect(mapStateToProps)(CategoryForm);
