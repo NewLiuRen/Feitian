@@ -1,5 +1,7 @@
 export const SET_FILE = 'SET_FILE';
 export const SET_RECORDS = 'SET_RECORDS';
+export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
+export const SET_FILE_GOODS = 'SET_FILE_GOODS';
 export const ADD_FILE = 'ADD_FILE';
 export const UPDATE_FILE = 'UPDATE_FILE';
 export const UPDATE_FILE_IMPORT = 'UPDATE_FILE_IMPORT';
@@ -22,6 +24,13 @@ export const setFile = file => ({ type: SET_FILE, payload: file })
 
 // 添加记录集
 export const setRecords = records => ({ type: SET_RECORDS, payload: records })
+
+// 动态添加一个空的元素
+// 用来适配antd的动态Form（此处为被动实现，与业务无关）
+export const addGoods = () => ({ type: ADD_FILE_GOODS })
+
+// 添加商品（用于记录需填写的商品列表）
+export const setGoods = goods => ({ type: SET_FILE_GOODS, payload: goods })
 
 // 向redux中添加文件
 export const addFile = file => ({ type: ADD_FILE, payload: file })

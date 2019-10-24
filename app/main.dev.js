@@ -29,14 +29,15 @@ export default class AppUpdater {
 let mainWindow = null;
 
 // 生成数据库
-checkDB().then(flag => {
-  console.log('db exist :', flag)
-  if (!flag) return createDB()
-}).then(msg => {
-  console.log('create DB : success');
-}).catch(err => {
-  console.error(err)
-})
+// 先改为使用Indexed DB
+// checkDB().then(flag => {
+//   console.log('db exist :', flag)
+//   if (!flag) return createDB()
+// }).then(msg => {
+//   console.log('create DB : success');
+// }).catch(err => {
+//   console.error(err)
+// })
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

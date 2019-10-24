@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { Layout, DatePicker, Form, Input, Divider } from 'antd';
+import { connect } from 'react-redux';
+import { Layout, DatePicker, Form, Input, Divider, Typography, } from 'antd';
 import moment from 'moment';
 import fileInfoObj from '../../constants/file'
 
+const { Text } = Typography;
+
 class FileInfo extends Component {
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { goods, goodsMap, form: { getFieldDecorator } } = this.props;
     const date = moment(new Date(), 'YYYY-MM-DD');
     
     return (
@@ -35,6 +38,17 @@ class FileInfo extends Component {
             )}
           </Form.Item>
         </Form>
+        <Divider orientation="left">所选商品</Divider>
+        <div>
+          {
+            goods.map((g, i) => (
+              <span key={`show-goods-${i}`}>
+                <Text type="warning">{goodsMap[g] && goodsMap[g].name}</Text>
+                {i !== goods.length - 1 && <Divider type="vertical" />}
+              </span>
+            ))
+          }
+        </div>
       </Layout>
     );
   }
@@ -42,4 +56,9 @@ class FileInfo extends Component {
 
 const FileInfoForm = Form.create(fileInfoObj)(FileInfo);
 
-export default FileInfoForm;
+const mapStateToProps = state => ({
+  goods: state.fileRecord.goods,
+  goodsMap: state.goods.map,
+})
+
+export default connect(mapStateToProps)(FileInfoForm);

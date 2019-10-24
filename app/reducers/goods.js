@@ -15,8 +15,8 @@ const goods = (state = initState, action) => {
       return Object.assign({}, state, {list: [...payload]});
     case actionTypes.SET_GOODS_WITH_DEL_LIST:
       return Object.assign({}, state, {listWithDel: [...payload]});
-    case actionTypes.SET_MAP:
-      return Object.assign({}, state, {map: generateMap(state.list)})
+    case actionTypes.SET_GOODS_MAP:
+      return Object.assign({}, state, {map: generateMap([...payload])})
     case actionTypes.ADD_GOODS:
       const addList = state.list.concat(payload)
       return Object.assign({}, state, {list: addList});

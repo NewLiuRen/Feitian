@@ -1,26 +1,20 @@
 import { getDB } from './index';
 
 // 查询所以未冻结的仓库
-const queryWarehouseWithoutDel = () => {
-  return getDB().then(db => {
+const queryWarehouseWithoutDel = () => getDB().then(db => {
     const res = db.exec(`
       SELECT id, name, ware_index FROM warehouse where is_del=false;
     `)
-    console.log('queryWarehouseWithoutDel :', res );
     return res
   })
-}
 
 // 查询所有仓库（包括已冻结的）
-const queryWarehouse = (db) => {
-  return getDB().then(db => {
+const queryWarehouse = (db) => getDB().then(db => {
     const res = db.exec(`
       SELECT id, name, ware_index FROM warehouse;
     `)
-    console.log('queryWarehouse :', res );
     return res
   })
-}
 
 // 新增仓库
 const insertWarehouse = (params) => {
@@ -32,7 +26,6 @@ const insertWarehouse = (params) => {
       VALUES
         ($name, $ware_index);
     `, [name, ware_index])
-    console.log('insertWarehouse :', res);
     return res
   })
 }

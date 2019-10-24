@@ -36,11 +36,6 @@ class Category extends Component {
     });
   }
 
-  // 冻结仓库
-  freezeCategory = (category) => {
-    console.log('category :', category);
-  }
-
   // 隐藏Modal
   hideModal = () => {
     this.setState({visible: false});
@@ -54,12 +49,9 @@ class Category extends Component {
     const form = this.formRef.props.form;
 
     form.validateFields((errors, category) => {
-      console.log('category :', category);
       if (type === typeMap.create) {
-        console.log('create');
         addCategory(category);
       } else if (type === typeMap.update) {
-        console.log('update');
         editCategory(category);
       }
       this.hideModal();

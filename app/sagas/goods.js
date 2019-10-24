@@ -6,6 +6,7 @@ import * as db from '../db/goods';
 function* getGoodsList() {
   const list = yield call(db.getGoods);
   yield put(actionTypes.setGoodsList(list));
+  yield setGoodsWithDelMap();
 }
 
 // 获取所有商品列表（包含冻结）
@@ -14,16 +15,30 @@ function* getGoodsWithDelList() {
   yield put(actionTypes.setGoodsWithDelList(list));
 }
 
+// 设置商品列表映射（包含冻结）
+function* setGoodsWithDelMap() {
+  const list = yield call(db.getGoodsWithDel);
+  yield put(actionTypes.setGoodsMap(list));
+}
+
 // 添加商品
 function* addGoods({ payload: goods }) {
   const res = yield call(db.addGoods, goods);
-  if (res.success) yield put(actionTypes.addGoods(res.data));
+  if (res.success) {
+    yield put(actionTypes.addGoods(res.data));
+    // 添加后重置商品映射关系
+    yield setGoodsWithDelMap();
+  }
 }
 
 // 修改商品
 function* updateGoods({ payload: goods }) {
   const res = yield call(db.updateGoods, goods);
-  if (res.success) yield put(actionTypes.updateGoods(res.data));
+  if (res.success) {
+    yield put(actionTypes.updateGoods(res.data));
+    // 修改后重置商品映射关系
+    yield setGoodsWithDelMap();
+  }
 }
 
 // 冻结商品

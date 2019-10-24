@@ -64,7 +64,6 @@ class Home extends Component {
 
   fUpdateRecords(id) {
     const { categoryId } = this.state
-    console.log('id :', id);
     this.props.fetchUpdateRecords(13, [{
       count: 20,
       goods_id: 100001,
@@ -81,7 +80,6 @@ class Home extends Component {
   }
 
   freezeWarehouseList(id) {
-    console.log('id :', id);
     this.props.fetchFreezeWarehouse(parseInt(id))
   }
 
@@ -90,12 +88,10 @@ class Home extends Component {
   }
 
   changeVal(attr, val) {
-    console.log(`${attr} :`, val);
     this.setState({ [attr]: val })
   }
 
   render() {
-    console.log('this.props :', this.props);
     const { fileRecord: { file, records } } = this.props;
     const { id, name, categoryId, testList } = this.state
 

@@ -41,7 +41,6 @@ class Warehouse extends Component {
     const { freezeWarehouse } = this.props;
 
     ModalDelete(`仓库：${warehouse.name}`, () => {
-      console.log('freeze warehouse success');
       freezeWarehouse(warehouse.id);
     })
   }

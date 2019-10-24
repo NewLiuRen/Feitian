@@ -39,7 +39,6 @@ class Goods extends Component {
   // 冻结仓库
   freezeGoods = (category) => {
     const { freezeGoods } = this.props;
-    console.log('category :', category);
     freezeGoods(category.id);
   }
 
@@ -57,10 +56,8 @@ class Goods extends Component {
 
     form.validateFields((errors, category) => {
       if (type === typeMap.create) {
-        console.log('create');
         addGoods(category);
       } else if (type === typeMap.update) {
-        console.log('update');
         editGoods(category);
       }
     })
@@ -96,9 +93,12 @@ class Goods extends Component {
         width: '15%',
         key: 'category_id',
         render: (text, record) => {
+          if (!text) return (<></>)
           const index = categoryList.findIndex(c => c.id === record.category_id);
           return (
-            <Tag color={colorList[index%colorList.length]}>{categoryMap[text].name}</Tag>
+            categoryMap[text] ?
+            <Tag color={colorList[index%colorList.length]}>{categoryMap[text].name}</Tag> :
+            <></>
           )
         }
       },

@@ -4,17 +4,25 @@ import { Row, Col, Tabs, Button, Progress } from 'antd';
 import FileInfoForm from './FileInfoForm';
 import FileGoodsForm from './FileGoodsForm';
 import FileGoodsTable from './FileGoodsTable';
+import * as actions from '../../actions/fileRecord';
 
 const { TabPane } = Tabs;
 
 class FileGenerateTable extends Component {
+  // 创建文件
   createFile() {
-    this.goodsFormRef.props.form.validateFieldsAndScroll();
+    Promise.all([
+      this.infoFormRef.props.form.validateFields(),
+      this.goodsFormRef.props.form.validateFields(),
+    ]).then(([infoRes, goodsRes]) => {
+      console.log('infoRes :', infoRes);
+      console.log('goodsRes :', goodsRes);
+    }).catch(err => {})
   }
 
   render() {
-    const { warehouseList, file } = this.props;
-    const isCreateFile = Object.keys(file).length !== 0
+    const { warehouseList, file, fileGoods } = this.props;
+    const isCreateFile = Object.keys(file).length !== 0 && fileGoods.length > 0;
 
     return (
       <>
@@ -36,10 +44,10 @@ class FileGenerateTable extends Component {
           <TabPane tab="基本属性" key="baseInfo">
             <Row>
               <Col span={10}>
-                <FileInfoForm />
+                <FileInfoForm wrappedComponentRef={form => {this.infoFormRef = form} } />
               </Col>
               <Col span={10} offset={2} style={{overflow: 'auto'}}>
-                <FileGoodsForm wrappedComponentRef={form => this.goodsFormRef = form}/>
+                <FileGoodsForm wrappedComponentRef={form => {this.goodsFormRef = form}}/>
               </Col>
               <Col span={22}><Button type="primary" block onClick={() => {this.createFile()}}>完 成</Button></Col>
             </Row>
@@ -60,10 +68,14 @@ class FileGenerateTable extends Component {
 const mapStateToProps = state => ({
   warehouseList: state.warehouse.list,
   file: state.fileRecord.file,
+  fileGoods: state.fileRecord.goods,
 })
 
 const mapDispatchToProps = {
-
+  setFileInfo: actions.setFile,
+  setFileGoods: actions.setGoods,
+  addFile: actions.fetchAddFile,
+  updateFile: actions.fetchUpdateFile,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateTable)

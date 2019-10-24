@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Modal } from 'antd';
 import GoodsForm from '../dataManage/GoodsForm';
 import { fetchAddGoods } from '../../actions/goods';
+import { addGoods, setGoods } from '../../actions/fileRecord';
 import style from './FileGoodsForm.scss';
 
 const { TreeNode } = TreeSelect;
@@ -16,50 +17,35 @@ class FileGoods extends Component {
     this.state = {
       visible: false,
     }
+    this.layoutRef = null;
   }
 
   remove = k => {
     const { form } = this.props;
     const keys = form.getFieldValue('keys');
-    const names = form.getFieldValue('names');
-    const index = keys.findIndex(key => key === k);
-console.log('index :', index);
-console.log('names :', names);
+
     if (keys.length === 1) {
       return;
     }
 
-    names.splice(index, 1);
-
     form.setFieldsValue({
       keys: keys.filter(key => key !== k),
-      names,
     });
   };
 
   add = () => {
-    const { form } = this.props;
-    const layout = this.refs.goodsLayout;
-    // can use data-binding to get
+    const { form, addFileGoods } = this.props;
+    const layout = this.layoutRef;
+
     const keys = form.getFieldValue('keys');
     const nextKeys = keys.concat(id++);
-    // can use data-binding to set
-    // important! notify form to detect changes
+    console.log('keys :', keys);
     // 添加后将滚动条移至底部
-    form.setFieldsValue({
-      keys: nextKeys,
-    }, () => layout.scrollTop = layout.scrollHeight);
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        const { keys, names } = values;
-        console.log('Received values of form: ', values);
-        console.log('Merged values:', keys.map(key => names[key]));
-      }
-    });
+    // form.setFieldsValue({
+    //   keys: nextKeys,
+    // }, () => layout.scrollTop = layout.scrollHeight);
+    addFileGoods();
+    // layout.scrollTop = layout.scrollHeight
   };
 
   // 弹出新建仓库Modal
@@ -87,11 +73,15 @@ console.log('names :', names);
   render() {
     const { goodsList, categoryMap, form: {getFieldDecorator, getFieldValue} } = this.props;
     const { visible } = this.state;
-    const treeData = {};
+    const treeData = {other: []};
 
     goodsList.forEach(g => {
-      if (!treeData[g.category_id]) treeData[g.category_id] = [];
-      treeData[g.category_id].push(g);
+      if (!g.category_id) {
+        treeData.other.push(g)
+      } else {
+        if (!treeData[g.category_id]) treeData[g.category_id] = [];
+        treeData[g.category_id].push(g);
+      }
     })
 
     const formItemLayout = {
@@ -110,8 +100,21 @@ console.log('names :', names);
         sm: { span: 20, offset: 4 },
       },
     };
+
+    // keys为记录序号数组，利用该数组控制Input组件数量，用keys值记录Input位置，用来进行增删
     getFieldDecorator('keys', { initialValue: [0] });
     const keys = getFieldValue('keys');
+    const calcCategoryTitle = (key) => {
+      let name = '';
+      if (key === 'other') {
+        name = '其他';
+      } else if(categoryMap[key]) {
+        name = categoryMap[key].name;
+      } else {
+        name = '';
+      }
+      return name;
+    }
     const formItems = keys.map((k, index) => (
       <Form.Item
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
@@ -119,7 +122,7 @@ console.log('names :', names);
         required={false}
         key={k}
       >
-        {getFieldDecorator(`names[${k}]`, {
+        {getFieldDecorator(`goods[${k}]`, {
           validateTrigger: ['onChange', 'onBlur'],
           rules: [
             {
@@ -139,10 +142,10 @@ console.log('names :', names);
           >
             {
               Object.entries(treeData).map(([k, gList]) => (
-                  <TreeNode value={`category-${k}`} title={categoryMap[k].name} key={`category-${k}`} isLeaf={false} selectable={false}>
+                  <TreeNode value={`category-${k}`} title={calcCategoryTitle(k)} key={`category-${k}`} isLeaf={false} selectable={false}>
                     {
                       gList.map(g => (
-                        <TreeNode value={g.id} title={g.name} key={`goods-${g.id}`} isLeaf={true} />
+                        <TreeNode value={g.id} title={g.name} key={`goods-${g.id}`} isLeaf />
                       ))
                     }
                   </TreeNode>
@@ -176,8 +179,8 @@ console.log('names :', names);
           <GoodsForm wrappedComponentRef={form => this.formRef = form} />
         </Modal>
         <Divider orientation="left">商品列表</Divider>
-        <div ref="goodsLayout" style={{height: 'calc(100vh - 250px)', marginBottom: 30,  overflow: 'auto'}}>
-          <Form onSubmit={this.handleSubmit}>
+        <div ref={layout => { this.layoutRef = layout} } style={{height: 'calc(100vh - 250px)', marginBottom: 30,  overflow: 'auto'}}>
+          <Form>
             {formItems}
             <Form.Item {...formItemLayoutWithOutLabel}>
               <ButtonGroup style={{width: '90%'}}>
@@ -198,15 +201,36 @@ console.log('names :', names);
   }
 }
 
-const FileGoodsForm = Form.create()(FileGoods);
+const FileGoodsForm = Form.create({
+  onValuesChange: (props, changedValues, allValues) => {
+    const goods = allValues.goods.filter(g => g);
+    console.log('allValues :', allValues);
+    console.log('FileGoodsForm :', goods);
+    console.log('---------------------------');
+    props.setFileGoods(goods);
+  },
+  mapPropsToFields(props) {
+    const p = {};
+    console.log('props.fileGoods :', props.fileGoods);
+    props.fileGoods.forEach((g, i) => {
+      p[`keys[${i}]`] = Form.createFormField({ value: i });
+      p[`goods[${i}]`] = Form.createFormField({ value: g });
+    })
+    console.log('array p:', p);
+    return p;
+  },
+})(FileGoods);
 
 const mapStateToProps = state => ({
   categoryMap: state.category.map,
   goodsList: state.goods.list,
+  fileGoods: state.fileRecord.goods,
 })
 
 const mapDispatchToProps = {
   addGoods: fetchAddGoods,
+  setFileGoods: setGoods,
+  addFileGoods: addGoods,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGoodsForm);

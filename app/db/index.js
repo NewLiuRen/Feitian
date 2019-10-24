@@ -134,13 +134,11 @@ export const getRangeDataByIndex = (storeName, index, option) => {
       }
 
       const res = [];
-      console.log('index :', index);
       const i = objectStore.index(index);
       const c = i.openCursor(r);
       c.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
-          console.log('cursor', cursor);
           res.push(cursor.value);
           cursor.continue();
         } else {

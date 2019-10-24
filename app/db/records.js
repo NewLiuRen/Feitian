@@ -41,7 +41,7 @@ export const updateRecords = (file_id, params) => fileDB.getFileById(file_id).th
   });
 
   const uRecords = Object.assign({}, rs, {records: recordsArr})
-console.log('uRecords :', uRecords);
+
   return new Promise(resolve => {
     db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))
   })

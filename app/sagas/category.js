@@ -6,7 +6,7 @@ import * as db from '../db/category';
 function* getCategoryList() {
   const list = yield call(db.getCategory);
   yield put(actionTypes.setCategoryList(list));
-  yield put(actionTypes.setMap());
+  yield setCategoryWithDelMap();
 }
 
 // 获取所有类目列表（包含冻结）
@@ -15,12 +15,19 @@ function* getCategoryWithDelList() {
   yield put(actionTypes.setCategoryWithDelList(list));
 }
 
+// 设置类目列表映射（包含冻结）
+function* setCategoryWithDelMap() {
+  const list = yield call(db.getCategoryWithDel);
+  yield put(actionTypes.setCategoryMap(list));
+}
+
 // 添加类目
 function* addCategory({ payload: category }) {
   const res = yield call(db.addCategory, category);
   if (res.success) {
     yield put(actionTypes.addCategory(res.data));
-    yield put(actionTypes.setMap());
+    // 添加后重置商品映射关系
+    yield setCategoryWithDelMap();
   }
 }
 
@@ -29,7 +36,8 @@ function* updateCategory({ payload: category }) {
   const res = yield call(db.updateCategory, category);
   if (res.success) {
     yield put(actionTypes.updateCategory(res.data));
-    yield put(actionTypes.setMap());
+    // 修改后重置商品映射关系
+    yield setCategoryWithDelMap();
   }
 }
 
