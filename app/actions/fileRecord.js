@@ -1,7 +1,9 @@
 export const SET_FILE = 'SET_FILE';
 export const SET_RECORDS = 'SET_RECORDS';
 export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
+export const REMOVE_FILE_GOODS = 'REMOVE_FILE_GOODS';
 export const SET_FILE_GOODS = 'SET_FILE_GOODS';
+export const SET_FILE_ALL_GOODS = 'SET_FILE_ALL_GOODS';
 export const ADD_FILE = 'ADD_FILE';
 export const UPDATE_FILE = 'UPDATE_FILE';
 export const UPDATE_FILE_IMPORT = 'UPDATE_FILE_IMPORT';
@@ -29,8 +31,14 @@ export const setRecords = records => ({ type: SET_RECORDS, payload: records })
 // 用来适配antd的动态Form（此处为被动实现，与业务无关）
 export const addGoods = () => ({ type: ADD_FILE_GOODS })
 
-// 添加商品（用于记录需填写的商品列表）
-export const setGoods = goods => ({ type: SET_FILE_GOODS, payload: goods })
+// 设置某个位置的商品id（用于记录需填写的商品列表）
+export const setGoods = ({index, goods_id}) => ({ type: SET_FILE_GOODS, payload: {index, goods_id} })
+
+// 删除某个位置的商品id（用于记录需填写的商品列表）
+export const removeGoods = (index) => ({ type: REMOVE_FILE_GOODS, payload: {index} })
+
+// 添加所有商品（用于记录需填写的商品列表）
+export const setAllGoods = goods => ({ type: SET_FILE_ALL_GOODS, payload: goods })
 
 // 向redux中添加文件
 export const addFile = file => ({ type: ADD_FILE, payload: file })
@@ -50,6 +58,7 @@ export const updateRecords = records => ({ type: UPDATE_RECORDS, payload: record
 // 向redux中修改记录集箱贴
 export const updateRecordsOrderNumber = file => ({ type: UPDATE_RECORDS_ORDER_NUMBER, payload: file })
 
+// 从redux中清空文件相关属性
 export const clearFileRecord = () => ({ type: CLEAR_FILE_RECORD })
 
 // 从数据库中获取文件

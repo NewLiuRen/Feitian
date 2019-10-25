@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Modal } from 'antd';
-import GoodsForm from '../dataManage/GoodsForm';
+import GoodsModalWrap from '../dataManage/GoodsModalWrap';
 import { fetchAddGoods } from '../../actions/goods';
-import { addGoods, setGoods } from '../../actions/fileRecord';
+import { addGoods, setGoods, setAllGoods, removeGoods } from '../../actions/fileRecord';
 import style from './FileGoodsForm.scss';
 
 const { TreeNode } = TreeSelect;
 const ButtonGroup = Button.Group;
-
-let id = 1;
 
 class FileGoods extends Component {
   constructor(props) {
@@ -20,61 +18,26 @@ class FileGoods extends Component {
     this.layoutRef = null;
   }
 
-  remove = k => {
-    const { form } = this.props;
-    const keys = form.getFieldValue('keys');
-
-    if (keys.length === 1) {
-      return;
-    }
-
-    form.setFieldsValue({
-      keys: keys.filter(key => key !== k),
-    });
-  };
-
   add = () => {
-    const { form, addFileGoods } = this.props;
+    const { addFileGoods } = this.props;
     const layout = this.layoutRef;
 
-    const keys = form.getFieldValue('keys');
-    const nextKeys = keys.concat(id++);
-    console.log('keys :', keys);
-    // 添加后将滚动条移至底部
-    // form.setFieldsValue({
-    //   keys: nextKeys,
-    // }, () => layout.scrollTop = layout.scrollHeight);
     addFileGoods();
-    // layout.scrollTop = layout.scrollHeight
+    setTimeout(() => {layout.scrollTop = layout.scrollHeight}, 0);
   };
 
-  // 弹出新建仓库Modal
-  showModal = () => {
-    this.setState({visible: true});
-  }
-
-  // 隐藏Modal
-  hideModal = () => {
-    this.setState({visible: false});
-    this.formRef.props.form.resetFields();
-  }
-
-  // 提交Modal
-  submitGoods = () => {
-    const { addGoods } = this.props;
-    const form = this.formRef.props.form;
-
-    form.validateFields((errors, category) => {
-      addGoods(category);
-    })
-    this.hideModal();
-  }
+  remove = index => {
+    console.log('removeFileGoods :', index);
+    this.props.removeFileGoods(index);
+  };
 
   render() {
-    const { goodsList, categoryMap, form: {getFieldDecorator, getFieldValue} } = this.props;
+    const { fileGoods, goodsList, categoryMap, form: {getFieldDecorator, getFieldValue} } = this.props;
     const { visible } = this.state;
     const treeData = {other: []};
 
+    // 为树搜索组件格式化商品数据，
+    // 规则为：存在类目，则放入相关类目属性下，否则放入其他（other）属性下
     goodsList.forEach(g => {
       if (!g.category_id) {
         treeData.other.push(g)
@@ -83,6 +46,19 @@ class FileGoods extends Component {
         treeData[g.category_id].push(g);
       }
     })
+    
+    // 计算商品类目名称
+    const calcCategoryTitle = (key) => {
+      let name = '';
+      if (key === 'other') {
+        name = '其他';
+      } else if(categoryMap[key]) {
+        name = categoryMap[key].name;
+      } else {
+        name = '';
+      }
+      return name;
+    }
 
     const formItemLayout = {
       labelCol: {
@@ -101,28 +77,19 @@ class FileGoods extends Component {
       },
     };
 
-    // keys为记录序号数组，利用该数组控制Input组件数量，用keys值记录Input位置，用来进行增删
-    getFieldDecorator('keys', { initialValue: [0] });
-    const keys = getFieldValue('keys');
-    const calcCategoryTitle = (key) => {
-      let name = '';
-      if (key === 'other') {
-        name = '其他';
-      } else if(categoryMap[key]) {
-        name = categoryMap[key].name;
-      } else {
-        name = '';
-      }
-      return name;
-    }
-    const formItems = keys.map((k, index) => (
+    const list = fileGoods;
+    console.log('list :', list);
+    const formItems = list.map((k, index) => {
+      console.log('k :', k);
+      console.log('index :', index);
+    return (
       <Form.Item
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
         label={index === 0 ? '商品' : ''}
         required={false}
-        key={k}
+        key={`item-${index}`}
       >
-        {getFieldDecorator(`goods[${k}]`, {
+        {getFieldDecorator(`goods[${index}].goods_id`, {
           validateTrigger: ['onChange', 'onBlur'],
           rules: [
             {
@@ -154,30 +121,18 @@ class FileGoods extends Component {
             }
           </TreeSelect>
         )}
-        {keys.length > 1 ? (
+        {list.length > 1 ? (
           <Icon
             className={style['delete-button']}
             type="minus-circle-o"
-            onClick={() => this.remove(k)}
+            onClick={() => this.remove(index)}
             style={{fontSize: 16, color: '#F04A4A'}}
           />
         ) : null}
       </Form.Item>
-    ));
+    )});
     return (
       <Layout style={{background: '#fff'}}>
-        <Modal
-          title="新建商品"
-          width={400}
-          visible={visible}
-          onOk={this.submitGoods}
-          onCancel={this.hideModal}
-          okText="确定"
-          cancelText="取消"
-          forceRender
-        >
-          <GoodsForm wrappedComponentRef={form => this.formRef = form} />
-        </Modal>
         <Divider orientation="left">商品列表</Divider>
         <div ref={layout => { this.layoutRef = layout} } style={{height: 'calc(100vh - 250px)', marginBottom: 30,  overflow: 'auto'}}>
           <Form>
@@ -188,7 +143,7 @@ class FileGoods extends Component {
                   <Icon type="plus" /> 添加商品
                 </Button>
                 <Tooltip title="无此商品？点击新建">
-                  <Button type="dashed" style={{width: '20%'}} onClick={this.showModal}>
+                  <Button type="dashed" style={{width: '20%'}} onClick={this.props.add}>
                     <Icon type="question-circle" />
                   </Button>
                 </Tooltip>
@@ -201,25 +156,28 @@ class FileGoods extends Component {
   }
 }
 
+const FileGoodsWithGoodsModal = GoodsModalWrap(FileGoods);
 const FileGoodsForm = Form.create({
   onValuesChange: (props, changedValues, allValues) => {
-    const goods = allValues.goods.filter(g => g);
-    console.log('allValues :', allValues);
-    console.log('FileGoodsForm :', goods);
-    console.log('---------------------------');
-    props.setFileGoods(goods);
+    props.setFileGoods(allValues.goods);
   },
   mapPropsToFields(props) {
-    const p = {};
-    console.log('props.fileGoods :', props.fileGoods);
+    const p = {}
+    // TODO: 动态表单赋值
+    console.log('props :', props.fileGoods);
     props.fileGoods.forEach((g, i) => {
-      p[`keys[${i}]`] = Form.createFormField({ value: i });
-      p[`goods[${i}]`] = Form.createFormField({ value: g });
+      p[`goods[${i}].goods_id`] = Form.createFormField({
+        value: g.goods_id,
+      })
     })
-    console.log('array p:', p);
-    return p;
-  },
-})(FileGoods);
+    return {
+      username: Form.createFormField({
+        ...props.username,
+        value: props.username.value,
+      }),
+    };
+  }
+})(FileGoodsWithGoodsModal);
 
 const mapStateToProps = state => ({
   categoryMap: state.category.map,
@@ -229,8 +187,9 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   addGoods: fetchAddGoods,
-  setFileGoods: setGoods,
+  setFileGoods: setAllGoods,
   addFileGoods: addGoods,
+  removeFileGoods: removeGoods,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGoodsForm);

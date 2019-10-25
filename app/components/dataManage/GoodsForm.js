@@ -38,8 +38,11 @@ class Goods extends React.Component {
           )}
         </Form.Item>
         <Form.Item label="类目">
-          {getFieldDecorator('category_id')(
+          {getFieldDecorator('category_id', {
+            initialValue: null
+          })(
             <Select>
+              <Option key={'category-option-none'} value={null}>-----无-----</Option>
               {
                 categoryList.map(c => (
                   <Option key={`category-option-${c.id}`} value={c.id}>{c.name}</Option>
