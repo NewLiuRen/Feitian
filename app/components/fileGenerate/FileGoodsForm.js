@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Modal } from 'antd';
 import GoodsModalWrap from '../dataManage/GoodsModalWrap';
 import { fetchAddGoods } from '../../actions/goods';
-import { addGoods, setGoods, setAllGoods, removeGoods } from '../../actions/fileRecord';
+import { addGoods, setAllGoods, removeGoods } from '../../actions/fileRecord';
 import style from './FileGoodsForm.scss';
 
 const { TreeNode } = TreeSelect;
@@ -12,12 +12,10 @@ const ButtonGroup = Button.Group;
 class FileGoods extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      visible: false,
-    }
     this.layoutRef = null;
   }
 
+  // 动态添加表单项
   add = () => {
     const { addFileGoods } = this.props;
     const layout = this.layoutRef;
@@ -26,14 +24,13 @@ class FileGoods extends Component {
     setTimeout(() => {layout.scrollTop = layout.scrollHeight}, 0);
   };
 
+  // 删除表单项
   remove = index => {
-    console.log('removeFileGoods :', index);
     this.props.removeFileGoods(index);
   };
 
   render() {
-    const { fileGoods, goodsList, categoryMap, form: {getFieldDecorator, getFieldValue} } = this.props;
-    const { visible } = this.state;
+    const { fileGoods, goodsList, categoryMap, form: {getFieldDecorator} } = this.props;
     const treeData = {other: []};
 
     // 为树搜索组件格式化商品数据，
@@ -46,7 +43,7 @@ class FileGoods extends Component {
         treeData[g.category_id].push(g);
       }
     })
-    
+
     // 计算商品类目名称
     const calcCategoryTitle = (key) => {
       let name = '';
@@ -78,18 +75,14 @@ class FileGoods extends Component {
     };
 
     const list = fileGoods;
-    console.log('list :', list);
-    const formItems = list.map((k, index) => {
-      console.log('k :', k);
-      console.log('index :', index);
-    return (
+    const formItems = list.map((k, index) => (
       <Form.Item
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
         label={index === 0 ? '商品' : ''}
         required={false}
         key={`item-${index}`}
       >
-        {getFieldDecorator(`goods[${index}].goods_id`, {
+        {getFieldDecorator(`goods[${index}]`, {
           validateTrigger: ['onChange', 'onBlur'],
           rules: [
             {
@@ -103,7 +96,13 @@ class FileGoods extends Component {
             style={{ width: '90%', marginRight: 8 }}
             dropdownStyle={{ maxHeight: 300, overflow: 'auto' }}
             placeholder="请选择商品"
+            searchPlaceholder="请输入搜索关键词：名称、SKU"
             treeNodeFilterProp="title"
+            filterTreeNode={(inputValue, treeNode) => {
+              const node = treeNode.props;
+              if (node.isLeaf && (node.title.includes(inputValue) || node.sku.includes(inputValue))) return true;
+              return false;
+            }}
             allowClear
             treeDefaultExpandAll
           >
@@ -112,7 +111,7 @@ class FileGoods extends Component {
                   <TreeNode value={`category-${k}`} title={calcCategoryTitle(k)} key={`category-${k}`} isLeaf={false} selectable={false}>
                     {
                       gList.map(g => (
-                        <TreeNode value={g.id} title={g.name} key={`goods-${g.id}`} isLeaf />
+                        <TreeNode value={g.id} title={g.name} sku={g.sku} key={`goods-${g.id}`} disabled={fileGoods.includes(g.id)} isLeaf />
                       ))
                     }
                   </TreeNode>
@@ -130,7 +129,8 @@ class FileGoods extends Component {
           />
         ) : null}
       </Form.Item>
-    )});
+    ));
+
     return (
       <Layout style={{background: '#fff'}}>
         <Divider orientation="left">商品列表</Divider>
@@ -157,25 +157,22 @@ class FileGoods extends Component {
 }
 
 const FileGoodsWithGoodsModal = GoodsModalWrap(FileGoods);
+
+// 不得不说，antd该版本的Form双向绑定真是不好用......
 const FileGoodsForm = Form.create({
   onValuesChange: (props, changedValues, allValues) => {
+    // 表单项改变时，向redux中赋值
     props.setFileGoods(allValues.goods);
   },
+  // 动态表单赋值，若不用此属性从redux为form赋值，动态删除表单项时会出现错误
   mapPropsToFields(props) {
     const p = {}
-    // TODO: 动态表单赋值
-    console.log('props :', props.fileGoods);
     props.fileGoods.forEach((g, i) => {
-      p[`goods[${i}].goods_id`] = Form.createFormField({
-        value: g.goods_id,
+      p[`goods[${i}]`] = Form.createFormField({
+        value: g,
       })
     })
-    return {
-      username: Form.createFormField({
-        ...props.username,
-        value: props.username.value,
-      }),
-    };
+    return p
   }
 })(FileGoodsWithGoodsModal);
 

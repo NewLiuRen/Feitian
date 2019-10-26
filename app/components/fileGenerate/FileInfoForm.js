@@ -10,7 +10,7 @@ class FileInfo extends Component {
   render() {
     const { goods, goodsMap, form: { getFieldDecorator } } = this.props;
     const date = moment(new Date(), 'YYYY-MM-DD');
-    console.log('goods :', goods);
+
     return (
       <Layout style={{background: '#fff'}}>
         <Divider orientation="left">基本信息</Divider>
@@ -41,7 +41,7 @@ class FileInfo extends Component {
         <Divider orientation="left">所选商品</Divider>
         <div>
           {
-            goods.map(({goods_id}, i) => (
+            goods.map((goods_id, i) => (
               <span key={`show-goods-${i}`}>
                 {(goodsMap[goods_id] && goodsMap[goods_id].name) ? (
                   <Text type="warning">{goodsMap[goods_id].name}</Text>
