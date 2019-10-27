@@ -1,4 +1,5 @@
 import { all, call, put, select, takeLatest } from 'redux-saga/effects';
+import { RECORD } from '../constants/records';
 import * as actionTypes from '../actions/fileRecord';
 import * as fileDB from '../db/file';
 import * as recordsDB from '../db/records';
@@ -25,6 +26,19 @@ function* updateFile({ payload: file }) {
 function* updateFileImport({ payload: file }) {
   const res = yield call(fileDB.updateFileToImport, file);
   if (res.success) yield put(actionTypes.setFile(res.data));
+}
+
+// 初始化记录集
+function* initRecords({ payload: {file_id, warehouseIdList, goodsIdList} }) {
+  const records = []
+  warehouseIdList.forEach(w => {
+    goodsIdList.forEach(g =>{
+      records.push(Object.assign({}, RECORD, {goods_id: g,
+        warehouse_id: w,}))
+    })
+  })
+  const res = yield call(recordsDB.addFileRecords, file_id, records);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
 // 添加记录集

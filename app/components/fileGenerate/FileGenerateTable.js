@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Row, Col, Tabs, Button, Progress } from 'antd';
+import { addFile } from '../../db/file';
 import FileInfoForm from './FileInfoForm';
 import FileGoodsForm from './FileGoodsForm';
 import FileGoodsTable from './FileGoodsTable';
@@ -10,13 +11,19 @@ const { TabPane } = Tabs;
 
 class FileGenerateTable extends Component {
   // 创建文件
-  createFile() {
+  async createFile() {
     Promise.all([
       this.infoFormRef.props.form.validateFields(),
       this.goodsFormRef.props.form.validateFields(),
     ]).then(([infoRes, goodsRes]) => {
       console.log('infoRes :', infoRes);
       console.log('goodsRes :', goodsRes);
+      
+      const fileInfo = Object.assign({}, infoRes);
+      fileInfo.create_date = fileInfo.create_date.valueOf();
+      console.log('fileInfo :', fileInfo);
+      const {success, data: file} = await addFile(fileInfo);
+      if (!success) 
     }).catch(err => {})
   }
 
@@ -74,7 +81,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   setFileInfo: actions.setFile,
   setFileGoods: actions.setGoods,
-  addFile: actions.fetchAddFile,
+  addReduxFile: actions.addFile,
   updateFile: actions.fetchUpdateFile,
 }
 

@@ -4,7 +4,7 @@ import * as actionTypes from '../actions/fileRecord';
 const initState = {
   file: {},
   records: [],
-  goods: [],
+  goods: [null],
 }
 
 const fileRecord = (state = initState, action) => {
