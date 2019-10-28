@@ -26,8 +26,7 @@ export const addFile = params => {
 }
 
 // 更新文件
-export const updateFile = params => {
-  return getFileById(params.id).then(f => {
+export const updateFile = params => getFileById(params.id).then(f => {
     compareObject(fileObj, params);
     const { id, name, description } = params
     const file = Object.assign({}, f, { id, name, description });
@@ -35,7 +34,6 @@ export const updateFile = params => {
       db.updateData(STORE_NAME, file).then(({success}) => resolve({ success, data: file }))
     })
   })
-}
 
 // 将文件设置为导入状态（导入后记录集数量不可修改，可添加箱贴号）
 export const updateFileToImport = params => {

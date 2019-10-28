@@ -29,7 +29,10 @@ function* updateFileImport({ payload: file }) {
 }
 
 // 初始化记录集
-function* initRecords({ payload: {file_id, warehouseIdList, goodsIdList} }) {
+function* initRecords({ payload: { file_id, warehouseIdList, goodsIdList } }) {
+  console.log('file_id :', file_id);
+  console.log('warehouseIdList :', warehouseIdList);
+  console.log('goodsIdList :', goodsIdList);
   const records = []
   warehouseIdList.forEach(w => {
     goodsIdList.forEach(g =>{
@@ -37,6 +40,7 @@ function* initRecords({ payload: {file_id, warehouseIdList, goodsIdList} }) {
         warehouse_id: w,}))
     })
   })
+  console.log('records :', records);
   const res = yield call(recordsDB.addFileRecords, file_id, records);
   if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
@@ -65,6 +69,7 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_ADD_FILE, addFile),
     takeLatest(actionTypes.FETCH_UPDATE_FILE, updateFile),
     takeLatest(actionTypes.FETCH_UPDATE_FILE_IMPORT, updateFileImport),
+    takeLatest(actionTypes.FETCH_INIT_RECORDS, initRecords),
     takeLatest(actionTypes.FETCH_ADD_RECORDS, addRecords),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS, updateRecords),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS_ORDER_NUMBER, updateRecordsOrderNumber),

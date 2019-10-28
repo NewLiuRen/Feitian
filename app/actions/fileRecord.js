@@ -74,7 +74,7 @@ export const fetchUpdateFile = file => ({ type: FETCH_UPDATE_FILE, payload: file
 export const fetchUpdateFileImport = file => ({ type: FETCH_UPDATE_FILE_IMPORT, payload: file })
 
 // 向数据库中初始化记录集（选定仓库及商品后的初始化操作）
-export const fetchInitRecords = (file_id, {warehouseIdList, goodsIdList}) => ({ type: FETCH_INIT_RECORDS, payload: {file_id, warehouseList, goodsList}})
+export const fetchInitRecords = (file_id, {warehouseIdList, goodsIdList}) => ({ type: FETCH_INIT_RECORDS, payload: {file_id, warehouseIdList, goodsIdList}})
 
 // 向数据库中添加记录集
 export const fetchAddRecords = (file_id, records) => ({ type: FETCH_ADD_RECORDS, payload: {file_id, records} })

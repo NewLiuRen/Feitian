@@ -4,6 +4,8 @@ import * as actionTypes from '../actions/fileRecord';
 const initState = {
   file: {},
   records: [],
+  // 仓库缓存，用于读取历史文件用（因冻结仓库，历史文件中仓库状态可能同当前不一致）
+  warehouse: [],
   goods: [null],
 }
 
