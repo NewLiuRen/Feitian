@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import { Calendar, Button, Select, Layout, Row, Col, Badge, Drawer, Alert } from 'antd';
 import { getFileListByDate } from '../../db/file';
+import { getRecordsByFileId } from '../../db/records';
 import FilePreviewTable from './FilePreviewTable';
 
 import styles from './FileViewCalendar.scss';
@@ -69,7 +70,11 @@ export default class FileViewCalendar extends Component {
   
   // 显示预览表格
   showPreview = (currentFile) => {
-    this.setState({ visible: true, currentFile });
+    console.log('currentFile :', currentFile);
+    getRecordsByFileId(currentFile.id).then(({records}) => {
+      console.log('records :', records);
+      this.setState({records, currentFile, visible: true});
+    })
   }
 
   // 隐藏预览表格
@@ -77,8 +82,13 @@ export default class FileViewCalendar extends Component {
     this.setState({ visible: false, });
   }
 
+  // 载入文件数据并跳转至数据录入页
+  gotoInputData = () => {
+
+  }
+
   render() {
-    const { currentFile } = this.state;
+    const { currentFile, records } = this.state;
     const headerComp = ({ value, type, onChange, onTypeChange }) => {
       const start = 0;
       const end = 12;
@@ -155,10 +165,10 @@ export default class FileViewCalendar extends Component {
         >
           <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下商品的每箱最大数量" showIcon />
           <Layout style={{height: 'calc(100vh - 220px)', background: '#ffffff'}}>
-            <FilePreviewTable file={currentFile} />
+            <FilePreviewTable records={records} />
           </Layout>
           <Row style={{marginTop: 20}}>{
-            currentFile && currentFile.is_import ? 
+            currentFile && !currentFile.is_import ? 
             (<Button type="primary" block>数据录入</Button>) :
             (<ButtonGroup style={{width: '100%'}}>
               <Button type="primary" style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>

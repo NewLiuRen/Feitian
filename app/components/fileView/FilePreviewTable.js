@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Table, Button } from 'antd';
-import { getRecordsByFileId } from '../../db/records';
 import CategoryTag from '../common/CategoryTag';
 
 class FilePreviewTable extends Component {
@@ -11,26 +10,29 @@ class FilePreviewTable extends Component {
       records: [],
     }
   }
-
-  componentDidMount() {
-    const { file } = this.props;
-    getRecordsByFileId(file.id).then(({records}) => {
-      this.setState({records});
-    })
-  }
+  // componentWillReceivePorps(nextProps)
+  // componentDidUpdate() {
+  //   const { file } = this.props;
+  //   console.log('file :', file);
+  //   getRecordsByFileId(file.id).then(({records}) => {
+  //     this.setState({records});
+  //   })
+  // }
 
   render() {
-    const { warehouseMap, categoryMap, goodsMap } = this.props;
-    const { records } = this.state;
+    const { records, warehouseMap, categoryMap, goodsMap } = this.props;
+    // const { records } = this.state;
     const columns = [
       {
         title: '商品',
         width: 150,
+        key: 'goods',
         dataIndex: 'goods',
         fixed: 'left',
       }, {
         title: '类目',
         width: 100,
+        key: 'category',
         dataIndex: 'category',
         fixed: 'left',
         filters: [],
@@ -71,7 +73,7 @@ class FilePreviewTable extends Component {
         goods: goodsMap[gid].name, 
         category: category_id || -1,
       }
-      if (!categoryFilters.find(cid => cid === category_id)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id || -1,})
+      if (!categoryFilters.find(c => c.value === category_id || c.value === -1)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id || -1,})
       Object.entries(wobj).forEach(([wkey, max_count]) => {
         record[wkey] = max_count;
       })
@@ -84,7 +86,7 @@ class FilePreviewTable extends Component {
       <Table
         columns={columns}
         dataSource={dataSource}
-        scroll={{ x: true, y: 300 }}
+        scroll={{ x: 700, y: 'calc(100vh - 260px)' }}
         bordered={true}
         pagination={false}
         size="small"
