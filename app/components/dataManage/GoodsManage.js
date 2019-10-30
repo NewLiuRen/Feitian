@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Row, Table, Switch, Input, Tag, Icon } from 'antd';
 import * as actions from '../../actions/goods';
+import CategoryTag from '../common/CategoryTag';
 
 import style from './WarehouseManage.scss';
 
@@ -44,11 +45,10 @@ class GoodsManage extends Component {
     const { goodsList, categoryMap, categoryList } = this.props;
     const { current, pageSize, keyWord } = this.state;
     const list = goodsList.filter(w => w.name.includes(keyWord) || w.sku.includes(keyWord) || categoryMap[w.category_id].name.includes(keyWord))
-    const colorList = ['red', 'blue', 'volcano', 'geekblue', 'orange', 'purple', 'gold', 'green', 'magenta', 'cyan']
     const columns = [
       {
         title: '',
-        width: '5%',
+        width: '8%',
         key: 'index',
         render: (text,record,index)=>`${(current - 1) * pageSize + index + 1}`
       },
@@ -61,7 +61,7 @@ class GoodsManage extends Component {
       {
         title: 'SKU',
         dataIndex: 'sku',
-        width: '20%',
+        width: '17%',
         key: 'sku',
       },
       {
@@ -70,11 +70,7 @@ class GoodsManage extends Component {
         width: '15%',
         key: 'category_id',
         render: (text, record) => {
-          if (!categoryMap[text]) return (<Tag></Tag>);
-          const index = categoryList.findIndex(c => c.id === record.category_id);
-          return (
-            <Tag color={colorList[index%colorList.length]}>{categoryMap[text].name}</Tag>
-          )
+          return (<CategoryTag category_id={text} />)
         }
       },
       {
@@ -108,6 +104,7 @@ class GoodsManage extends Component {
           dataSource={list}
           columns={columns}
           scroll={{ y: 'calc(100vh - 270px)' }}
+          scrollToFirstRowOnChange={true}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
       </>

@@ -1,9 +1,11 @@
 // @flow
 import * as actionTypes from '../actions/warehouse';
+import { generateMap } from '../utils';
 
 const initState = {
   list: [],
   listWithDel: [],
+  map: {},
 }
 
 const warehouse = (state = initState, action) => {
@@ -13,6 +15,8 @@ const warehouse = (state = initState, action) => {
       return Object.assign({}, state, {list: [...payload]});
     case actionTypes.SET_WAREHOUSE_WITH_DEL_LIST:
       return Object.assign({}, state, {listWithDel: [...payload]});
+    case actionTypes.SET_WAREHOUSE_MAP:
+      return Object.assign({}, state, {map: generateMap([...payload])})
     case actionTypes.ADD_WAREHOUSE:
       const addList = state.list.concat(payload)
       return Object.assign({}, state, {list: addList});

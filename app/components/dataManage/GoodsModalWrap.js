@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Modal } from 'antd';
 import GoodsForm from './GoodsForm';
 
-const TYPE_MAP = {
+export const TYPE_MAP = {
   create: 1,
   update: 2,
 }
@@ -71,7 +71,7 @@ const GoodsModalWrap = (WrappedComponent) => {
             cancelText="取消"
             forceRender
           >
-            <GoodsForm wrappedComponentRef={form => this.formRef = form} />
+            <GoodsForm type={type} wrappedComponentRef={form => this.formRef = form} />
           </Modal>
           <WrappedComponent add={this.addGoods} edit={this.editGoods} {...this.props} />
         </>

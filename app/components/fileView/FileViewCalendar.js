@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { Calendar, Select, Row, Col, Badge, Drawer } from 'antd';
+import { Calendar, Button, Select, Layout, Row, Col, Badge, Drawer, Alert } from 'antd';
 import { getFileListByDate } from '../../db/file';
+import FilePreviewTable from './FilePreviewTable';
 
 import styles from './FileViewCalendar.scss';
+
+const ButtonGroup = Button.Group;
 
 export default class FileViewCalendar extends Component {
   constructor(props) {
@@ -144,15 +147,24 @@ export default class FileViewCalendar extends Component {
       <div style={{background: '#ffffff',}}>
         <Drawer
           title={currentFile ? currentFile.name : ''}
-          drawerStyle={{overFlow: 'hidden'}}
-          placement="top"
-          height="50%"
+          style={{overflow: 'hidden'}}
+          placement="right"
+          width="80%"
           onClose={this.hidePreview}
           visible={this.state.visible}
         >
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
+          <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下商品的每箱最大数量" showIcon />
+          <Layout style={{height: 'calc(100vh - 220px)', background: '#ffffff'}}>
+            <FilePreviewTable file={currentFile} />
+          </Layout>
+          <Row style={{marginTop: 20}}>{
+            currentFile && currentFile.is_import ? 
+            (<Button type="primary" block>数据录入</Button>) :
+            (<ButtonGroup style={{width: '100%'}}>
+              <Button type="primary" style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>
+              <Button type="primary" style={{width: '50%', background: '#d97309', borderColor: '#d97309'}}>箱贴导出</Button>
+            </ButtonGroup>)
+          }</Row>
         </Drawer>
         <Calendar mode='month' dateCellRender={this.dateCellRender} headerRender={({ value, type, onChange, onTypeChange }) => headerComp({ value, type, onChange, onTypeChange })} onPanelChange={this.onPanelChange} />
       </div>

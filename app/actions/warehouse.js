@@ -4,6 +4,8 @@ export const ADD_WAREHOUSE = 'ADD_WAREHOUSE';
 export const UPDATE_WAREHOUSE = 'UPDATE_WAREHOUSE';
 export const DELETE_WAREHOUSE = 'DELETE_WAREHOUSE';
 export const CLEAR_WAREHOUSE_WITH_DEL_LIST = 'CLEAR_WAREHOUSE_WITH_DEL_LIST';
+// 设置id和对象的映射对象
+export const SET_WAREHOUSE_MAP = 'SET_WAREHOUSE_MAP';
 
 export const FETCH_GET_WAREHOUSE_LIST = 'FETCH_GET_WAREHOUSE_LIST';
 export const FETCH_GET_WAREHOUSE_WITH_DEL_LIST = 'FETCH_GET_WAREHOUSE_WITH_DEL_LIST';
@@ -17,6 +19,9 @@ export const setWarehouseList = list => ({ type: SET_WAREHOUSE_LIST, payload: li
 
 // 添加仓库列表(包含冻结)
 export const setWarehouseWithDelList = list => ({ type: SET_WAREHOUSE_WITH_DEL_LIST, payload: list })
+
+// 设置映射关系
+export const setWarehouseMap = list => ({ type: SET_WAREHOUSE_MAP, payload: list })
 
 // 向redux中添加仓库
 export const addWarehouse = warehouse => ({ type: ADD_WAREHOUSE, payload: warehouse })

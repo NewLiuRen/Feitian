@@ -1,21 +1,106 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Table, Button } from 'antd';
+import { getRecordsByFileId } from '../../db/records';
+import CategoryTag from '../common/CategoryTag';
 
-export default class FilePreviewTable extends Component {
+class FilePreviewTable extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      records: [],
+    }
+  }
+
+  componentDidMount() {
+    const { file } = this.props;
+    getRecordsByFileId(file.id).then(({records}) => {
+      this.setState({records});
+    })
+  }
 
   render() {
+    const { warehouseMap, categoryMap, goodsMap } = this.props;
+    const { records } = this.state;
     const columns = [
       {
-        title: 'Full Name',
-        width: 100,
-        dataIndex: 'name',
-        key: 'name',
+        title: '商品',
+        width: 150,
+        dataIndex: 'goods',
         fixed: 'left',
-      },
-    ]
+      }, {
+        title: '类目',
+        width: 100,
+        dataIndex: 'category',
+        fixed: 'left',
+        filters: [],
+        filterMultiple: false,
+        onFilter: (value, record) => record.category === value,
+        render: (text, record) => {
+          return (<CategoryTag category_id={text} />)
+        }
+      }
+    ];
+    let dataSource = []
+    const warehouseList = []
+    const categoryFilters = []
+    const dataSourceGoodsMap = {}
+
+    // 遍历records，计算warehouse列表，及计算每个商品同仓库的对应关系
+    // 商品同仓库对应关系格式：{goods_id: {warehouse_id: max_count}}
+    records.forEach(r => {
+      if (!warehouseList.find(w => w === r.warehouse_id)) warehouseList.push(r.warehouse_id)
+      if (!dataSourceGoodsMap[r.goods_id]) dataSourceGoodsMap[r.goods_id] = {}
+      dataSourceGoodsMap[r.goods_id][`warehouse_${r.warehouse_id}`] = r.max_count;
+    })
+
+    // 根据warehouseList，计算表格列
+    warehouseList.sort().forEach(wid => {
+      columns.push({
+        title: `${warehouseMap[wid].name}`,
+        dataIndex: `warehouse_${wid}`,
+        align: 'right',
+      })
+    })
+
+    // 根据dataSourceGoodsMap，计算dataSource
+    dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
+      const category_id = goodsMap[gid].category_id
+      const record = {
+        key: `record_${gid}`,
+        goods: goodsMap[gid].name, 
+        category: category_id || -1,
+      }
+      if (!categoryFilters.find(cid => cid === category_id)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id || -1,})
+      Object.entries(wobj).forEach(([wkey, max_count]) => {
+        record[wkey] = max_count;
+      })
+      return record;
+    })
+
+    columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);
 
     return (
-      <Table columns={columns} dataSource={data} scroll={{ x: 1500, y: 300 }} />
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        scroll={{ x: true, y: 300 }}
+        bordered={true}
+        pagination={false}
+        size="small"
+      />
     )
   }
 }
+
+const mapStateToProps = state => ({
+  goodsMap: state.goods.map,
+  warehouseMap: state.warehouse.map,
+  categoryMap: state.category.map,
+})
+
+const mapDispatchToProps = {
+
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FilePreviewTable)

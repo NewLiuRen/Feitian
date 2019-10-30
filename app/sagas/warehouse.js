@@ -6,6 +6,7 @@ import * as db from '../db/warehouse';
 function* getWarehouseList() {
   const list = yield call(db.getWarehouses);
   yield put(actionTypes.setWarehouseList(list));
+  yield setWarehouseWithDelMap();
 }
 
 // 获取所有仓库列表（包含冻结）
@@ -14,16 +15,30 @@ function* getWarehouseWithDelList() {
   yield put(actionTypes.setWarehouseWithDelList(list));
 }
 
+// 设置仓库列表映射（包含冻结）
+function* setWarehouseWithDelMap() {
+  const list = yield call(db.getWarehousesWithDel);
+  yield put(actionTypes.setWarehouseMap(list));
+}
+
 // 添加仓库
 function* addWarehouse({ payload: warehouse }) {
   const res = yield call(db.addWarehouse, warehouse);
-  if (res.success) yield put(actionTypes.addWarehouse(res.data));
+  if (res.success) {
+    yield put(actionTypes.addWarehouse(res.data));
+    // 添加后重置仓库映射关系
+    yield setWarehouseWithDelMap();
+  }
 }
 
 // 修改仓库
 function* updateWarehouse({ payload: warehouse }) {
   const res = yield call(db.updateWarehouse, warehouse);
-  if (res.success) yield put(actionTypes.updateWarehouse(res.data));
+  if (res.success) {
+    yield put(actionTypes.updateWarehouse(res.data));
+    // 添加后重置仓库映射关系
+    yield setWarehouseWithDelMap();
+  }
 }
 
 // 冻结仓库
