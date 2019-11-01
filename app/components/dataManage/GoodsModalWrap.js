@@ -7,8 +7,7 @@ export const TYPE_MAP = {
   update: 2,
 }
 
-const GoodsModalWrap = (WrappedComponent) => {
-  return class GoodsModal extends Component {
+const GoodsModalWrap = (WrappedComponent) => class GoodsModal extends Component {
     constructor(props) {
       super(props);
       this.formRef = null;
@@ -46,6 +45,7 @@ const GoodsModalWrap = (WrappedComponent) => {
       const form = this.formRef.props.form;
   
       form.validateFields((errors, category) => {
+        console.log('errors :', errors);
         if (errors) return
         if (type === TYPE_MAP.create) {
           addGoods(category);
@@ -78,6 +78,5 @@ const GoodsModalWrap = (WrappedComponent) => {
       )
     }
   }
-}
 
 export default GoodsModalWrap;

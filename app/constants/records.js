@@ -1,14 +1,12 @@
 /**
  * 记录
  * count 数量
- * max_count 最大数量
  * order_number 订单号
  * goods_id 商品id 
  * warehouse_id 仓库id 
  */
 export const RECORD = {
   count: 0,
-  max_count: 0,
   order_number: '',
   goods_id: null,
   warehouse_id: null,

@@ -21,30 +21,34 @@ class Goods extends Component {
     const columns = [
       {
         title: '',
-        width: '8%',
+        width: '7%',
         key: 'index',
         render: (text,record,index)=>`${(current - 1) * pageSize + index + 1}`
       },
       {
         title: '名称',
         dataIndex: 'name',
-        width: '30%',
+        width: '23%',
         key: 'name',
       },
       {
         title: 'SKU',
         dataIndex: 'sku',
-        width: '17%',
+        width: '16%',
         key: 'sku',
       },
       {
         title: '类目',
         dataIndex: 'category_id',
-        width: '15%',
+        width: '9%',
         key: 'category_id',
-        render: (text, record) => {
-          return (<CategoryTag category_id={text} />)
-        }
+        render: (text, record) => (<CategoryTag category_id={text} />)
+      },
+      {
+        title: '个数/箱',
+        dataIndex: 'max_count',
+        width: '15%',
+        key: 'max_count',
       },
       {
         title: '描述',
@@ -58,21 +62,21 @@ class Goods extends Component {
         dataIndex: 'operation',
         key: 'operation',
         render: (text, record) => (
-            <>
-              <a onClick={() => edit(record)} style={{marginRight: 15}}>
-                编辑
+          <>
+            <a onClick={() => edit(record)} style={{marginRight: 15}}>
+              编辑
+            </a> 
+            <Popconfirm
+              placement="topRight"
+              title={`是否确定删除，类目： ${record.name}`}
+              onConfirm={() => this.freezeGoods(record)}
+            >
+              <a onClick={() => {}}>
+                删除
               </a> 
-              <Popconfirm
-                placement="topRight"
-                title={`是否确定删除，类目： ${record.name}`}
-                onConfirm={() => this.freezeGoods(record)}
-              >
-                <a onClick={() => {}}>
-                  删除
-                </a> 
-              </Popconfirm>
-            </>
-          ),
+            </Popconfirm>
+          </>
+        ),
       },
     ];
     
@@ -90,7 +94,7 @@ class Goods extends Component {
           dataSource={goodsList}
           columns={columns}
           scroll={{ y: 'calc(100vh - 270px)' }}
-          scrollToFirstRowOnChange={true}
+          scrollToFirstRowOnChange
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
       </>

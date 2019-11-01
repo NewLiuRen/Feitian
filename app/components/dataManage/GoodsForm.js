@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Form, Input, Select } from 'antd';
+import { Form, Input, InputNumber, Select } from 'antd';
 import { getGoodsBySku } from '../../db/goods';
 import goodsObj from '../../constants/goods';
 import { TYPE_MAP } from './GoodsModalWrap';
@@ -10,16 +10,20 @@ const Option = Select.Option;
 class Goods extends React.Component {
   // 校验sku，不能与库中重复
   checkSKU = (rule, value, callback) => {
-    const { type } = this.props;
-    if (type === TYPE_MAP.update) {
+    try {
+      const { type } = this.props;
+      if (!value.trim() || type === TYPE_MAP.update) {
+        callback();
+        return;
+      }
+  
+      getGoodsBySku(value).then(goods => {
+        if (!goods) callback();
+        else callback('SKU不能重复');
+      })
+    } catch(err) {
       callback();
-      return;
     }
-    
-    getGoodsBySku(value).then(goods => {
-      if (!goods) callback();
-      else callback('SKU不能重复');
-    })
   };
 
   render() {
@@ -48,7 +52,18 @@ class Goods extends React.Component {
               validator: this.checkSKU
             }],
           })(
-            <Input placeholder="请输入SKU值" disabled={type === TYPE_MAP.update} />,
+            <Input placeholder="请输入SKU值"/>,
+          )}
+        </Form.Item>
+        <Form.Item label="个数/箱">
+          {getFieldDecorator('max_count', {
+            rules: [{
+              required: true,
+              whitespace: true,
+              message: '请输入每箱个数',
+            }],
+          })(
+            <InputNumber placeholder="请输入每箱个数" style={{width: '100%'}} />,
           )}
         </Form.Item>
         <Form.Item label="描述">
@@ -61,7 +76,7 @@ class Goods extends React.Component {
             initialValue: null
           })(
             <Select>
-              <Option key={'category-option-none'} value={null}>-----无-----</Option>
+              <Option key="category-option-none" value={null}>-----无-----</Option>
               {
                 categoryList.map(c => (
                   <Option key={`category-option-${c.id}`} value={c.id}>{c.name}</Option>

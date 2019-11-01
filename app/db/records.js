@@ -18,8 +18,8 @@ export const addFileRecords = (file_id, params) => fileDB.getFileById(file_id).t
       if (db.PRIMARY_KEY in p) delete p[db.PRIMARY_KEY];
     });
     const recordsArr = params.map(p => {
-      const { count, max_count, goods_id, warehouse_id } = p
-      return Object.assign({}, recordObj, { count, max_count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })
+      const { count, goods_id, warehouse_id } = p
+      return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })
     });
     const records = Object.assign({}, recordsObj, {file_id, records: recordsArr});
     return new Promise(resolve => {
@@ -36,8 +36,8 @@ export const updateRecords = (file_id, params) => fileDB.getFileById(file_id).th
   params.forEach(p => compareObject(recordObj, p));
 
   const recordsArr = params.map(p => {
-    const { count, max_count, goods_id, warehouse_id } = p
-    return Object.assign({}, recordObj, { count, max_count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })
+    const { count, goods_id, warehouse_id } = p
+    return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })
   });
 
   const uRecords = Object.assign({}, rs, {records: recordsArr})
