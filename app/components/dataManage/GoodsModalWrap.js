@@ -14,6 +14,7 @@ const GoodsModalWrap = (WrappedComponent) => class GoodsModal extends Component 
       this.state = {
         visible: false,
         type: TYPE_MAP.create,
+        goods: null,
       };
     }
   
@@ -26,10 +27,7 @@ const GoodsModalWrap = (WrappedComponent) => class GoodsModal extends Component 
     editGoods = (category) => {
       const params = Object.assign({}, category);
       delete params.key;
-      const self = this;
-      this.setState({visible: true, type: TYPE_MAP.update}, () => {
-        self.formRef.props.form.setFieldsValue({...params});
-      });
+      this.setState({visible: true, type: TYPE_MAP.update, goods: params});
     }
   
     // 隐藏Modal
@@ -57,7 +55,7 @@ const GoodsModalWrap = (WrappedComponent) => class GoodsModal extends Component 
     }
   
     render() {
-      const { type, visible } = this.state;
+      const { type, visible, goods } = this.state;
 
       return (
         <>
@@ -71,7 +69,7 @@ const GoodsModalWrap = (WrappedComponent) => class GoodsModal extends Component 
             cancelText="取消"
             forceRender
           >
-            <GoodsForm type={type} wrappedComponentRef={form => this.formRef = form} />
+            <GoodsForm goods={goods} type={type} wrappedComponentRef={form => this.formRef = form} />
           </Modal>
           <WrappedComponent add={this.addGoods} edit={this.editGoods} {...this.props} />
         </>

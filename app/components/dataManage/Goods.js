@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Row, Button, Table, Popconfirm, Tag } from 'antd';
+import { Row, Button, Table, Popconfirm, Input, Icon } from 'antd';
 import * as actions from '../../actions/goods';
 import CategoryTag from '../common/CategoryTag';
 import GoodsModalWrap from './GoodsModalWrap';
+
+import style from './WarehouseManage.scss';
 
 class Goods extends Component {
   constructor(props) {
@@ -11,13 +13,27 @@ class Goods extends Component {
     this.state = {
       current: 1,
       pageSize: 10,
+      keyWord: '',
     }
+  }
+
+  setKeyWord(event) {
+    this.setState({keyWord: event.target.value});
+  }
+
+  clearWord() {
+    this.setState({keyWord: ''});
   }
 
   render() {
     const { goodsList, categoryMap, categoryList, add, edit } = this.props;
-    const { current, pageSize } = this.state;
-    const colorList = ['red', 'blue', 'volcano', 'geekblue', 'orange', 'purple', 'gold', 'green', 'magenta', 'cyan'];
+    const { current, pageSize, keyWord } = this.state;
+    const list = goodsList.filter(w => w.name.includes(keyWord) || w.sku.includes(keyWord) || (w.category_id && categoryMap[w.category_id].name.includes(keyWord)))
+    const categoryFilters = []
+    list.forEach(g => {
+      if (!categoryFilters.find(c => c.value === g.category_id || c.value === -1)) categoryFilters.push({ text: categoryMap[g.category_id] ? categoryMap[g.category_id].name : '其他', value: g.category_id || -1,})
+    })
+    const filters = categoryFilters.sort((a, b) => b.value - a.value);
     const columns = [
       {
         title: '',
@@ -40,14 +56,20 @@ class Goods extends Component {
       {
         title: '类目',
         dataIndex: 'category_id',
-        width: '9%',
+        width: '10%',
         key: 'category_id',
+        filters,
+        filterMultiple: false,
+        onFilter: (value, record) => {
+          if (value === -1) return !record.category_id;
+          return record.category_id === value;
+        },
         render: (text, record) => (<CategoryTag category_id={text} />)
       },
       {
         title: '个数/箱',
         dataIndex: 'max_count',
-        width: '15%',
+        width: '14%',
         key: 'max_count',
       },
       {
@@ -84,6 +106,9 @@ class Goods extends Component {
       <>
         <Row>
           <div style={{float: 'right'}}>
+            <Input style={{width: 300, marginRight: 15}} placeholder="请输入搜索关键词：名称、SKU、类目" value={keyWord} suffix={
+              <Icon type="close-circle" theme="filled" className={style.clear} onClick={() => this.clearWord()} />
+            } onChange={keyWord => this.setKeyWord(keyWord)}/>
             <Button onClick={this.handleAdd} type="primary" style={{marginBottom: 15}} onClick={() => add()}>
               添加商品
             </Button>
@@ -91,7 +116,7 @@ class Goods extends Component {
         </Row>
         <Table
           rowKey={record => `row-${record.id}`}
-          dataSource={goodsList}
+          dataSource={list}
           columns={columns}
           scroll={{ y: 'calc(100vh - 270px)' }}
           scrollToFirstRowOnChange

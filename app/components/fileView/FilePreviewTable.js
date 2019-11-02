@@ -10,14 +10,6 @@ class FilePreviewTable extends Component {
       records: [],
     }
   }
-  // componentWillReceivePorps(nextProps)
-  // componentDidUpdate() {
-  //   const { file } = this.props;
-  //   console.log('file :', file);
-  //   getRecordsByFileId(file.id).then(({records}) => {
-  //     this.setState({records});
-  //   })
-  // }
 
   render() {
     const { records, warehouseMap, categoryMap, goodsMap } = this.props;
@@ -38,9 +30,7 @@ class FilePreviewTable extends Component {
         filters: [],
         filterMultiple: false,
         onFilter: (value, record) => record.category === value,
-        render: (text, record) => {
-          return (<CategoryTag category_id={text} />)
-        }
+        render: (text, record) => (<CategoryTag category_id={text} />)
       }
     ];
     let dataSource = []
@@ -87,7 +77,7 @@ class FilePreviewTable extends Component {
         columns={columns}
         dataSource={dataSource}
         scroll={{ x: 700, y: 'calc(100vh - 260px)' }}
-        bordered={true}
+        bordered
         pagination={false}
         size="small"
       />

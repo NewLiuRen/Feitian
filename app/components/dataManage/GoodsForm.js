@@ -8,11 +8,30 @@ import { TYPE_MAP } from './GoodsModalWrap';
 const Option = Select.Option;
 
 class Goods extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      sku: ''
+    }
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const { goods } = props;
+    const { sku } = state;
+
+    if (goods && goods.sku !== sku) return {sku: goods.sku};
+    return null
+  }
+
   // 校验sku，不能与库中重复
   checkSKU = (rule, value, callback) => {
+    const { sku } = this.state;
+
     try {
       const { type } = this.props;
-      if (!value.trim() || type === TYPE_MAP.update) {
+      // 若value中的sku值与原表单中的值相同，证明为编辑状态，且值未变化
+      // 故不校验
+      if (!value.trim() || value === sku) {
         callback();
         return;
       }
@@ -27,13 +46,16 @@ class Goods extends React.Component {
   };
 
   render() {
-    const { form: { getFieldDecorator }, categoryList, type } = this.props;
+    const { form: { getFieldDecorator }, categoryList, goods } = this.props;
 
     return (
       <Form layout="horizontal" labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
-        {getFieldDecorator('id')(<Input type="hidden" />)}
+        {getFieldDecorator('id', {
+          initialValue: goods && goods.id
+        })(<Input type="hidden" />)}
         <Form.Item label="名称">
           {getFieldDecorator('name', {
+            initialValue: goods && goods.name,
             rules: [{
               required: true,
               whitespace: true,
@@ -44,6 +66,7 @@ class Goods extends React.Component {
         </Form.Item>
         <Form.Item label="SKU">
           {getFieldDecorator('sku', {
+            initialValue: goods && goods.sku,
             rules: [{
               required: true,
               whitespace: true,
@@ -57,23 +80,25 @@ class Goods extends React.Component {
         </Form.Item>
         <Form.Item label="个数/箱">
           {getFieldDecorator('max_count', {
+            initialValue: goods && goods.max_count,
             rules: [{
               required: true,
-              whitespace: true,
               message: '请输入每箱个数',
             }],
           })(
-            <InputNumber placeholder="请输入每箱个数" style={{width: '100%'}} />,
+            <InputNumber min={1} placeholder="请输入每箱个数" style={{width: '100%'}} />,
           )}
         </Form.Item>
         <Form.Item label="描述">
-          {getFieldDecorator('description')(
+          {getFieldDecorator('description', {
+            initialValue: goods && goods.description,
+          })(
             <Input placeholder="请输入描述" />,
           )}
         </Form.Item>
         <Form.Item label="类目">
           {getFieldDecorator('category_id', {
-            initialValue: null
+            initialValue: goods && goods.category_id,
           })(
             <Select>
               <Option key="category-option-none" value={null}>-----无-----</Option>

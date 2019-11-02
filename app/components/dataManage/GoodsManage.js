@@ -44,7 +44,12 @@ class GoodsManage extends Component {
   render() {
     const { goodsList, categoryMap, categoryList } = this.props;
     const { current, pageSize, keyWord } = this.state;
-    const list = goodsList.filter(w => w.name.includes(keyWord) || w.sku.includes(keyWord) || categoryMap[w.category_id].name.includes(keyWord))
+    const list = goodsList.filter(w => w.name.includes(keyWord) || w.sku.includes(keyWord) || (w.category_id && categoryMap[w.category_id].name.includes(keyWord)))
+    const categoryFilters = []
+    list.forEach(g => {
+      if (!categoryFilters.find(c => c.value === g.category_id || c.value === -1)) categoryFilters.push({ text: categoryMap[g.category_id] ? categoryMap[g.category_id].name : '其他', value: g.category_id || -1,})
+    })
+    const filters = categoryFilters.sort((a, b) => b.value - a.value);
     const columns = [
       {
         title: '',
@@ -67,14 +72,20 @@ class GoodsManage extends Component {
       {
         title: '类目',
         dataIndex: 'category_id',
-        width: '9%',
+        width: '10%',
         key: 'category_id',
+        filters,
+        filterMultiple: false,
+        onFilter: (value, record) => {
+          if (value === -1) return !record.category_id;
+          return record.category_id === value;
+        },
         render: (text, record) => (<CategoryTag category_id={text} />)
       },
       {
         title: '个数/箱',
         dataIndex: 'max_count',
-        width: '15%',
+        width: '14%',
         key: 'max_count',
       },
       {
@@ -98,8 +109,8 @@ class GoodsManage extends Component {
       <>
         <Row>
           <div className={style['operator-wrap']} style={{float: 'right', marginBottom: 10,}}>
-            <Input style={{width: 300}} placeholder="请输入搜索关键词：名称、SKU、类目" suffix={
-              <Icon type="close-circle" theme="filled" className={style.clear} value="keyWord" onClick={() => this.clearWord()} />
+            <Input style={{width: 300}} placeholder="请输入搜索关键词：名称、SKU、类目" value={keyWord} suffix={
+              <Icon type="close-circle" theme="filled" className={style.clear} onClick={() => this.clearWord()} />
             } onChange={keyWord => this.setKeyWord(keyWord)}/>
           </div>
         </Row>
