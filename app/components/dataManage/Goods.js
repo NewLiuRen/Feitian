@@ -1,6 +1,7 @@
+import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Row, Button, Table, Popconfirm, Input, Icon } from 'antd';
+import { Row, Dropdown, Menu, Button, Table, Popconfirm, Input, Icon } from 'antd';
 import * as actions from '../../actions/goods';
 import CategoryTag from '../common/CategoryTag';
 import GoodsModalWrap from './GoodsModalWrap';
@@ -17,11 +18,26 @@ class Goods extends Component {
     }
   }
 
-  setKeyWord(event) {
+  exportTemplate = () => {
+    const { categoryList } = this.props;
+    const path = localStorage.getItem('exportPath');
+    if (!path || path === 'null') {
+      ipcRenderer.on('selectedExportPath', (event, path) => {
+        localStorage.setItem('exportPath', path);
+        this.setState({path});
+      })
+      ipcRenderer.send('selectExportPath')
+    }
+    console.log('path :', path);
+    console.log('categoryList :', categoryList);
+    ipcRenderer.send('exportGoodsTemplate', { path, categoryList })
+  }
+
+  setKeyWord = event => {
     this.setState({keyWord: event.target.value});
   }
 
-  clearWord() {
+  clearWord = () => {
     this.setState({keyWord: ''});
   }
 
@@ -101,7 +117,19 @@ class Goods extends Component {
         ),
       },
     ];
-    
+    const menu = (
+      <Menu>
+        <Menu.Item key="2" onClick={this.exportTemplate}>
+          <Icon type="export" />
+          导出模板
+        </Menu.Item>
+        <Menu.Item key="1">
+          <Icon type="import" />
+          批量导入
+        </Menu.Item>
+      </Menu>
+    )
+
     return (
       <>
         <Row>
@@ -109,9 +137,9 @@ class Goods extends Component {
             <Input style={{width: 300, marginRight: 15}} placeholder="请输入搜索关键词：名称、SKU、类目" value={keyWord} suffix={
               <Icon type="close-circle" theme="filled" className={style.clear} onClick={() => this.clearWord()} />
             } onChange={keyWord => this.setKeyWord(keyWord)}/>
-            <Button onClick={this.handleAdd} type="primary" style={{marginBottom: 15}} onClick={() => add()}>
+            <Dropdown.Button type="primary" onClick={() => add()} overlay={menu} trigger={['click']} style={{marginBottom: 15}}>
               添加商品
-            </Button>
+            </Dropdown.Button>
           </div>
         </Row>
         <Table

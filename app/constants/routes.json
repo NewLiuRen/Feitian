@@ -13,5 +13,6 @@
   "DATA_MANAGE_WAREHOUSE_MANAGE": "/dataManage/warehouseManage",
   "DATA_MANAGE_CATEGORY_MANAGE": "/dataManage/categoryManage",
   "DATA_MANAGE_GOODS_MANAGE": "/dataManage/goodsManage",
-  "DATA_MANAGE_FILE_MANAGE": "/dataManage/fileManage"
+  "DATA_MANAGE_FILE_MANAGE": "/dataManage/fileManage",
+  "CONFIG": "/dataManage/config"
 }

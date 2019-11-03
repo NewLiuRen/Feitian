@@ -234,6 +234,7 @@
     "electron-debug": "^2.0.0",
     "electron-log": "^2.2.17",
     "electron-updater": "^3.2.3",
+    "exceljs": "^3.3.1",
     "history": "^4.7.2",
     "moment": "^2.24.0",
     "react": "^16.6.3",

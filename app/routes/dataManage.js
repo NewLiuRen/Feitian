@@ -9,6 +9,7 @@ import CategoryManage from '../components/dataManage/CategoryManage';
 import GoodsManage from '../components/dataManage/GoodsManage';
 import WarehouseManage from '../components/dataManage/WarehouseManage';
 import FileManage from '../components/dataManage/FileManage';
+import Config from '../components/dataManage/Config';
 
 export default () => (
   <Switch>
@@ -19,6 +20,7 @@ export default () => (
     <Route path={routes.DATA_MANAGE_CATEGORY_MANAGE} component={CategoryManage} />
     <Route path={routes.DATA_MANAGE_GOODS_MANAGE} component={GoodsManage} />
     <Route path={routes.DATA_MANAGE_FILE_MANAGE} component={FileManage} />
+    <Route path={routes.CONFIG} component={Config} />
     <Redirect from={routes.DATA_MANAGE} to={routes.DATA_MANAGE_WAREHOUSE} />  
   </Switch>
 )

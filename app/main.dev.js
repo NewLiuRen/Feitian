@@ -28,6 +28,7 @@ export default class AppUpdater {
 
 let mainWindow = null;
 
+export { mainWindow };
 // 生成数据库
 // 先改为使用Indexed DB
 // checkDB().then(flag => {
@@ -81,8 +82,8 @@ app.on('window-all-closed', () => {
 app.on('ready', async () => {
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728
+    width: 1336,
+    height: 768
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
@@ -112,8 +113,8 @@ app.on('ready', async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  // const menuBuilder = new MenuBuilder(mainWindow);
+  // menuBuilder.buildMenu();
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line

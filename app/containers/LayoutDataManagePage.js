@@ -54,6 +54,12 @@ export default class LayoutDataManagePage extends Component {
               <Menu.Item key={routes.DATA_MANAGE_WAREHOUSE_MANAGE}><NavLink to={routes.DATA_MANAGE_WAREHOUSE_MANAGE}>仓库</NavLink></Menu.Item>
               <Menu.Item key={routes.DATA_MANAGE_GOODS_MANAGE}><NavLink to={routes.DATA_MANAGE_GOODS_MANAGE}>商品</NavLink></Menu.Item>
             </SubMenu>
+            <Menu.Item key={routes.CONFIG}>
+              <NavLink to={routes.CONFIG}>
+                <Icon type="setting" />
+                系统设置
+              </NavLink>
+            </Menu.Item>
           </Menu>
         </Sider>
         <Content style={{ height: '100%', padding: '10px' }}>
