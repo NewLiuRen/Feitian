@@ -49,12 +49,10 @@ ipcMain.on('exportGoodsTemplate', (event, arg) => {
       })
     })
   }
-  console.log('categoryList :', categoryList);
   // 创建工作簿
   const workbook = new Excel.Workbook();
   // 添加工作表，冻结第一行
   var sheet = workbook.addWorksheet('商品模板', {views:[{state: 'frozen', xSplit: 1, ySplit: 1}]});
-  
   // 添加列标题并定义列键和宽度
   sheet.columns = columns;
 
@@ -68,7 +66,7 @@ ipcMain.on('exportGoodsTemplate', (event, arg) => {
     row.getCell('category').dataValidation = {
       type: 'list',
       allowBlank: true,
-      formulae: [`"${categoryList.join(',')}"`],
+      formulae: [`"${categoryList.map(c => c.name).join(',')}"`],
     };
     row.getCell('max_count').dataValidation = {
       type: 'whole',

@@ -45,6 +45,8 @@ class Goods extends Component {
           </>
         )
       })
+    } else {
+      this.exportTemplateHandle()
     }
   }
   
@@ -60,7 +62,6 @@ class Goods extends Component {
       ipcRenderer.send('exportGoodsTemplate', { path, categoryList })
     }
     ipcRenderer.on('exportGoodsTemplateReply', (event, res) => {
-      console.log('exportGoodsTemplateReply :', res);
       if (res.success) message.success(res.msg)
       else message.error(res.msg)
     })
