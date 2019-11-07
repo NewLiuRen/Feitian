@@ -26,10 +26,12 @@ export default class FileViewCalendar extends Component {
 
   // 按照moment对象的日期，搜索其所属月中的所有文件
   searchFileList = (momentVal) => {
-    const startDate = moment().startOf('month').valueOf();
-    const endDate = moment().endOf('month').valueOf();
+    const date = momentVal || moment()
+    const startDate = date.startOf('month').valueOf();
+    const endDate = date.endOf('month').valueOf();
     getFileListByDate(startDate, endDate).then(fileList => {
       this.setState({fileList})
+      return null
     })
   }
 
@@ -50,11 +52,11 @@ export default class FileViewCalendar extends Component {
     const getStatus = (f) => {
       if (!f.is_import) {
         return 'blue';
-      } else if (f.is_import && !f.is_order) {
+      } if (f.is_import && !f.is_order) {
         return 'green';
-      } else {
+      } 
         return 'orange';
-      }
+      
     }
 
     return (
@@ -70,10 +72,9 @@ export default class FileViewCalendar extends Component {
   
   // 显示预览表格
   showPreview = (currentFile) => {
-    console.log('currentFile :', currentFile);
     getRecordsByFileId(currentFile.id).then(({records}) => {
-      console.log('records :', records);
       this.setState({records, currentFile, visible: true});
+      return null
     })
   }
 

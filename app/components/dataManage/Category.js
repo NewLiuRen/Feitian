@@ -94,7 +94,7 @@ class Category extends Component {
     ];
     
     return (
-      <>
+      <div style={{overflow: 'hidden'}}>
         <Modal
           title={`${type === typeMap.create ? '新建' : '编辑'}类目`}
           width={400}
@@ -121,7 +121,7 @@ class Category extends Component {
           scroll={{ y: 'calc(100vh - 270px)' }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
-      </>
+      </div>
     );
   }
 }

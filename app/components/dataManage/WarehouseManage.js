@@ -75,7 +75,7 @@ class WarehouseManage extends Component {
     ];
     
     return (
-      <>
+      <div style={{overflow: 'hidden'}}>
         <Row>
           <div className={style['operator-wrap']} style={{float: 'right', marginBottom: 10,}}>
             <Input value={keyWord} placeholder="请输入搜索关键词：名称" suffix={
@@ -90,7 +90,7 @@ class WarehouseManage extends Component {
           scroll={{ y: 'calc(100vh - 270px)' }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
-      </>
+      </div>
     )
   }
 }

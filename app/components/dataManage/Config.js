@@ -6,6 +6,14 @@ import * as actions from '../../actions/category';
 
 const { Search } = Input;
 
+export const setSelectPathCommand = (fn) => {
+  ipcRenderer.on('selectedExportPath', (event, path) => {
+    if (path) localStorage.setItem('exportPath', path);
+    if (fn && typeof fn === 'function') fn(path);
+  })
+  ipcRenderer.send('selectExportPath')
+}
+
 class ConfigForm extends Component {
   constructor(props) {
     super(props);
@@ -15,17 +23,14 @@ class ConfigForm extends Component {
   }
 
   componentDidMount() {
-    console.log('this.props :', this.props);
     const path = localStorage.getItem('exportPath');
     if (path) this.setState({path})
   }
 
   setSelectPathCommand = () => {
-    ipcRenderer.on('selectedExportPath', (event, path) => {
-      localStorage.setItem('exportPath', path);
+    setSelectPathCommand((path) => {
       this.setState({path});
-    })
-    ipcRenderer.send('selectExportPath')
+    });
   }
 
   render() {

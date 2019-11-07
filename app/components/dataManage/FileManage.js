@@ -84,7 +84,7 @@ export default class FileManage extends Component {
     ];
     
     return (
-      <>
+      <div style={{overflow: 'hidden'}}>
         <Row>
           <div style={{float: 'right', marginBottom: 10,}}>
             <RangePicker format={'YYYY-MM-DD'} />
@@ -97,7 +97,7 @@ export default class FileManage extends Component {
           scroll={{ y: 'calc(100vh - 270px)' }}
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
-      </>
+      </div>
     )
   }
 }

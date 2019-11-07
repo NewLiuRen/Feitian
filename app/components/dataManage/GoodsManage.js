@@ -106,7 +106,7 @@ class GoodsManage extends Component {
     ];
     
     return (
-      <>
+      <div style={{overflow: 'hidden'}}>
         <Row>
           <div className={style['operator-wrap']} style={{float: 'right', marginBottom: 10,}}>
             <Input style={{width: 300}} placeholder="请输入搜索关键词：名称、SKU、类目" value={keyWord} suffix={
@@ -122,7 +122,7 @@ class GoodsManage extends Component {
           scrollToFirstRowOnChange
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
-      </>
+      </div>
     )
   }
 }

@@ -39,11 +39,11 @@ class FilePreviewTable extends Component {
     const dataSourceGoodsMap = {}
 
     // 遍历records，计算warehouse列表，及计算每个商品同仓库的对应关系
-    // 商品同仓库对应关系格式：{goods_id: {warehouse_id: max_count}}
+    // 商品同仓库对应关系格式：{goods_id: {warehouse_id: count}}
     records.forEach(r => {
       if (!warehouseList.find(w => w === r.warehouse_id)) warehouseList.push(r.warehouse_id)
       if (!dataSourceGoodsMap[r.goods_id]) dataSourceGoodsMap[r.goods_id] = {}
-      dataSourceGoodsMap[r.goods_id][`warehouse_${r.warehouse_id}`] = r.max_count;
+      dataSourceGoodsMap[r.goods_id][`warehouse_${r.warehouse_id}`] = r.count;
     })
 
     // 根据warehouseList，计算表格列
@@ -64,8 +64,8 @@ class FilePreviewTable extends Component {
         category: category_id || -1,
       }
       if (!categoryFilters.find(c => c.value === category_id || c.value === -1)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id || -1,})
-      Object.entries(wobj).forEach(([wkey, max_count]) => {
-        record[wkey] = max_count;
+      Object.entries(wobj).forEach(([wkey, count]) => {
+        record[wkey] = count;
       })
       return record;
     })

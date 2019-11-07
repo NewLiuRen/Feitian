@@ -1,10 +1,12 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Row, Dropdown, Menu, Button, Table, Popconfirm, Input, Icon } from 'antd';
+import { Row, Dropdown, Menu, Button, Table, Popconfirm, Input, Icon, notification, message } from 'antd';
 import * as actions from '../../actions/goods';
+import routes from '../../constants/routes';
 import CategoryTag from '../common/CategoryTag';
 import GoodsModalWrap from './GoodsModalWrap';
+import { setSelectPathCommand } from './Config';
 
 import style from './WarehouseManage.scss';
 
@@ -19,18 +21,49 @@ class Goods extends Component {
   }
 
   exportTemplate = () => {
+    const { categoryList, history } = this.props;
+    if (categoryList.length === 0) {
+      notification.info({
+        message: '注意',
+        description: '您还没有类目记录，添加类目记录可以帮助您更好的管理数据',
+        duration: 0,
+        key: 'category-key',
+        btn: (
+          <>
+            <Button size="small" style={{marginRight: 15}} onClick={() => {
+              notification.close('category-key');
+              this.exportTemplateHandle()
+            }}>
+              继续导出
+            </Button>
+            <Button type="primary" size="small" onClick={() => {
+              notification.close('category-key');
+              history.replace(routes.DATA_MANAGE_CATEGORY);
+            }}>
+              点击前往录入
+            </Button>
+          </>
+        )
+      })
+    }
+  }
+  
+  exportTemplateHandle = () => {
+    ipcRenderer.removeAllListeners('exportGoodsTemplateReply')
     const { categoryList } = this.props;
     const path = localStorage.getItem('exportPath');
     if (!path || path === 'null') {
-      ipcRenderer.on('selectedExportPath', (event, path) => {
-        localStorage.setItem('exportPath', path);
-        this.setState({path});
+      setSelectPathCommand(() => {
+        ipcRenderer.send('exportGoodsTemplate', { path, categoryList })
       })
-      ipcRenderer.send('selectExportPath')
+    } else {
+      ipcRenderer.send('exportGoodsTemplate', { path, categoryList })
     }
-    console.log('path :', path);
-    console.log('categoryList :', categoryList);
-    ipcRenderer.send('exportGoodsTemplate', { path, categoryList })
+    ipcRenderer.on('exportGoodsTemplateReply', (event, res) => {
+      console.log('exportGoodsTemplateReply :', res);
+      if (res.success) message.success(res.msg)
+      else message.error(res.msg)
+    })
   }
 
   setKeyWord = event => {
@@ -131,7 +164,7 @@ class Goods extends Component {
     )
 
     return (
-      <>
+      <div style={{overflow: 'hidden'}}>
         <Row>
           <div style={{float: 'right'}}>
             <Input style={{width: 300, marginRight: 15}} placeholder="请输入搜索关键词：名称、SKU、类目" value={keyWord} suffix={
@@ -150,7 +183,7 @@ class Goods extends Component {
           scrollToFirstRowOnChange
           onChange={({current, pageSize}) => {this.setState({current, pageSize})}}
         />
-      </>
+      </div>
     );
   }
 }
