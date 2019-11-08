@@ -50,6 +50,7 @@ class Goods extends Component {
     }
   }
   
+  // 导出模板
   exportTemplateHandle = () => {
     ipcRenderer.removeAllListeners('exportGoodsTemplateReply')
     const { categoryList } = this.props;
@@ -64,6 +65,14 @@ class Goods extends Component {
     ipcRenderer.on('exportGoodsTemplateReply', (event, res) => {
       if (res.success) message.success(res.msg)
       else message.error(res.msg)
+    })
+  }
+
+  // 导入模板 
+  importTemplate = () => {
+    ipcRenderer.send('importGoodsTemplate')
+    ipcRenderer.on('importGoodsTemplateReply', (event, res) => {
+      console.log('res :', res);
     })
   }
 
@@ -157,8 +166,8 @@ class Goods extends Component {
           <Icon type="export" />
           导出模板
         </Menu.Item>
-        <Menu.Item key="1">
-          <Icon type="import" />
+        <Menu.Item key="1" onClick={this.importTemplate}>
+          <Icon type="import"/>
           批量导入
         </Menu.Item>
       </Menu>
