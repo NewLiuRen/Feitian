@@ -6,6 +6,7 @@ import * as actions from '../../actions/goods';
 import routes from '../../constants/routes';
 import CategoryTag from '../common/CategoryTag';
 import GoodsModalWrap from './GoodsModalWrap';
+import GoodsSynchronousModalWrap from './GoodsSynchronousModalWrap';
 import { setSelectPathCommand } from './Config';
 
 import style from './WarehouseManage.scss';
@@ -199,6 +200,7 @@ class Goods extends Component {
 }
 
 const GoodsWithModal = GoodsModalWrap(Goods)
+const GoodsSynchronousModal = GoodsSynchronousModalWrap(GoodsWithModal)
 
 const mapStateToProps = state => ({
   categoryList: state.category.list,
@@ -210,6 +212,8 @@ const mapDispatchToProps = {
   addGoods: actions.fetchAddGoods,
   editGoods: actions.fetchUpdateGoods,
   freezeGoods: actions.fetchFreezeGoods,
+  addGoodsToRedex: actions.addGoods,
+  fetchGoodsMap: actions.fetchSetGoodsWithDelMap
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GoodsWithModal);
+export default connect(mapStateToProps, mapDispatchToProps)(GoodsSynchronousModal);

@@ -72,5 +72,6 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_UPDATE_GOODS, updateGoods),
     takeLatest(actionTypes.FETCH_FREEZE_GOODS, freezeGoods),
     takeLatest(actionTypes.FETCH_RECOVER_GOODS, recoverGoods),
+    takeLatest(actionTypes.FETCH_SET_GOODS_WITH_DEL_MAP, setGoodsWithDelMap),
   ]);
 }

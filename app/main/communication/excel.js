@@ -106,8 +106,17 @@ ipcMain.on('exportGoodsTemplate', (event, arg) => {
 // 导入商品模板
 ipcMain.on('importGoodsTemplate', (event) => {
   const workbook = new Excel.Workbook();
-  const goods = {name: '', description: '', category_name: '', sku: '',
-  max_count: '',}
+  // 列名称同key的映射关系
+  const column2keyMap = {}
+  // key同列名的映射关系
+  const key2columnMap = {}
+  // 序号映射关系
+  const indexMap = {}
+  COLUMNS.forEach(c => {
+    column2keyMap[c.header] = c.key;
+    key2columnMap[c.key] = c.header;
+  })
+  const goods = {index: '', name: '', description: '', category: '', sku: '', max_count: '',}
   
   dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
@@ -119,14 +128,33 @@ ipcMain.on('importGoodsTemplate', (event) => {
     workbook.xlsx.readFile(path[0])
       .then(() => {
         const worksheet = workbook.getWorksheet(1)
+        const rowsLen = worksheet._rows.length;
+        let data = {};
+        if (rowsLen === 0) {
+          event.sender.send('importGoodsTemplateReply', {success: false, msg: '模板中不存在数据'});
+          return;
+        }
         worksheet.eachRow((row, rowNumber) => {
-          console.log('rowNumber :', rowNumber);
+          if (rowNumber === 1) data = null;
+          else data = Object.assign({}, goods);
           row.eachCell((cell, colNumber) => {
-            console.log('cell :', cell);
-            console.log('colNumber :', colNumber);
-            event.sender.send('importGoodsTemplateReply', {cell: cell.value, colNumber})
+            const cellVal = cell.value;
+            // 第一列的话查找序号同key的映射
+            if (rowNumber === 1 && cellVal in column2keyMap) {
+              indexMap[colNumber] = column2keyMap[cellVal];
+            } else if (data) {
+              data[indexMap[colNumber]] = cellVal;
+            }
           });
+          // 除序号外其他属性，用来检验数据是否有效
+          const dataExceptIndex = Object.assign({}, data);
+          delete dataExceptIndex.index
+          // 除序号外，若数据都为空，则为无效数据，否则为有效数据，想渲染进程发送该数据
+          if (Object.values(dataExceptIndex).some(v => v)) {
+            event.sender.send('importGoodsTemplateSendData', {data})
+          }
         });
+        event.sender.send('importGoodsTemplateReply', {success: true, msg: ''});
         return null;
       });
   })

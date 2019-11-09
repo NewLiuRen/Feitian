@@ -7,6 +7,7 @@ export const CLEAR_GOODS_WITH_DEL_LIST = 'CLEAR_GOODS_WITH_DEL_LIST';
 // 设置id和对象的映射对象
 export const SET_GOODS_MAP = 'SET_GOODS_MAP';
 
+export const FETCH_SET_GOODS_WITH_DEL_MAP = 'FETCH_SET_GOODS_WITH_DEL_MAP';
 export const FETCH_GET_GOODS_LIST = 'FETCH_GET_GOODS_LIST';
 export const FETCH_GET_GOODS_WITH_DEL_LIST = 'FETCH_GET_GOODS_WITH_DEL_LIST';
 export const FETCH_ADD_GOODS = 'FETCH_ADD_GOODS';
@@ -33,6 +34,9 @@ export const updateGoods = goods => ({ type: UPDATE_GOODS, payload: goods })
 export const deleteGoods = id => ({ type: DELETE_GOODS, payload: { id } })
 
 export const clearGoodsWithDelList = () => ({ type: CLEAR_GOODS_WITH_DEL_LIST })
+
+// 从数据库中获取数据并设置映射关系
+export const fetchSetGoodsWithDelMap = () => ({ type: FETCH_SET_GOODS_WITH_DEL_MAP })
 
 // 从数据库中获取列表
 export const fetchGetGoodsList = () => ({ type: FETCH_GET_GOODS_LIST })
