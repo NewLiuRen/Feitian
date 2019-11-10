@@ -72,9 +72,7 @@ class Goods extends Component {
   // 导入模板 
   importTemplate = () => {
     ipcRenderer.send('importGoodsTemplate')
-    ipcRenderer.on('importGoodsTemplateReply', (event, res) => {
-      console.log('res :', res);
-    })
+    this.props.showSynchronousModal()
   }
 
   setKeyWord = event => {

@@ -124,11 +124,15 @@ ipcMain.on('importGoodsTemplate', (event) => {
       { name: 'Excel', extensions: ['xlsx', 'xls'] }
     ]
   }, path => {
-    if (!path) return
+    if (!path) {
+      event.sender.send('importGoodsTemplateReply', {success: false, msg: ''});
+      return
+    }
     workbook.xlsx.readFile(path[0])
       .then(() => {
         const worksheet = workbook.getWorksheet(1)
         const rowsLen = worksheet._rows.length;
+        const list = [];
         let data = {};
         if (rowsLen === 0) {
           event.sender.send('importGoodsTemplateReply', {success: false, msg: '模板中不存在数据'});
@@ -151,9 +155,10 @@ ipcMain.on('importGoodsTemplate', (event) => {
           delete dataExceptIndex.index
           // 除序号外，若数据都为空，则为无效数据，否则为有效数据，想渲染进程发送该数据
           if (Object.values(dataExceptIndex).some(v => v)) {
-            event.sender.send('importGoodsTemplateSendData', {data})
+            list.push(data);
           }
         });
+        event.sender.send('importGoodsTemplateSendData', {list})
         event.sender.send('importGoodsTemplateReply', {success: true, msg: ''});
         return null;
       });
