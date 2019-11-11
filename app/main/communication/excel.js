@@ -155,6 +155,7 @@ ipcMain.on('importGoodsTemplate', (event) => {
           delete dataExceptIndex.index
           // 除序号外，若数据都为空，则为无效数据，否则为有效数据，想渲染进程发送该数据
           if (Object.values(dataExceptIndex).some(v => v)) {
+            data.index = rowNumber;
             list.push(data);
           }
         });

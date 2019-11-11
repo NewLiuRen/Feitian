@@ -17,7 +17,7 @@ export const getGoodsById = key => db.getDataById(STORE_NAME, key).then(goods =>
 export const getGoodsByCategoryId = categoryId => db.getRangeDataByIndex(STORE_NAME, 'category_id', {eq: parseInt(categoryId, 10)}).then(list => list)
 
 // 按照sku查询指定商品
-export const getGoodsBySku = sku => db.getDateByIndex(STORE_NAME, 'sku', sku).then(goods => goods)
+export const getGoodsBySku = sku => db.getDateByIndex(STORE_NAME, 'sku', `${sku}`).then(goods => goods)
 
 // 按照商品名称查询指定商品
 export const getGoodsByName = name => db.getDateByIndex(STORE_NAME, 'name', name).then(goods => goods)
@@ -38,8 +38,7 @@ export const addGoods = params => {
 }
 
 // 更新商品
-export const updateGoods = params => {
-  return getGoodsById(params.id).then(g => {
+export const updateGoods = params => getGoodsById(params.id).then(g => {
     compareObject(goodsObj, params);
     const goods = Object.assign({}, g, params);
     if (goods.category_id) goods.category_id = parseInt(goods.category_id, 10)
@@ -47,7 +46,6 @@ export const updateGoods = params => {
       db.updateData(STORE_NAME, goods).then(({success}) => resolve({ success, data: goods }))
     })
   })
-}
 
 // 冻结商品
 export const freezeGoods = key => getGoodsById(key).then(g => {

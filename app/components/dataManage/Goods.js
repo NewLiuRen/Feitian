@@ -210,8 +210,7 @@ const mapDispatchToProps = {
   addGoods: actions.fetchAddGoods,
   editGoods: actions.fetchUpdateGoods,
   freezeGoods: actions.fetchFreezeGoods,
-  addGoodsToRedex: actions.addGoods,
-  fetchGoodsMap: actions.fetchSetGoodsWithDelMap
+  fetchGetGoodsList: actions.fetchGetGoodsList
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(GoodsSynchronousModal);
