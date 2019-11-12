@@ -31,6 +31,13 @@ class FilePreviewTable extends Component {
         filterMultiple: false,
         onFilter: (value, record) => record.category === value,
         render: (text, record) => (<CategoryTag category_id={text} />)
+      }, {
+        title: '个数/箱',
+        width: 65,
+        key: 'max_count',
+        dataIndex: 'max_count',
+        fixed: 'left',
+        align: 'right',
       }
     ];
     let dataSource = []
@@ -57,13 +64,16 @@ class FilePreviewTable extends Component {
 
     // 根据dataSourceGoodsMap，计算dataSource
     dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
-      const category_id = goodsMap[gid].category_id
+      const category_id = goodsMap[gid].category_id || -1
+      const max_count = goodsMap[gid].max_count
       const record = {
         key: `record_${gid}`,
         goods: goodsMap[gid].name, 
-        category: category_id || -1,
+        category: category_id,
+        max_count,
       }
-      if (!categoryFilters.find(c => c.value === category_id || c.value === -1)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id || -1,})
+      
+      if (!categoryFilters.find(c => c.value === category_id)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id,})
       Object.entries(wobj).forEach(([wkey, count]) => {
         record[wkey] = count;
       })
@@ -76,7 +86,7 @@ class FilePreviewTable extends Component {
       <Table
         columns={columns}
         dataSource={dataSource}
-        scroll={{ x: 700, y: 'calc(100vh - 260px)' }}
+        scroll={{ x: 700, y: 'calc(100vh - 200px)' }}
         bordered
         pagination={false}
         size="small"

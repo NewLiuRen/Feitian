@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { Row, Col, Tabs, Button, Progress, message } from 'antd';
 import { addFile } from '../../db/file';
 import FileInfoForm from './FileInfoForm';
-import FileGoodsForm from './FileGoodsForm';
-import FileGoodsTable from './FileGoodsTable';
+import FileGoodsList from './FileGoodsList';
+import FileGoodsDetail from './FileGoodsDetail';
 import * as actions from '../../actions/fileRecord';
 
 const { TabPane } = Tabs;
@@ -44,7 +44,7 @@ class FileGenerateTable extends Component {
         message.error('文件创建失败');
         return false
       } 
-        message.success('文件创建成功，请录入数据');
+      message.success('文件创建成功，请录入数据');
       
       setFileInfo(file);
       // 如果redux的file中warehouse为空，否则为新建状态，仓库列表从redux的warehouse中获取
@@ -86,7 +86,7 @@ class FileGenerateTable extends Component {
                 <FileInfoForm isCreate={isCreate} wrappedComponentRef={form => {this.infoFormRef = form} } />
               </Col>
               <Col span={10} offset={2} style={{overflow: 'auto'}}>
-                <FileGoodsForm isCreate={isCreate} wrappedComponentRef={form => {this.goodsFormRef = form}}/>
+                <FileGoodsList isCreate={isCreate} wrappedComponentRef={form => {this.goodsFormRef = form}} {...this.props}/>
               </Col>
               <Col span={22}><Button type="primary" block onClick={() => {this.createFile()}}>完 成</Button></Col>
             </Row>
@@ -94,7 +94,7 @@ class FileGenerateTable extends Component {
           {
             wList.map(w => (
               <TabPane onClick={() => {console.log(w)}} disabled={isCreate} tab={`${w.name}`} key={`warehouse-${w.id}`}>
-                <FileGoodsTable warehouse={w} />
+                <FileGoodsDetail warehouse={w} />
               </TabPane>
             ))
           }

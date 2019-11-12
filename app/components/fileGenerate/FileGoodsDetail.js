@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Table, Input, Button, Popconfirm, Form } from 'antd';
 
-export default class FileGoodsTable extends Component {
+export default class FileGoodsDetail extends Component {
   constructor(props) {
     super(props);
     

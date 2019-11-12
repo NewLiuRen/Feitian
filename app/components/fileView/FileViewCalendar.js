@@ -1,19 +1,23 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import moment from 'moment';
 import { Calendar, Button, Select, Layout, Row, Col, Badge, Drawer, Alert } from 'antd';
+import * as actions from '../../actions/fileRecord';
 import { getFileListByDate } from '../../db/file';
 import { getRecordsByFileId } from '../../db/records';
 import FilePreviewTable from './FilePreviewTable';
+import routes from '../../constants/routes';
 
 import styles from './FileViewCalendar.scss';
 
 const ButtonGroup = Button.Group;
 
-export default class FileViewCalendar extends Component {
+class FileViewCalendar extends Component {
   constructor(props) {
     super(props);
     this.state = {
       fileList: [],
+      records: [],
       currentFile: null,
       visible: false,
     }
@@ -22,6 +26,8 @@ export default class FileViewCalendar extends Component {
   // 组件加载后载入所有仓库（包含删除）列表
   componentDidMount() {
     this.searchFileList();
+    // 进入时清空文件数据
+    this.props.clearFile();
   }
 
   // 按照moment对象的日期，搜索其所属月中的所有文件
@@ -83,9 +89,22 @@ export default class FileViewCalendar extends Component {
     this.setState({ visible: false, });
   }
 
+  // 载入数据
+  importFileData = () => {
+    const { setFileInfo, setFileRecords, setAllFileGoods } = this.props;
+    const { currentFile, records } = this.state;
+    const goods = new Set();
+    records.forEach(r => goods.add(r.goods_id))
+    setAllFileGoods([...goods])
+    setFileInfo(currentFile);
+    setFileRecords(records);
+  }
+
   // 载入文件数据并跳转至数据录入页
   gotoInputData = () => {
-
+    const { history } = this.props;
+    this.importFileData()
+    history.replace(`${routes.File_GENERATE_TABLE}/edit`);
   }
 
   render() {
@@ -164,13 +183,13 @@ export default class FileViewCalendar extends Component {
           onClose={this.hidePreview}
           visible={this.state.visible}
         >
-          <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下商品的每箱最大数量" showIcon />
-          <Layout style={{height: 'calc(100vh - 220px)', background: '#ffffff'}}>
+          {/* <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下商品的每箱最大数量" showIcon /> */}
+          <Layout style={{height: 'calc(100vh - 160px)', background: '#ffffff'}}>
             <FilePreviewTable records={records} />
           </Layout>
           <Row style={{marginTop: 20}}>{
             currentFile && !currentFile.is_import ? 
-            (<Button type="primary" block>数据录入</Button>) :
+            (<Button type="primary" block onClick={this.gotoInputData}>数据录入</Button>) :
             (<ButtonGroup style={{width: '100%'}}>
               <Button type="primary" style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>
               <Button type="primary" style={{width: '50%', background: '#d97309', borderColor: '#d97309'}}>箱贴导出</Button>
@@ -182,3 +201,12 @@ export default class FileViewCalendar extends Component {
     )
   }
 }
+
+const mapDispatchToProps = {
+  setFileInfo: actions.setFile,
+  setFileRecords: actions.setRecords,
+  setAllFileGoods: actions.setAllGoods,
+  clearFile: actions.clearFileRecord
+}
+
+export default connect(null, mapDispatchToProps)(FileViewCalendar)

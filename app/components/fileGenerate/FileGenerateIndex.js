@@ -4,10 +4,14 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Button, notification } from 'antd';
 import routes from '../../constants/routes.json';
 import style from './FileGenerateIndex.scss';
+import * as actions from '../../actions/fileRecord';
 
 class FileGenerateIndex extends Component {
   componentDidMount() {
-    const { warehouse, goods, history } = this.props;
+    const { warehouse, goods, history, clearFile } = this.props;
+
+    // 进入新建时清空数据
+    clearFile();
 
     const notificationGenerate = ({description, key, fn}) => {
       notification.info({
@@ -68,4 +72,8 @@ const mapStateToProps = state => ({
   goods: state.goods.list,
 })
 
-export default connect(mapStateToProps)(FileGenerateIndex)
+const mapDispatchToProps = {
+  clearFile: actions.clearFileRecord
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateIndex)

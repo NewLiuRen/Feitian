@@ -4,7 +4,7 @@ import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Modal } from 
 import GoodsModalWrap from '../dataManage/GoodsModalWrap';
 import { fetchAddGoods } from '../../actions/goods';
 import { addGoods, setAllGoods, removeGoods } from '../../actions/fileRecord';
-import style from './FileGoodsForm.scss';
+import style from './FileGoodsList.scss';
 
 const { TreeNode } = TreeSelect;
 const ButtonGroup = Button.Group;
@@ -30,9 +30,9 @@ class FileGoods extends Component {
   };
 
   render() {
-    const { fileGoods, goodsList, categoryMap, form: {getFieldDecorator} } = this.props;
+    const { match, fileGoods, goodsList, categoryMap, form: {getFieldDecorator} } = this.props;
     const treeData = {other: []};
-
+    const type = match && match.params.type;
     // 为树搜索组件格式化商品数据，
     // 规则为：存在类目，则放入相关类目属性下，否则放入其他（other）属性下
     goodsList.forEach(g => {
@@ -103,6 +103,7 @@ class FileGoods extends Component {
               if (node.isLeaf && (node.title.includes(inputValue) || node.sku.includes(inputValue))) return true;
               return false;
             }}
+            disabled={type === 'edit'}
             allowClear
             treeDefaultExpandAll
           >

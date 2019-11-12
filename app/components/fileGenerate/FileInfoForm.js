@@ -8,7 +8,7 @@ const { Text } = Typography;
 
 class FileInfo extends Component {
   render() {
-    const { goods, goodsMap, form: { getFieldDecorator } } = this.props;
+    const { goods, goodsMap, fileInfo: {name, create_date, description}, form: { getFieldDecorator } } = this.props;
     const date = moment(new Date(), 'YYYY-MM-DD');
 
     return (
@@ -18,7 +18,7 @@ class FileInfo extends Component {
           {getFieldDecorator('id')(<Input type="hidden" />)}
           <Form.Item label="名称">
             {getFieldDecorator('name', {
-              initialValue: `${date.format('YYYY.MM.DD')}入仓数fcs`,
+              initialValue: name || `${date.format('YYYY.MM.DD')}入仓数fcs`,
               rules: [{
                 required: true,
                 whitespace: true,
@@ -28,12 +28,14 @@ class FileInfo extends Component {
           </Form.Item>
           <Form.Item label="创建时间">
             {getFieldDecorator('create_date', {
-              initialValue: date,
+              initialValue: create_date ? moment(create_date) : date,
               rules: [{ type: 'object', required: true, message: '请输入创建时间' }],
             })(<DatePicker style={{width: '100%'}} />)}
           </Form.Item>
           <Form.Item label="描述">
-            {getFieldDecorator('description')(
+            {getFieldDecorator('description', {
+              initialValue: description || '',
+            })(
               <Input placeholder="请输入描述" />,
             )}
           </Form.Item>
@@ -63,6 +65,7 @@ const FileInfoForm = Form.create(fileInfoObj)(FileInfo);
 const mapStateToProps = state => ({
   goods: state.fileRecord.goods,
   goodsMap: state.goods.map,
+  fileInfo: state.fileRecord.file,
 })
 
 export default connect(mapStateToProps)(FileInfoForm);
