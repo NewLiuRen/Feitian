@@ -7,6 +7,7 @@ import { getFileListByDate } from '../../db/file';
 import { getRecordsByFileId } from '../../db/records';
 import FilePreviewTable from './FilePreviewTable';
 import routes from '../../constants/routes';
+import { GOODS_TMP } from '../../constants/goods';
 
 import styles from './FileViewCalendar.scss';
 
@@ -91,11 +92,16 @@ class FileViewCalendar extends Component {
 
   // 载入数据
   importFileData = () => {
-    const { setFileInfo, setFileRecords, setAllFileGoods } = this.props;
+    const { setFileInfo, setFileRecords, setAllFileGoods, setAllFileWarehouse } = this.props;
     const { currentFile, records } = this.state;
     const goods = new Set();
-    records.forEach(r => goods.add(r.goods_id))
-    setAllFileGoods([...goods])
+    const warehouse = new Set();
+    records.forEach(r => {
+      warehouse.add(r.warehouse_id)
+      goods.add(r.goods_id)
+    })
+    setAllFileGoods([...goods].map(id => Object.assign({}, GOODS_TMP, {id, exist: true})));
+    setAllFileWarehouse([...warehouse]);
     setFileInfo(currentFile);
     setFileRecords(records);
   }
@@ -206,6 +212,7 @@ const mapDispatchToProps = {
   setFileInfo: actions.setFile,
   setFileRecords: actions.setRecords,
   setAllFileGoods: actions.setAllGoods,
+  setAllFileWarehouse: actions.setAllWarehouse,
   clearFile: actions.clearFileRecord
 }
 

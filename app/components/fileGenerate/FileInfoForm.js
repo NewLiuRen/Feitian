@@ -43,7 +43,7 @@ class FileInfo extends Component {
         <Divider orientation="left">所选商品</Divider>
         <div>
           {
-            goods.map((goods_id, i) => (
+            goods.map(({id: goods_id}, i) => (
               <span key={`show-goods-${i}`}>
                 {(goodsMap[goods_id] && goodsMap[goods_id].name) ? (
                   <Text type="warning">{goodsMap[goods_id].name}</Text>

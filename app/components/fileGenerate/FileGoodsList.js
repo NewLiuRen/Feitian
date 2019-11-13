@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Modal } from 'antd';
+import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Popconfirm } from 'antd';
 import GoodsModalWrap from '../dataManage/GoodsModalWrap';
 import { fetchAddGoods } from '../../actions/goods';
-import { addGoods, setAllGoods, removeGoods } from '../../actions/fileRecord';
+import { addGoods, setAllGoods, removeGoods, fetchUpdateRecords } from '../../actions/fileRecord';
 import style from './FileGoodsList.scss';
 
 const { TreeNode } = TreeSelect;
@@ -12,6 +12,9 @@ const ButtonGroup = Button.Group;
 class FileGoods extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      visible: false,
+    }
     this.layoutRef = null;
   }
 
@@ -29,8 +32,17 @@ class FileGoods extends Component {
     this.props.removeFileGoods(index);
   };
 
+  // 从redux中删除商品数据
+  removeToRedux = (goods, index) => {
+    const { fileInfo, fileRecords, updateRecords } = this.props;
+    const newList = fileRecords.filter(r => r.goods_id !== goods.id)
+    this.props.removeFileGoods(index);
+    updateRecords(fileInfo.id, newList)
+  }
+
   render() {
     const { match, fileGoods, goodsList, categoryMap, form: {getFieldDecorator} } = this.props;
+    const { visible } = this.state;
     const treeData = {other: []};
     const type = match && match.params.type;
     // 为树搜索组件格式化商品数据，
@@ -74,7 +86,39 @@ class FileGoods extends Component {
       },
     };
 
+    // 删除按钮生成（分为已存在商品和新添加商品）
+    const generateRemoveEl = (list, goods, index) => {
+      const { exist } = goods;
+      if (list.length > 0) {
+        if (exist) {
+          return (
+            <Popconfirm
+              placement="topRight"
+              title={'请确认是否删除该商品，删除后商品中数据也会丢失'}
+              onConfirm={() => this.removeToRedux(goods, index)}
+            >
+              <Icon
+                className={style['delete-button']}
+                type="minus-circle-o"
+                style={{fontSize: 16, color: '#F04A4A'}}
+              />
+            </Popconfirm>
+          )
+        }
+        return (
+          <Icon
+            className={style['delete-button']}
+            type="minus-circle-o"
+            onClick={() => this.remove(index)}
+            style={{fontSize: 16, color: '#F04A4A'}}
+          />
+        )
+      }
+      return null
+    }
+
     const list = fileGoods;
+    const goodsIdList = list.map(g => g.id);
     const formItems = list.map((k, index) => (
       <Form.Item
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
@@ -103,7 +147,7 @@ class FileGoods extends Component {
               if (node.isLeaf && (node.title.includes(inputValue) || node.sku.includes(inputValue))) return true;
               return false;
             }}
-            disabled={type === 'edit'}
+            disabled={k.exist}
             allowClear
             treeDefaultExpandAll
           >
@@ -112,7 +156,7 @@ class FileGoods extends Component {
                   <TreeNode value={`category-${k}`} title={calcCategoryTitle(k)} key={`category-${k}`} isLeaf={false} selectable={false}>
                     {
                       gList.map(g => (
-                        <TreeNode value={g.id} title={g.name} sku={g.sku} key={`goods-${g.id}`} disabled={fileGoods.includes(g.id)} isLeaf />
+                        <TreeNode value={g.id} title={g.name} sku={g.sku} key={`goods-${g.id}`} disabled={goodsIdList.includes(g.id)} isLeaf />
                       ))
                     }
                   </TreeNode>
@@ -121,14 +165,7 @@ class FileGoods extends Component {
             }
           </TreeSelect>
         )}
-        {list.length > 1 ? (
-          <Icon
-            className={style['delete-button']}
-            type="minus-circle-o"
-            onClick={() => this.remove(index)}
-            style={{fontSize: 16, color: '#F04A4A'}}
-          />
-        ) : null}
+        {generateRemoveEl(list, k, index)}
       </Form.Item>
     ));
 
@@ -162,15 +199,21 @@ const FileGoodsWithGoodsModal = GoodsModalWrap(FileGoods);
 // 不得不说，antd该版本的Form双向绑定真是不好用......
 const FileGoodsForm = Form.create({
   onValuesChange: (props, changedValues, allValues) => {
+    const { fileGoods } = props;
+    const list = fileGoods.map((g, i) => {
+      g.id = allValues.goods[i];
+      return g;
+    })
     // 表单项改变时，向redux中赋值
-    props.setFileGoods(allValues.goods);
+    props.setFileGoods(list);
   },
   // 动态表单赋值，若不用此属性从redux为form赋值，动态删除表单项时会出现错误
   mapPropsToFields(props) {
+    if (!props.fileGoods) return;
     const p = {}
     props.fileGoods.forEach((g, i) => {
       p[`goods[${i}]`] = Form.createFormField({
-        value: g,
+        value: g.id,
       })
     })
     return p
@@ -181,6 +224,8 @@ const mapStateToProps = state => ({
   categoryMap: state.category.map,
   goodsList: state.goods.list,
   fileGoods: state.fileRecord.goods,
+  fileInfo: state.fileRecord.file,
+  fileRecords: state.fileRecord.records,
 })
 
 const mapDispatchToProps = {
@@ -188,6 +233,7 @@ const mapDispatchToProps = {
   setFileGoods: setAllGoods,
   addFileGoods: addGoods,
   removeFileGoods: removeGoods,
+  updateRecords: fetchUpdateRecords,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGoodsForm);

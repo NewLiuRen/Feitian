@@ -16,4 +16,7 @@ export const GOODS = {
   is_del: false,
 }
 
+// 为了适配antd的form和redux绑定用
+export const GOODS_TMP = {id: null, exist: false}
+
 export default GOODS

@@ -4,6 +4,7 @@ export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
 export const REMOVE_FILE_GOODS = 'REMOVE_FILE_GOODS';
 export const SET_FILE_GOODS = 'SET_FILE_GOODS';
 export const SET_FILE_ALL_GOODS = 'SET_FILE_ALL_GOODS';
+export const SET_FILE_ALL_WAREHOUSE = 'SET_FILE_ALL_WAREHOUSE';
 export const UPDATE_FILE = 'UPDATE_FILE';
 export const UPDATE_FILE_IMPORT = 'UPDATE_FILE_IMPORT';
 export const ADD_RECORDS = 'ADD_RECORDS';
@@ -39,6 +40,9 @@ export const removeGoods = (index) => ({ type: REMOVE_FILE_GOODS, payload: {inde
 
 // 添加所有商品（用于记录需填写的商品列表）
 export const setAllGoods = goods => ({ type: SET_FILE_ALL_GOODS, payload: goods })
+
+// 添加所有仓库id（用于初始化数据）
+export const setAllWarehouse = warehouse => ({ type: SET_FILE_ALL_WAREHOUSE, payload: warehouse })
 
 // 向redux中修改文件
 export const updateFile = file => ({ type: UPDATE_FILE, payload: file })

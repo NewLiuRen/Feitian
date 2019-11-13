@@ -4,7 +4,7 @@ import { Row, Col, Tabs, Button, Progress, message } from 'antd';
 import { addFile } from '../../db/file';
 import FileInfoForm from './FileInfoForm';
 import FileGoodsList from './FileGoodsList';
-import FileGoodsDetail from './FileGoodsDetail';
+import FileDataInput from './FileDataInput';
 import * as actions from '../../actions/fileRecord';
 
 const { TabPane } = Tabs;
@@ -57,9 +57,9 @@ class FileGenerateTable extends Component {
   }
 
   render() {
-    const { warehouseList, fileWarehouseList, } = this.props;
+    const { warehouseList, fileWarehouseList, warehouseMap, } = this.props;
     const { activeTab, isCreate } = this.state;
-    const wList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList;
+    // const wList = fileWarehouseList.length>0 ? fileWarehouseList.map(wid => warehouseMap[wid]) : warehouseList;
 
     return (
       <>
@@ -91,13 +91,16 @@ class FileGenerateTable extends Component {
               <Col span={22}><Button type="primary" block onClick={() => {this.createFile()}}>完 成</Button></Col>
             </Row>
           </TabPane>
-          {
+          <TabPane tab="数据录入" key="dataInput">
+            <FileDataInput />
+          </TabPane>
+          {/* {
             wList.map(w => (
               <TabPane onClick={() => {console.log(w)}} disabled={isCreate} tab={`${w.name}`} key={`warehouse-${w.id}`}>
                 <FileGoodsDetail warehouse={w} />
               </TabPane>
             ))
-          }
+          } */}
         </Tabs>
       </>
     )
@@ -106,6 +109,7 @@ class FileGenerateTable extends Component {
 
 const mapStateToProps = state => ({
   warehouseList: state.warehouse.list,
+  warehouseMap: state.warehouse.map,
   records: state.fileRecord.records,
   file: state.fileRecord.file,
   fileGoods: state.fileRecord.goods,

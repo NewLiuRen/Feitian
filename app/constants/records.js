@@ -6,7 +6,7 @@
  * warehouse_id 仓库id 
  */
 export const RECORD = {
-  count: 0,
+  count: null,
   order_number: '',
   goods_id: null,
   warehouse_id: null,

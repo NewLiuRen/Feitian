@@ -3,16 +3,9 @@ import { connect } from 'react-redux';
 import { Table, Button } from 'antd';
 import CategoryTag from '../common/CategoryTag';
 
-class FilePreviewTable extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      records: [],
-    }
-  }
-
+class FileDataInput extends Component {
   render() {
-    const { records, warehouseMap, categoryMap, goodsMap } = this.props;
+    const { records, warehouseList, warehouseMap, categoryMap, goodsMap } = this.props;
     // const { records } = this.state;
     const columns = [
       {
@@ -41,23 +34,23 @@ class FilePreviewTable extends Component {
       }
     ];
     let dataSource = []
-    const warehouseList = []
+    // const warehouseList = []
     const categoryFilters = []
     const dataSourceGoodsMap = {}
 
     // 遍历records，计算warehouse列表，及计算每个商品同仓库的对应关系
     // 商品同仓库对应关系格式：{goods_id: {warehouse_id: count}}
     records.forEach(r => {
-      if (!warehouseList.find(w => w === r.warehouse_id)) warehouseList.push(r.warehouse_id)
+      // if (!warehouseList.find(w => w === r.warehouse_id)) warehouseList.push(r.warehouse_id)
       if (!dataSourceGoodsMap[r.goods_id]) dataSourceGoodsMap[r.goods_id] = {}
       dataSourceGoodsMap[r.goods_id][`warehouse_${r.warehouse_id}`] = r.count;
     })
 
     // 根据warehouseList，计算表格列
-    warehouseList.sort().forEach(wid => {
+    warehouseList.sort((a, b) => a.id - b.id).forEach(w => {
       columns.push({
-        title: `${warehouseMap[wid].name}`,
-        dataIndex: `warehouse_${wid}`,
+        title: `${w.name}`,
+        dataIndex: `warehouse_${w.id}`,
         align: 'right',
       })
     })
@@ -71,6 +64,7 @@ class FilePreviewTable extends Component {
         goods: goodsMap[gid].name, 
         category: category_id,
         max_count,
+        goods_id: gid,
       }
       
       if (!categoryFilters.find(c => c.value === category_id)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id,})
@@ -81,7 +75,7 @@ class FilePreviewTable extends Component {
     })
 
     columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);
-
+console.log('object :', dataSource);
     return (
       <Table
         columns={columns}
@@ -97,12 +91,14 @@ class FilePreviewTable extends Component {
 
 const mapStateToProps = state => ({
   goodsMap: state.goods.map,
+  warehouseList: state.warehouse.list,
   warehouseMap: state.warehouse.map,
   categoryMap: state.category.map,
+  records: state.fileRecord.records,
 })
 
 const mapDispatchToProps = {
 
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FilePreviewTable)
+export default connect(mapStateToProps, mapDispatchToProps)(FileDataInput)
