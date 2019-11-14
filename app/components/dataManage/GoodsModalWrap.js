@@ -43,7 +43,6 @@ const GoodsModalWrap = (WrappedComponent) => class GoodsModal extends Component 
       const form = this.formRef.props.form;
   
       form.validateFields((errors, category) => {
-        console.log('errors :', errors);
         if (errors) return
         if (type === TYPE_MAP.create) {
           addGoods(category);

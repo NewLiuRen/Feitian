@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Row, Col, Tabs, Button, Progress, message } from 'antd';
-import { addFile } from '../../db/file';
+import { addFile, updateFile } from '../../db/file';
 import FileInfoForm from './FileInfoForm';
 import FileGoodsList from './FileGoodsList';
 import FileDataInput from './FileDataInput';
@@ -27,32 +27,46 @@ class FileGenerateTable extends Component {
     }
   }
 
+  componentDidMount() {
+    const { match: {params: {type} } } = this.props;
+    if (type === 'edit') this.setState({activeTab: 'dataInput'})
+  }
+
   // 创建文件
   createFile() {
-    const { setFileInfo, initRecords, fileWarehouseList, warehouseList } = this.props;
+    const { file, setFileInfo, initRecords, addToRecords, setAllGoodsExist, fileWarehouseList, warehouseList } = this.props;
+    
+    const { isCreate } = this.state;
     let goodsIdList = [];
     Promise.all([
       this.infoFormRef.props.form.validateFields(),
       this.goodsFormRef.props.form.validateFields(),
     ]).then(([infoRes, goodsRes]) => {
       goodsIdList = goodsRes.goods;
-      const fileInfo = Object.assign({}, infoRes);
+      const { create_date, name, description } = infoRes
+      const fileInfo = Object.assign({}, file, {create_date, name, description});
+      
       fileInfo.create_date = fileInfo.create_date.valueOf();
-      return addFile(fileInfo)
+      
+      if (isCreate) return addFile(fileInfo);
+      else return updateFile(fileInfo);
     }).then(({success, data: file}) => {
       if (!success) {
-        message.error('文件创建失败');
+        message.error(`文件${isCreate ? '创建' : '修改'}失败`);
         return false
       } 
-      message.success('文件创建成功，请录入数据');
+      message.success(`文件${isCreate ? '创建' : '修改'}成功，请录入数据`);
       
       setFileInfo(file);
       // 如果redux的file中warehouse为空，否则为新建状态，仓库列表从redux的warehouse中获取
-      return initRecords(file.id, {warehouseIdList: fileWarehouseList.length>0 ? fileWarehouseList : warehouseList.map(w => w.id), goodsIdList})
-
+      const warehouseIdList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList.map(w => w.id);
+      if (isCreate) return initRecords(file.id, {warehouseIdList, goodsIdList})
+      else return addToRecords(file.id, {warehouseIdList, goodsIdList})
     }).then(() => {
-      const wList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList;
-      this.setState({activeTab: `warehouse-${wList[0].id}`})
+      // const wList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList;
+      setAllGoodsExist();
+      this.setState({activeTab: 'dataInput'});
+      return null;
     }).catch(err => {})
   }
 
@@ -64,11 +78,11 @@ class FileGenerateTable extends Component {
     return (
       <>
         <Row style={{padding: 5, background: '#fff'}}>
-          <Col span={16}>
+          {/* <Col span={16}>
             <Progress percent={0} />
-          </Col>
-          <Col span={7} offset={1} style={{overflow: 'hidden', textAlign: 'right'}}>
-            <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button>
+          </Col> */}
+          <Col span={24} style={{paddingRight: 15, overflow: 'hidden', textAlign: 'right'}}>
+            {/* <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button> */}
             <Button type="primary" disabled style={{marginRight: 5}}>导出数据</Button>
             <Button type="primary" disabled>输入箱贴</Button>
           </Col>
@@ -77,7 +91,7 @@ class FileGenerateTable extends Component {
           tabPosition="left"
           defaultActiveKey="baseInfo"
           activeKey={activeTab}
-          style={{ height: '100%', background: '#fff' }}
+          style={{ height: '100%', background: '#fff', paddingRight: 20 }}
           onChange = {(key) => { this.setState({ activeTab: key }) }}
         >
           <TabPane tab="基本属性" key="baseInfo">
@@ -91,7 +105,7 @@ class FileGenerateTable extends Component {
               <Col span={22}><Button type="primary" block onClick={() => {this.createFile()}}>完 成</Button></Col>
             </Row>
           </TabPane>
-          <TabPane tab="数据录入" key="dataInput">
+          <TabPane tab="数据录入" disabled={isCreate} key="dataInput">
             <FileDataInput />
           </TabPane>
           {/* {
@@ -119,8 +133,10 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   setFileInfo: actions.setFile,
   setFileGoods: actions.setGoods,
+  setAllGoodsExist: actions.setAllGoodsExist,
   updateFile: actions.fetchUpdateFile,
   initRecords: actions.fetchInitRecords,
+  addToRecords: actions.fetchAddToRecords,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateTable)

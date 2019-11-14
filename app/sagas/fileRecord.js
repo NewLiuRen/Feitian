@@ -41,6 +41,19 @@ function* initRecords({ payload: { file_id, warehouseIdList, goodsIdList } }) {
   if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
+// 追加记录集
+function* addToRecords({ payload: { file_id, warehouseIdList, goodsIdList } }) {
+  const records = []
+  warehouseIdList.forEach(w => {
+    goodsIdList.forEach(g =>{
+      records.push(Object.assign({}, RECORD, {goods_id: g,
+        warehouse_id: w,}))
+    })
+  })
+  const res = yield call(recordsDB.addToRecords, file_id, records);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
+}
+
 // 添加记录集
 function* addRecords({ payload: {file_id, records} }) {
   const res = yield call(recordsDB.addFileRecords, file_id, records);
@@ -66,6 +79,7 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_UPDATE_FILE, updateFile),
     takeLatest(actionTypes.FETCH_UPDATE_FILE_IMPORT, updateFileImport),
     takeLatest(actionTypes.FETCH_INIT_RECORDS, initRecords),
+    takeLatest(actionTypes.FETCH_ADD_TO_RECORDS, addToRecords),
     takeLatest(actionTypes.FETCH_ADD_RECORDS, addRecords),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS, updateRecords),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS_ORDER_NUMBER, updateRecordsOrderNumber),

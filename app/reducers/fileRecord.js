@@ -27,6 +27,12 @@ const fileRecord = (state = initState, action) => {
       const setGoodsList = state.goods.slice();
       setGoodsList[setIndex].id = goods_id;
       return Object.assign({}, state, {goods: [...setGoodsList]});
+    case actionTypes.SET_ALL_FILE_GOODS_EXIST:
+      const setGoodsExistList = state.goods.slice();
+      setGoodsExistList.forEach(i => {
+        setGoodsExistList[i].exist = true;
+      })
+      return Object.assign({}, state, {goods: [...setGoodsExistList]});
     case actionTypes.REMOVE_FILE_GOODS:
       const { index: removeIndex } = payload;
       const removeGoodsList = state.goods.slice();

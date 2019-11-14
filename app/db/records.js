@@ -22,6 +22,7 @@ export const addFileRecords = (file_id, params) => fileDB.getFileById(file_id).t
       return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })
     });
     const records = Object.assign({}, recordsObj, {file_id, records: recordsArr});
+
     return new Promise(resolve => {
       db.addData(STORE_NAME, records).then(({success, result}) => resolve({ success, data: records }))
     })
@@ -35,12 +36,34 @@ export const updateRecords = (file_id, params) => fileDB.getFileById(file_id).th
   if (!Array.isArray(params)) params = [params];
   params.forEach(p => compareObject(recordObj, p));
 
-  const recordsArr = params.map(p => {
-    const { count, goods_id, warehouse_id } = p
-    return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) })
+  const recordsArr = rs.records.map(r => {
+    const index = params.findIndex(p => (parseInt(p.warehouse_id, 10) === parseInt(r.warehouse_id, 10) && parseInt(p.goods_id, 10) === parseInt(r.goods_id, 10)))
+    if (index !== -1) {
+      const { count, goods_id, warehouse_id } = params[index];
+      return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) });
+    } else {
+      return r
+    }
   });
 
   const uRecords = Object.assign({}, rs, {records: recordsArr})
+
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))
+  })
+})
+
+// 追加记录
+export const addToRecords = (file_id, params) => fileDB.getFileById(file_id).then(file => {
+  if (!file || file.is_import) return { success: false }
+  return db.getDateByIndex(STORE_NAME, 'file_id', file_id)
+}).then(rs => {
+  if (!Array.isArray(params)) params = [params];
+  params.forEach(p => compareObject(recordObj, p));
+
+  const recordsArr = rs.records.concat(params);
+
+  const uRecords = Object.assign({}, rs, {records: recordsArr});
 
   return new Promise(resolve => {
     db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))

@@ -94,7 +94,7 @@ class FileGoods extends Component {
           return (
             <Popconfirm
               placement="topRight"
-              title={'请确认是否删除该商品，删除后商品中数据也会丢失'}
+              title="请确认是否删除该商品，删除后商品中数据也会丢失"
               onConfirm={() => this.removeToRedux(goods, index)}
             >
               <Icon
@@ -149,7 +149,7 @@ class FileGoods extends Component {
             }}
             disabled={k.exist}
             allowClear
-            treeDefaultExpandAll
+            treeDefaultExpandAll={false}
           >
             {
               Object.entries(treeData).map(([k, gList]) => (

@@ -3,6 +3,7 @@ export const SET_RECORDS = 'SET_RECORDS';
 export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
 export const REMOVE_FILE_GOODS = 'REMOVE_FILE_GOODS';
 export const SET_FILE_GOODS = 'SET_FILE_GOODS';
+export const SET_FILE_GOODS_EXIST = 'SET_FILE_GOODS_EXIST';
 export const SET_FILE_ALL_GOODS = 'SET_FILE_ALL_GOODS';
 export const SET_FILE_ALL_WAREHOUSE = 'SET_FILE_ALL_WAREHOUSE';
 export const UPDATE_FILE = 'UPDATE_FILE';
@@ -18,6 +19,7 @@ export const FETCH_ADD_FILE = 'FETCH_ADD_FILE';
 export const FETCH_UPDATE_FILE = 'FETCH_UPDATE_FILE';
 export const FETCH_UPDATE_FILE_IMPORT = 'FETCH_UPDATE_FILE_IMPORT';
 export const FETCH_INIT_RECORDS = 'FETCH_INIT_RECORDS';
+export const FETCH_ADD_TO_RECORDS = 'FETCH_ADD_TO_RECORDS';
 export const FETCH_ADD_RECORDS = 'FETCH_ADD_RECORDS';
 export const FETCH_UPDATE_RECORDS = 'FETCH_UPDATE_RECORDS';
 export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUMBER';
@@ -34,6 +36,9 @@ export const addGoods = () => ({ type: ADD_FILE_GOODS })
 
 // 设置某个位置的商品id（用于记录需填写的商品列表）
 export const setGoods = ({index, goods_id}) => ({ type: SET_FILE_GOODS, payload: {index, goods_id} })
+
+// 设置一些商品的exist状态（用于在填写记录时批量添加商品）
+export const setAllGoodsExist = () => ({ type: SET_ALL_FILE_GOODS_EXIST })
 
 // 删除某个位置的商品id（用于记录需填写的商品列表）
 export const removeGoods = (index) => ({ type: REMOVE_FILE_GOODS, payload: {index} })
@@ -79,6 +84,9 @@ export const fetchUpdateFileImport = file => ({ type: FETCH_UPDATE_FILE_IMPORT, 
 
 // 向数据库中初始化记录集（选定仓库及商品后的初始化操作）
 export const fetchInitRecords = (file_id, {warehouseIdList, goodsIdList}) => ({ type: FETCH_INIT_RECORDS, payload: {file_id, warehouseIdList, goodsIdList}})
+
+// 向数据库中追加记录集（输入记录时，追加商品）
+export const fetchAddToRecords = (file_id, {warehouseIdList, goodsIdList}) => ({ type: FETCH_ADD_TO_RECORDS, payload: {file_id, warehouseIdList, goodsIdList}})
 
 // 向数据库中添加记录集
 export const fetchAddRecords = (file_id, records) => ({ type: FETCH_ADD_RECORDS, payload: {file_id, records} })

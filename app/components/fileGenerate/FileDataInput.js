@@ -1,11 +1,34 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Table, Button } from 'antd';
+import { Table, Form, Button, InputNumber } from 'antd';
 import CategoryTag from '../common/CategoryTag';
+import * as actions from '../../actions/fileRecord';
+import { RECORD } from '../../constants/records';
+import { fetchUpdateRecords } from '../../actions/fileRecord';
+import { debounce } from '../../utils';
 
 class FileDataInput extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      validate: false,
+    }
+  }
+
+  // 向库中存入数量
+  setCount = debounce(({warehouse_id, goods_id, count}) => {
+    if (isNaN(parseInt(count, 10))) return
+    const { fileInfo: {id: file_id}, fetchUpdateRecords } = this.props;
+    const record = Object.assign({}, RECORD);
+    record.warehouse_id = warehouse_id;
+    record.goods_id = goods_id;
+    record.count = count;
+    fetchUpdateRecords(file_id, record);
+  })
+
   render() {
     const { records, warehouseList, warehouseMap, categoryMap, goodsMap } = this.props;
+    const { validate } = this.state;
     // const { records } = this.state;
     const columns = [
       {
@@ -52,6 +75,11 @@ class FileDataInput extends Component {
         title: `${w.name}`,
         dataIndex: `warehouse_${w.id}`,
         align: 'right',
+        render: (text, record, index) => (
+            <Form.Item validateStatus={(validate && !text) ? "error" : ""} style={{marginBottom: 0}}>
+              <InputNumber value={text} min={0} size="small" onChange={val => {this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}} />
+            </Form.Item>
+          )
       })
     })
 
@@ -75,12 +103,12 @@ class FileDataInput extends Component {
     })
 
     columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);
-console.log('object :', dataSource);
+    
     return (
       <Table
         columns={columns}
         dataSource={dataSource}
-        scroll={{ x: 700, y: 'calc(100vh - 200px)' }}
+        scroll={{ x: '100%', y: 'calc(100vh - 200px)' }}
         bordered
         pagination={false}
         size="small"
@@ -90,6 +118,7 @@ console.log('object :', dataSource);
 }
 
 const mapStateToProps = state => ({
+  fileInfo: state.fileRecord.file,
   goodsMap: state.goods.map,
   warehouseList: state.warehouse.list,
   warehouseMap: state.warehouse.map,
@@ -98,7 +127,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-
+  fetchUpdateRecords: actions.fetchUpdateRecords
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileDataInput)

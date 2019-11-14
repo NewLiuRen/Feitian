@@ -30,7 +30,7 @@ class FileInfo extends Component {
             {getFieldDecorator('create_date', {
               initialValue: create_date ? moment(create_date) : date,
               rules: [{ type: 'object', required: true, message: '请输入创建时间' }],
-            })(<DatePicker style={{width: '100%'}} />)}
+            })(<DatePicker disabled={!!create_date} style={{width: '100%'}} />)}
           </Form.Item>
           <Form.Item label="描述">
             {getFieldDecorator('description', {
