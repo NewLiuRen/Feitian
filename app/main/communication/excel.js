@@ -181,7 +181,6 @@ ipcMain.on('exportDataInput', (event, arg) => {
     { header: '名称', key: 'name', width: 25, alignment: { vertical: 'middle', horizontal: 'left' } }
   ];
   const generateFormula = (warehouseList, index) => {
-    console.log('enter');
     const formula = [];
     warehouseList.forEach((w, i) => {
       formula.push(`${String.fromCharCode(67+i)}${index}`);
@@ -211,6 +210,16 @@ ipcMain.on('exportDataInput', (event, arg) => {
 
   sheet.getRow(1).height = 25
   setRowStyle(columns, sheet, 1, DEFAULT_STYLE, ['border', 'alignment']);
+  sheet.getRow(1).getCell('sku').fill = {
+    type: 'pattern',
+    pattern:'solid',
+    fgColor:{argb:'FFFFFF00'}
+  }
+  sheet.getRow(1).getCell('name').fill = {
+    type: 'pattern',
+    pattern:'solid',
+    fgColor:{argb:'FFFFFF00'}
+  }
 
   const name = `${fileName}.xlsx`
   workbook.xlsx.writeFile(`${path}/${name}`)

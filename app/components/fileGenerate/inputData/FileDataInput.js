@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Table, Form, Button, InputNumber } from 'antd';
-import CategoryTag from '../common/CategoryTag';
-import * as actions from '../../actions/fileRecord';
-import { RECORD } from '../../constants/records';
-import { debounce } from '../../utils';
+import CategoryTag from '../../common/CategoryTag';
+import * as actions from '../../../actions/fileRecord';
+import { RECORD } from '../../../constants/records';
+import { debounce } from '../../../utils';
 
 class FileDataInput extends Component {
   constructor(props) {

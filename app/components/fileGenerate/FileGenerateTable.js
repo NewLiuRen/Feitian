@@ -1,15 +1,16 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Tabs, Button, Progress, message } from 'antd';
+import { Row, Col, Tabs, Button, Progress, Modal, message } from 'antd';
 import { addFile, updateFile } from '../../db/file';
-import FileInfoForm from './FileInfoForm';
-import FileGoodsList from './FileGoodsList';
-import FileDataInput from './FileDataInput';
+import FileInfoForm from './inputData/FileInfoForm';
+import FileGoodsList from './inputData/FileGoodsList';
+import FileDataInput from './inputData/FileDataInput';
 import * as actions from '../../actions/fileRecord';
 import { setSelectPathCommand } from '../dataManage/Config';
 
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 
 class FileGenerateTable extends Component {
   constructor(props) {
@@ -80,6 +81,19 @@ class FileGenerateTable extends Component {
     }).catch(err => {})
   }
 
+  // 切换文件状态至输入箱贴
+  changeFileState = () => {
+    const { file, updateFileImport, history } = this.props;
+    confirm({
+      title: '提示',
+      content: '请确认是否输入箱贴？（更改此状态后，商品数量不可更改）',
+      onOk() {
+        console.log('OK');
+        // updateFileImport(file.id)
+      }
+    });
+  }
+
   // 导出文件
   exportData = () => {
     const { file, records, warehouseMap, goodsMap } = this.props;
@@ -98,7 +112,6 @@ class FileGenerateTable extends Component {
       })
       return g
     })
-    console.log('dataSource :', dataSource);
 
     ipcRenderer.removeAllListeners('exportDataInputReply')
     const path = localStorage.getItem('exportPath');
@@ -132,7 +145,7 @@ class FileGenerateTable extends Component {
           <Col span={5} offset={1} style={{overflow: 'hidden', textAlign: 'right'}}>
             {/* <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button> */}
             <Button type="primary" disabled={!isDone} style={{marginRight: 5}} onClick={this.exportData}>导出数据</Button>
-            <Button type="primary" disabled={!isDone}>输入箱贴</Button>
+            <Button type="primary" disabled={!isDone} onClick={this.changeFileState}>输入箱贴</Button>
           </Col>
         </Row>
         <Tabs
@@ -186,6 +199,7 @@ const mapDispatchToProps = {
   updateFile: actions.fetchUpdateFile,
   initRecords: actions.fetchInitRecords,
   addToRecords: actions.fetchAddToRecords,
+  updateFileImport: actions.fetchUpdateFileImport,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateTable)

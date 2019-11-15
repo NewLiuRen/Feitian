@@ -47,6 +47,18 @@ export const updateFileToImport = params => {
   })
 }
 
+// 将文件设置为订单状态
+export const updateFileToOrder = params => {
+  getFileById(params.id).then(f => {
+    compareObject(fileObj, params);
+    const { id } = params
+    const file = Object.assign({}, f, { id, is_order: true });
+    return new Promise(resolve => {
+      db.updateData(STORE_NAME, file).then(({success}) => resolve({ success, data: file }))
+    })
+  })
+}
+
 // 删除文件，若存在记录集，则记录集一并删除
 export const deleteFile = key => getFileById(key).then(f => {
   if (!f) return { success: false }

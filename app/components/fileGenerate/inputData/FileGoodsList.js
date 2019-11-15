@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Popconfirm } from 'antd';
-import GoodsModalWrap from '../dataManage/GoodsModalWrap';
-import { fetchAddGoods } from '../../actions/goods';
-import { addGoods, setAllGoods, removeGoods, fetchDeleteRecords } from '../../actions/fileRecord';
+import GoodsModalWrap from '../../dataManage/GoodsModalWrap';
+import { fetchAddGoods } from '../../../actions/goods';
+import { addGoods, setAllGoods, removeGoods, fetchDeleteRecords } from '../../../actions/fileRecord';
 import style from './FileGoodsList.scss';
 
 const { TreeNode } = TreeSelect;

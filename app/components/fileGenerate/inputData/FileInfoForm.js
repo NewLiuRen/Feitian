@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Layout, DatePicker, Form, Input, Divider, Typography, } from 'antd';
 import moment from 'moment';
-import fileInfoObj from '../../constants/file'
+import fileInfoObj from '../../../constants/file'
 
 const { Text } = Typography;
 
