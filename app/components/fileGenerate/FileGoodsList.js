@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Popconfirm } from 'antd';
 import GoodsModalWrap from '../dataManage/GoodsModalWrap';
 import { fetchAddGoods } from '../../actions/goods';
-import { addGoods, setAllGoods, removeGoods, fetchUpdateRecords } from '../../actions/fileRecord';
+import { addGoods, setAllGoods, removeGoods, fetchDeleteRecords } from '../../actions/fileRecord';
 import style from './FileGoodsList.scss';
 
 const { TreeNode } = TreeSelect;
@@ -34,10 +34,10 @@ class FileGoods extends Component {
 
   // 从redux中删除商品数据
   removeToRedux = (goods, index) => {
-    const { fileInfo, fileRecords, updateRecords } = this.props;
-    const newList = fileRecords.filter(r => r.goods_id !== goods.id)
+    const { fileInfo, fileRecords, deleteRecords } = this.props;
+    const delList = fileRecords.filter(r => r.goods_id === goods.id)
     this.props.removeFileGoods(index);
-    updateRecords(fileInfo.id, newList)
+    deleteRecords(fileInfo.id, delList)
   }
 
   render() {
@@ -89,7 +89,7 @@ class FileGoods extends Component {
     // 删除按钮生成（分为已存在商品和新添加商品）
     const generateRemoveEl = (list, goods, index) => {
       const { exist } = goods;
-      if (list.length > 0) {
+      if (list.length > 1) {
         if (exist) {
           return (
             <Popconfirm
@@ -233,7 +233,7 @@ const mapDispatchToProps = {
   setFileGoods: setAllGoods,
   addFileGoods: addGoods,
   removeFileGoods: removeGoods,
-  updateRecords: fetchUpdateRecords,
+  deleteRecords: fetchDeleteRecords,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGoodsForm);

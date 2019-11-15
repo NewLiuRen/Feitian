@@ -66,6 +66,12 @@ function* updateRecords({ payload: {file_id, records} }) {
   if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
+// 删除记录集
+function* deleteRecords({ payload: {file_id, records} }) {
+  const res = yield call(recordsDB.deleteRecords, file_id, records);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
+}
+
 // 修改记录集箱贴
 function* updateRecordsOrderNumber({ payload: {file_id, records} }) {
   const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, records);
@@ -82,6 +88,7 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_ADD_TO_RECORDS, addToRecords),
     takeLatest(actionTypes.FETCH_ADD_RECORDS, addRecords),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS, updateRecords),
+    takeLatest(actionTypes.FETCH_DELETE_RECORDS, deleteRecords),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS_ORDER_NUMBER, updateRecordsOrderNumber),
   ]);
 }

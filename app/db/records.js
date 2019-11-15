@@ -41,9 +41,9 @@ export const updateRecords = (file_id, params) => fileDB.getFileById(file_id).th
     if (index !== -1) {
       const { count, goods_id, warehouse_id } = params[index];
       return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) });
-    } else {
+    } 
       return r
-    }
+    
   });
 
   const uRecords = Object.assign({}, rs, {records: recordsArr})
@@ -61,9 +61,46 @@ export const addToRecords = (file_id, params) => fileDB.getFileById(file_id).the
   if (!Array.isArray(params)) params = [params];
   params.forEach(p => compareObject(recordObj, p));
 
-  const recordsArr = rs.records.concat(params);
-
+  let recordsArr = params.filter(p => {
+    if (rs.records.find(r => parseInt(p.goods_id, 10) === parseInt(r.goods_id, 10) && parseInt(p.warehouse_id, 10) === parseInt(r.warehouse_id, 10))) {
+      return null
+    } 
+    return p
+  });
+  recordsArr = rs.records.concat(recordsArr); 
   const uRecords = Object.assign({}, rs, {records: recordsArr});
+
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))
+  })
+})
+
+// 删除记录集
+export const deleteRecords = (file_id, params) => fileDB.getFileById(file_id).then(file => {
+  if (!file || file.is_import) return { success: false }
+  return db.getDateByIndex(STORE_NAME, 'file_id', file_id)
+}).then(rs => {
+  if (!Array.isArray(params)) params = [params];
+  params.forEach(p => compareObject(recordObj, p));
+  const recordsArr = [];
+  for (const r of rs.records) {
+    const index = params.findIndex(p => (parseInt(p.warehouse_id, 10) === parseInt(r.warehouse_id, 10) && parseInt(p.goods_id, 10) === parseInt(r.goods_id, 10)))
+    if (index === -1) {
+      recordsArr.push(r)
+    }
+  }
+
+  // const recordsArr = rs.records.map(r => {
+  //   const index = params.findIndex(p => (parseInt(p.warehouse_id, 10) === parseInt(r.warehouse_id, 10) && parseInt(p.goods_id, 10) === parseInt(r.goods_id, 10)))
+  //   if (index !== -1) {
+  //     const { count, goods_id, warehouse_id } = params[index];
+  //     return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) });
+  //   } else {
+  //     return r
+  //   }
+  // });
+
+  const uRecords = Object.assign({}, rs, {records: recordsArr})
 
   return new Promise(resolve => {
     db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))
@@ -94,10 +131,10 @@ export const updateRecordsOrderNumber = (file_id, params) => fileDB.getFileById(
 })
 
 // 删除记录集
-export const deleteRecords = id => db.deleteData(STORE_NAME, id).then(({success}) => ({ success }))
+export const deleteAllRecords = id => db.deleteData(STORE_NAME, id).then(({success}) => ({ success }))
 
 // 用file_id删除记录集
-export const deleteRecordsByFileId = file_id => getRecordsByFileId(file_id).then(rs => {
+export const deleteAllRecordsByFileId = file_id => getRecordsByFileId(file_id).then(rs => {
     if (!rs) return { success: false }
     return db.deleteData(STORE_NAME, rs.id)
   }).then(({success}) => ({ success }))

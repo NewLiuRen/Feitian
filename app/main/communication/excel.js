@@ -30,6 +30,16 @@ const COLUMNS = [
   { header: '个数/箱', key: 'max_count', width: 10 },
   { header: '描述', key: 'description', width: 35 },
 ];
+  
+const setRowStyle = (columns, sheet, index, styleRule, styleList) => {
+  const row = sheet.getRow(index);
+  columns.forEach(c => {
+    const cell = row.getCell(c.key);
+    styleList.forEach(s => {
+      if (Object.keys(styleRule).find(k => k === s)) cell[s] = styleRule[s]
+    })
+  })
+}
 
 // 选择导出文件路径
 ipcMain.on('selectExportPath', (event, arg) => {
@@ -43,16 +53,7 @@ ipcMain.on('selectExportPath', (event, arg) => {
 // 导出商品模板
 ipcMain.on('exportGoodsTemplate', (event, arg) => {
   const { path, categoryList } = arg;
-  
-  const setRowStyle = (sheet, index, styleRule, styleList) => {
-    const row = sheet.getRow(index);
-    COLUMNS.forEach(c => {
-      const cell = row.getCell(c.key);
-      styleList.forEach(s => {
-        if (Object.keys(styleRule).find(k => k === s)) cell[s] = styleRule[s]
-      })
-    })
-  }
+
   // 创建工作簿
   const workbook = new Excel.Workbook();
   // 添加工作表，冻结第一行
@@ -69,7 +70,7 @@ ipcMain.on('exportGoodsTemplate', (event, arg) => {
     sheet.addRow({index: i, name: '', sku: '', category: '', max_count: '', description: '', });
     const row = sheet.getRow(i+1);
     row.height = 22;
-    setRowStyle(sheet, i+1, DEFAULT_STYLE, ['border', 'alignment']);
+    setRowStyle(COLUMNS, sheet, i+1, DEFAULT_STYLE, ['border', 'alignment']);
     row.getCell('index').font = DEFAULT_STYLE.font;
     row.getCell('index').fill = DEFAULT_STYLE.fill;
     row.getCell('category').dataValidation = {
@@ -89,7 +90,7 @@ ipcMain.on('exportGoodsTemplate', (event, arg) => {
     };
   }
 
-  setRowStyle(sheet, 1, DEFAULT_STYLE, ['font', 'fill', 'border', 'alignment']);
+  setRowStyle(COLUMNS, sheet, 1, DEFAULT_STYLE, ['font', 'fill', 'border', 'alignment']);
   sheet.getRow(1).height = 25
 
   const name = '商品批量导入模板.xlsx'
@@ -164,4 +165,60 @@ ipcMain.on('importGoodsTemplate', (event) => {
         return null;
       });
   })
+})
+
+// 导出入仓数
+ipcMain.on('exportDataInput', (event, arg) => {
+  const { path, fileName, dataSource } = arg;
+  const warehouseList = dataSource[0].value;
+  // 创建工作簿
+  const workbook = new Excel.Workbook();
+  // 添加工作表，冻结第一行
+  const sheet = workbook.addWorksheet('Sheet1', {views:[{state: 'frozen', xSplit: 0, ySplit: 1}]});
+  // 添加列标题并定义列键和宽度
+  const columns = [
+    { header: 'SKU', key: 'sku', width: 15, alignment: { vertical: 'middle', horizontal: 'right' } },
+    { header: '名称', key: 'name', width: 25, alignment: { vertical: 'middle', horizontal: 'left' } }
+  ];
+  const generateFormula = (warehouseList, index) => {
+    console.log('enter');
+    const formula = [];
+    warehouseList.forEach((w, i) => {
+      formula.push(`${String.fromCharCode(67+i)}${index}`);
+    })
+    return formula.join('+');
+  }
+  warehouseList.forEach(w => {
+    columns.push({ header: w.name, key: `warehouse_${w.id}`, width: 8, alignment: { vertical: 'middle', horizontal: 'right' } });
+  })
+  columns.push({header: '合计', key: 'total', width: 8, alignment: { vertical: 'middle', horizontal: 'right' } });
+  sheet.columns = columns;
+
+  for(let i=1, len=dataSource.length ; i<=len ; i+=1) {
+    const {name, sku, value} = dataSource[i-1];
+    const newRow = { name, sku }
+    let sum = 0;
+    value.forEach(w => {
+      newRow[`warehouse_${w.id}`] = w.count;
+      sum += w.count;
+    })
+    sheet.addRow(newRow);
+    const row = sheet.getRow(i+1);
+    row.getCell('total').value = { formula: generateFormula(warehouseList, i+1), result: sum }
+    setRowStyle(columns, sheet, i+1, DEFAULT_STYLE, ['border', 'alignment']);
+    row.height = 22;
+  }
+
+  sheet.getRow(1).height = 25
+  setRowStyle(columns, sheet, 1, DEFAULT_STYLE, ['border', 'alignment']);
+
+  const name = `${fileName}.xlsx`
+  workbook.xlsx.writeFile(`${path}/${name}`)
+    .then(() => {
+      event.sender.send('exportDataInputReply', {success: true, msg: '导出成功'})
+      shell.showItemInFolder(`${path}/${name}`)
+      return null
+    }).catch(err => {
+      event.sender.send('exportDataInputReply', {success: false, msg: '导出失败，请检查该文件是否已被打开'})
+    });
 })

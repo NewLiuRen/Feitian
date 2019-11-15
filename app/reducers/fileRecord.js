@@ -29,7 +29,7 @@ const fileRecord = (state = initState, action) => {
       return Object.assign({}, state, {goods: [...setGoodsList]});
     case actionTypes.SET_ALL_FILE_GOODS_EXIST:
       const setGoodsExistList = state.goods.slice();
-      setGoodsExistList.forEach(i => {
+      setGoodsExistList.forEach((g, i) => {
         setGoodsExistList[i].exist = true;
       })
       return Object.assign({}, state, {goods: [...setGoodsExistList]});

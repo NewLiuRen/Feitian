@@ -62,6 +62,16 @@ class FilePreviewTable extends Component {
       })
     })
 
+    columns.push({
+      title: '合计',
+      dataIndex: `total`,
+      align: 'right',
+      render: (text, record, index) => {
+        const sum = Object.entries(record).map(([k, v]) => k.includes('warehouse') ? v : null).filter(v => v).reduce((p, c) => p+c, 0)
+        return (<span>{sum}</span>)
+      }
+    })
+
     // 根据dataSourceGoodsMap，计算dataSource
     dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
       const category_id = goodsMap[gid].category_id || -1

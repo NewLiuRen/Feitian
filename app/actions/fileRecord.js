@@ -3,7 +3,7 @@ export const SET_RECORDS = 'SET_RECORDS';
 export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
 export const REMOVE_FILE_GOODS = 'REMOVE_FILE_GOODS';
 export const SET_FILE_GOODS = 'SET_FILE_GOODS';
-export const SET_FILE_GOODS_EXIST = 'SET_FILE_GOODS_EXIST';
+export const SET_ALL_FILE_GOODS_EXIST = 'SET_ALL_FILE_GOODS_EXIST';
 export const SET_FILE_ALL_GOODS = 'SET_FILE_ALL_GOODS';
 export const SET_FILE_ALL_WAREHOUSE = 'SET_FILE_ALL_WAREHOUSE';
 export const UPDATE_FILE = 'UPDATE_FILE';
@@ -22,6 +22,7 @@ export const FETCH_INIT_RECORDS = 'FETCH_INIT_RECORDS';
 export const FETCH_ADD_TO_RECORDS = 'FETCH_ADD_TO_RECORDS';
 export const FETCH_ADD_RECORDS = 'FETCH_ADD_RECORDS';
 export const FETCH_UPDATE_RECORDS = 'FETCH_UPDATE_RECORDS';
+export const FETCH_DELETE_RECORDS = 'FETCH_DELETE_RECORDS';
 export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUMBER';
 
 // 添加文件基础信息
@@ -93,6 +94,9 @@ export const fetchAddRecords = (file_id, records) => ({ type: FETCH_ADD_RECORDS,
 
 // 向数据库中修改记录集
 export const fetchUpdateRecords = (file_id, records) => ({ type: FETCH_UPDATE_RECORDS, payload: {file_id, records} })
+
+// 向数据库中删除记录集
+export const fetchDeleteRecords = (file_id, records) => ({ type: FETCH_DELETE_RECORDS, payload: {file_id, records} })
 
 // 向数据库中修改记录集箱贴
 export const fetchUpdateRecordsOrderNumber = (file_id, records) => ({ type: FETCH_UPDATE_RECORDS_ORDER_NUMBER, payload: {file_id, records} })

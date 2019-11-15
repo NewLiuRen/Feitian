@@ -4,7 +4,6 @@ import { Table, Form, Button, InputNumber } from 'antd';
 import CategoryTag from '../common/CategoryTag';
 import * as actions from '../../actions/fileRecord';
 import { RECORD } from '../../constants/records';
-import { fetchUpdateRecords } from '../../actions/fileRecord';
 import { debounce } from '../../utils';
 
 class FileDataInput extends Component {
@@ -25,6 +24,11 @@ class FileDataInput extends Component {
     record.count = count;
     fetchUpdateRecords(file_id, record);
   })
+
+  // 开启校验
+  validateOpen = () => {
+    this.setState({validate: true});
+  }
 
   render() {
     const { records, warehouseList, warehouseMap, categoryMap, goodsMap } = this.props;
@@ -75,14 +79,37 @@ class FileDataInput extends Component {
         title: `${w.name}`,
         dataIndex: `warehouse_${w.id}`,
         align: 'right',
-        render: (text, record, index) => (
-            <Form.Item validateStatus={(validate && !text) ? "error" : ""} style={{marginBottom: 0}}>
-              <InputNumber value={text} min={0} size="small" onChange={val => {this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}} />
-            </Form.Item>
-          )
+        render: (text, record, index) => {
+            const { key } = record
+            return key === 'warehouse_total' ? (
+              <span>{text}</span>
+            ) : (
+              <Form.Item validateStatus={(validate && !text) ? "error" : ""} style={{marginBottom: 0}}>
+                <InputNumber value={text} min={0} size="small" onChange={val => {this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}} />
+              </Form.Item>
+            )
+          }
       })
     })
 
+    columns.push({
+      title: '合计',
+      dataIndex: `total`,
+      align: 'right',
+      render: (text, record, index) => {
+        const sum = Object.entries(record).map(([k, v]) => k.includes('warehouse') ? v : null).filter(v => v).reduce((p, c) => p+c, 0)
+        return (<span>{sum}</span>)
+      }
+    })
+
+    // 仓库合计
+    const totalWarehouse = {
+      key: 'warehouse_total',
+      goods: '合计', 
+      category: '',
+      max_count: '',
+      goods_id: '',
+    }
     // 根据dataSourceGoodsMap，计算dataSource
     dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
       const category_id = goodsMap[gid].category_id || -1
@@ -94,25 +121,35 @@ class FileDataInput extends Component {
         max_count,
         goods_id: gid,
       }
-      
+
       if (!categoryFilters.find(c => c.value === category_id)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id,})
       Object.entries(wobj).forEach(([wkey, count]) => {
+        if (!totalWarehouse.hasOwnProperty(wkey)) {
+          totalWarehouse[wkey] = count
+        } else {
+          totalWarehouse[wkey] += count
+        }
         record[wkey] = count;
       })
       return record;
     })
 
+    dataSource.push(totalWarehouse);
     columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);
     
     return (
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        scroll={{ x: '100%', y: 'calc(100vh - 200px)' }}
-        bordered
-        pagination={false}
-        size="small"
-      />
+      <>
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          scroll={{ x: '100%', y: 'calc(100vh - 210px)' }}
+          bordered
+          pagination={false}
+          size="small"
+          style={{height: 'calc(100vh - 180px)'}}
+        />
+        <Button block type="primary" style={{marginTop: 15}} onClick={this.validateOpen}>完成</Button>
+      </>
     )
   }
 }
