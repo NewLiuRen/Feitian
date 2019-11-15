@@ -87,6 +87,7 @@ class GoodsManage extends Component {
         dataIndex: 'max_count',
         width: '14%',
         key: 'max_count',
+        align: 'right',
       },
       {
         title: '描述',

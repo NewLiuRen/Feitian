@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Table, Form, Button, InputNumber } from 'antd';
+import { Table, Form, Button, InputNumber, Popover } from 'antd';
 import CategoryTag from '../../common/CategoryTag';
 import * as actions from '../../../actions/fileRecord';
 import { RECORD } from '../../../constants/records';
@@ -23,7 +23,7 @@ class FileDataInput extends Component {
     record.goods_id = goods_id;
     record.count = count;
     fetchUpdateRecords(file_id, record);
-  })
+  }, 100)
 
   // 开启校验
   validateOpen = () => {
@@ -40,13 +40,13 @@ class FileDataInput extends Component {
         width: 150,
         key: 'goods',
         dataIndex: 'goods',
-        fixed: 'left',
+        // fixed: 'left',
       }, {
         title: '类目',
         width: 100,
         key: 'category',
         dataIndex: 'category',
-        fixed: 'left',
+        // fixed: 'left',
         filters: [],
         filterMultiple: true,
         onFilter: (value, record) => record.category === value,
@@ -56,7 +56,7 @@ class FileDataInput extends Component {
         width: 65,
         key: 'max_count',
         dataIndex: 'max_count',
-        fixed: 'left',
+        // fixed: 'left',
         align: 'right',
       }
     ];
@@ -64,6 +64,8 @@ class FileDataInput extends Component {
     // const warehouseList = []
     const categoryFilters = []
     const dataSourceGoodsMap = {}
+    // 仓库剩余商品数量
+    const surplus = {}
 
     // 遍历records，计算warehouse列表，及计算每个商品同仓库的对应关系
     // 商品同仓库对应关系格式：{goods_id: {warehouse_id: count}}
@@ -73,6 +75,16 @@ class FileDataInput extends Component {
       dataSourceGoodsMap[r.goods_id][`warehouse_${r.warehouse_id}`] = r.count;
     })
 
+    const surplusComp = (list, suffix) => (
+      <div>{
+        list.map((g, i) => (
+          <div style={{marginBottom: 5}} key={`surplus_${suffix}_${g.goods_id}`}>
+            <CategoryTag category_id={goodsMap[g.goods_id].category_id} />
+            <span>{`${goodsMap[g.goods_id].name}：${g.count}`}</span>
+          </div>
+        ))
+      }</div>
+    )
     // 根据warehouseList，计算表格列
     warehouseList.sort((a, b) => a.id - b.id).forEach(w => {
       columns.push({
@@ -81,11 +93,25 @@ class FileDataInput extends Component {
         align: 'right',
         render: (text, record, index) => {
             const { key } = record
-            return key === 'warehouse_total' ? (
-              <span>{text}</span>
-            ) : (
+            if (key === 'warehouse_total') {
+              return (<span>{text}</span>)
+            } 
+            if (key === 'box_total') {
+              if (!surplus[`warehouse_${w.id}`]) {
+                return (<span>{text}</span>)
+              } 
+              return (
+                <Popover placement="topLeft" title="剩余商品" content={surplusComp(surplus[`warehouse_${w.id}`], `warehouse_${w.id}`)}>
+                  <span>{`${text}  (${surplus[`warehouse_${w.id}`].reduce((p, c) => p + c.count, 0)})`}</span>
+                </Popover>
+              )
+            } 
+            return (
               <Form.Item validateStatus={(validate && !text) ? "error" : ""} style={{marginBottom: 0}}>
-                <InputNumber value={text} min={0} size="small" onChange={val => {this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}} />
+                <InputNumber value={text} min={0} size="small" onChange={val => {
+                  if (val < 0 || typeof val !== 'number') return;
+                  this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}
+                } />
               </Form.Item>
             )
           }
@@ -110,6 +136,14 @@ class FileDataInput extends Component {
       max_count: '',
       goods_id: '',
     }
+    // 箱数合计
+    const totalBox = {
+      key: 'box_total',
+      goods: '箱数', 
+      category: '',
+      max_count: '',
+      goods_id: '',
+    }
     // 根据dataSourceGoodsMap，计算dataSource
     dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
       const category_id = goodsMap[gid].category_id || -1
@@ -129,17 +163,30 @@ class FileDataInput extends Component {
         } else {
           totalWarehouse[wkey] += count
         }
+        // 计算仓库总箱数
+        if (!totalBox.hasOwnProperty(wkey)) {
+          totalBox[wkey] = Math.floor(count/max_count);
+        } else {
+          totalBox[wkey] += Math.floor(count/max_count);
+        }
+        // 计算剩余商品数量
+        if (count%max_count !== 0) {
+          if (!surplus[wkey]) surplus[wkey] = []
+          surplus[wkey].push({goods_id: gid, count: count % max_count});
+        }
         record[wkey] = count;
       })
       return record;
     })
-
+console.log('surplus :', surplus);
     dataSource.push(totalWarehouse);
+    dataSource.push(totalBox);
     columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);
     
     return (
       <>
         <Table
+          className="file-data-input"
           columns={columns}
           dataSource={dataSource}
           scroll={{ x: '100%', y: 'calc(100vh - 210px)' }}

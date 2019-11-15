@@ -177,11 +177,16 @@ class FileGoods extends Component {
             {formItems}
             <Form.Item {...formItemLayoutWithOutLabel}>
               <ButtonGroup style={{width: '90%'}}>
-                <Button type="dashed" onClick={this.add} style={{width: '80%'}}>
+                <Button type="dashed" onClick={this.add} style={{width: '70%'}}>
                   <Icon type="plus" /> 添加商品
                 </Button>
+                <Tooltip title="批量添加商品">
+                  <Button type="dashed" style={{width: '15%'}} onClick={this.props.batchAdd}>
+                    <Icon type="plus-circle" />
+                  </Button>
+                </Tooltip>
                 <Tooltip title="无此商品？点击新建">
-                  <Button type="dashed" style={{width: '20%'}} onClick={this.props.add}>
+                  <Button type="dashed" style={{width: '15%'}} onClick={this.props.add}>
                     <Icon type="question-circle" />
                   </Button>
                 </Tooltip>

@@ -99,13 +99,12 @@ class FileGenerateTable extends Component {
     const { file, records, warehouseMap, goodsMap } = this.props;
     const dataSourceGoodsMap = {}
     records.forEach(r => {
-      // if (!warehouseList.find(w => w === r.warehouse_id)) warehouseList.push(r.warehouse_id)
       if (!dataSourceGoodsMap[r.goods_id]) dataSourceGoodsMap[r.goods_id] = {}
       dataSourceGoodsMap[r.goods_id][`warehouse_${r.warehouse_id}`] = r.count;
     })
     const dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
-      const {name, sku} = goodsMap[gid]
-      const g = {name, sku, value: []};
+      const {name, sku, max_count} = goodsMap[gid]
+      const g = {name, sku, max_count, value: []};
       g.value = Object.entries(wobj).map(([w, v]) => {
         const [prefix, wid] = w.split('_');
         return {name: warehouseMap[wid].name, id: wid, count: v};

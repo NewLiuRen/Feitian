@@ -154,7 +154,7 @@ ipcMain.on('importGoodsTemplate', (event) => {
           // 除序号外其他属性，用来检验数据是否有效
           const dataExceptIndex = Object.assign({}, data);
           delete dataExceptIndex.index
-          // 除序号外，若数据都为空，则为无效数据，否则为有效数据，想渲染进程发送该数据
+          // 除序号外，若数据都为空，则为无效数据，否则为有效数据，向渲染进程发送该数据
           if (Object.values(dataExceptIndex).some(v => v)) {
             data.index = rowNumber;
             list.push(data);
@@ -180,9 +180,9 @@ ipcMain.on('exportDataInput', (event, arg) => {
     { header: 'SKU', key: 'sku', width: 15, alignment: { vertical: 'middle', horizontal: 'right' } },
     { header: '名称', key: 'name', width: 25, alignment: { vertical: 'middle', horizontal: 'left' } }
   ];
-  const generateFormula = (warehouseList, index) => {
+  const generateHorizontalFormula = (wList, index) => {
     const formula = [];
-    warehouseList.forEach((w, i) => {
+    wList.forEach((w, i) => {
       formula.push(`${String.fromCharCode(67+i)}${index}`);
     })
     return formula.join('+');
@@ -203,7 +203,7 @@ ipcMain.on('exportDataInput', (event, arg) => {
     })
     sheet.addRow(newRow);
     const row = sheet.getRow(i+1);
-    row.getCell('total').value = { formula: generateFormula(warehouseList, i+1), result: sum }
+    row.getCell('total').value = { formula: generateHorizontalFormula(warehouseList, i+1), result: sum }
     setRowStyle(columns, sheet, i+1, DEFAULT_STYLE, ['border', 'alignment']);
     row.height = 22;
   }

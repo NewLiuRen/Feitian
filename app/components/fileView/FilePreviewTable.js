@@ -20,13 +20,13 @@ class FilePreviewTable extends Component {
         width: 150,
         key: 'goods',
         dataIndex: 'goods',
-        fixed: 'left',
+        // fixed: 'left',
       }, {
         title: '类目',
         width: 100,
         key: 'category',
         dataIndex: 'category',
-        fixed: 'left',
+        // fixed: 'left',
         filters: [],
         filterMultiple: true,
         onFilter: (value, record) => record.category === value,
@@ -36,7 +36,7 @@ class FilePreviewTable extends Component {
         width: 65,
         key: 'max_count',
         dataIndex: 'max_count',
-        fixed: 'left',
+        // fixed: 'left',
         align: 'right',
       }
     ];
@@ -54,14 +54,14 @@ class FilePreviewTable extends Component {
     })
 
     // 根据warehouseList，计算表格列
-    warehouseList.sort().forEach(wid => {
+    warehouseList.sort((a, b) => a.id - b.id).forEach(wid => {
       columns.push({
         title: `${warehouseMap[wid].name}`,
         dataIndex: `warehouse_${wid}`,
         align: 'right',
       })
     })
-
+    
     columns.push({
       title: '合计',
       dataIndex: `total`,
