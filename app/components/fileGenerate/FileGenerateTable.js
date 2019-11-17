@@ -8,6 +8,7 @@ import FileGoodsList from './inputData/FileGoodsList';
 import FileDataInput from './inputData/FileDataInput';
 import * as actions from '../../actions/fileRecord';
 import { setSelectPathCommand } from '../dataManage/Config';
+import routes from '../../constants/routes';
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -89,7 +90,8 @@ class FileGenerateTable extends Component {
       content: '请确认是否输入箱贴？（更改此状态后，商品数量不可更改）',
       onOk() {
         console.log('OK');
-        // updateFileImport(file.id)
+        updateFileImport(file);
+        history.replace(routes.File_GENERATE_ORDER);
       }
     });
   }
@@ -144,7 +146,7 @@ class FileGenerateTable extends Component {
           <Col span={5} offset={1} style={{overflow: 'hidden', textAlign: 'right'}}>
             {/* <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button> */}
             <Button type="primary" disabled={!isDone} style={{marginRight: 5}} onClick={this.exportData}>导出数据</Button>
-            <Button type="primary" disabled={!isDone} onClick={this.changeFileState}>输入箱贴</Button>
+            <Button type="primary" disabled={!isDone} onClick={this.changeFileState}>箱贴录入</Button>
           </Col>
         </Row>
         <Tabs

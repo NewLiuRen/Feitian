@@ -113,6 +113,13 @@ class FileViewCalendar extends Component {
     history.replace(`${routes.File_GENERATE_TABLE}/edit`);
   }
 
+  // 载入文件数据并跳转至数据录入页
+  gotoInputOrder = () => {
+    const { history } = this.props;
+    this.importFileData()
+    history.replace(`${routes.File_GENERATE_ORDER}`);
+  }
+
   render() {
     const { currentFile, records } = this.state;
     const headerComp = ({ value, type, onChange, onTypeChange }) => {
@@ -197,8 +204,8 @@ class FileViewCalendar extends Component {
             currentFile && !currentFile.is_import ? 
             (<Button type="primary" block onClick={this.gotoInputData}>数据录入</Button>) :
             (<ButtonGroup style={{width: '100%'}}>
-              <Button type="primary" style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>
-              <Button type="primary" style={{width: '50%', background: '#d97309', borderColor: '#d97309'}}>箱贴导出</Button>
+              <Button type="primary" onClick={this.gotoInputOrder} style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>
+              <Button type="primary" style={{width: '50%', background: '#f1a250', borderColor: '#f1a250'}}>箱贴导出</Button>
             </ButtonGroup>)
           }</Row>
         </Drawer>

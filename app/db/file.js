@@ -36,20 +36,17 @@ export const updateFile = params => getFileById(params.id).then(f => {
   })
 
 // 将文件设置为导入状态（导入后记录集数量不可修改，可添加箱贴号）
-export const updateFileToImport = params => {
-  getFileById(params.id).then(f => {
+export const updateFileToImport = params => getFileById(params.id).then(f => {
     compareObject(fileObj, params);
     const { id } = params
-    const file = Object.assign({}, f, { id, is_import: true });
+    const file = Object.assign({}, f, { is_import: true });
     return new Promise(resolve => {
       db.updateData(STORE_NAME, file).then(({success}) => resolve({ success, data: file }))
     })
   })
-}
 
 // 将文件设置为订单状态
-export const updateFileToOrder = params => {
-  getFileById(params.id).then(f => {
+export const updateFileToOrder = params => getFileById(params.id).then(f => {
     compareObject(fileObj, params);
     const { id } = params
     const file = Object.assign({}, f, { id, is_order: true });
@@ -57,7 +54,6 @@ export const updateFileToOrder = params => {
       db.updateData(STORE_NAME, file).then(({success}) => resolve({ success, data: file }))
     })
   })
-}
 
 // 删除文件，若存在记录集，则记录集一并删除
 export const deleteFile = key => getFileById(key).then(f => {

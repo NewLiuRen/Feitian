@@ -80,7 +80,7 @@ class FileDataInput extends Component {
         list.map((g, i) => (
           <div style={{marginBottom: 5}} key={`surplus_${suffix}_${g.goods_id}`}>
             <CategoryTag category_id={goodsMap[g.goods_id].category_id} />
-            <span>{`${goodsMap[g.goods_id].name}：${g.count}`}</span>
+            <span>{`${goodsMap[g.goods_id].name}(${goodsMap[g.goods_id].max_count}个/箱)：${g.count}`}</span>
           </div>
         ))
       }</div>
@@ -178,7 +178,7 @@ class FileDataInput extends Component {
       })
       return record;
     })
-console.log('surplus :', surplus);
+
     dataSource.push(totalWarehouse);
     dataSource.push(totalBox);
     columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);

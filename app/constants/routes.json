@@ -5,6 +5,7 @@
   "File_GENERATE": "/fileGenerate",
   "File_GENERATE_INDEX": "/fileGenerate/index",
   "File_GENERATE_TABLE": "/fileGenerate/table",
+  "File_GENERATE_ORDER": "/fileGenerate/order",
   "File_GENERATE_PREVIEW": "/fileGenerate/preview",
   "DATA_MANAGE": "/dataManage",
   "DATA_MANAGE_WAREHOUSE": "/dataManage/warehouse",

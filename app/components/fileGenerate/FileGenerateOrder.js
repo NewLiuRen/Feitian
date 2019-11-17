@@ -1,52 +1,76 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Row, Col, Progress, Tabs, Table, Input, Button, Popconfirm, Form } from 'antd';
+import FileOrderInput from './inputOrder/FileOrderInput';
+import * as actions from '../../actions/fileRecord';
 
 const { TabPane } = Tabs;
 
-export default class FileGenerateOrder extends Component {
+class FileGenerateOrder extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeTab: '',
+    }
+  }
+
+  componentDidMount() {
+    const { fileWarehouseList } = this.props;
+    console.log('fileWarehouseList :', fileWarehouseList);
+    if (fileWarehouseList) this.setState({activeTab: `warehouse_${fileWarehouseList[0]}`})
+  }
+
   render() {
+    const { fileWarehouseList, warehouseMap, records } = this.props;
+    const { activeTab } = this.state;
+    const recordsMap = {};
+
+    records.forEach(r => {
+      const wid = r.warehouse_id;
+      if (!recordsMap[wid]) recordsMap[wid] = [];
+      recordsMap[wid].push(r)
+    })
+
     return (
       <>
         <Row style={{padding: '5px 20px', background: '#fff'}}>
           <Col span={18}>
-            <Progress status="normal" percent={Math.floor((currentRecords / totalRecords)*100)} />
+            <Progress status="normal" percent={100} />
           </Col>
           <Col span={5} offset={1} style={{overflow: 'hidden', textAlign: 'right'}}>
             {/* <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button> */}
-            <Button type="primary" disabled={!isDone} style={{marginRight: 5}} onClick={this.exportData}>导出数据</Button>
-            <Button type="primary" disabled={!isDone} onClick={this.changeFileState}>输入箱贴</Button>
+            <Button type="primary" disabled onClick={this.changeFileState}>拼箱录入</Button>
           </Col>
         </Row>
         <Tabs
           tabPosition="left"
-          defaultActiveKey="baseInfo"
+          defaultActiveKey={`warehouse_${fileWarehouseList ? fileWarehouseList[0] : ''}`}
           activeKey={activeTab}
           style={{ height: '100%', background: '#fff', paddingRight: 20 }}
           onChange = {(key) => { this.setState({ activeTab: key }) }}
         >
-          <TabPane tab="基本属性" key="baseInfo">
-            <Row>
-              <Col span={10}>
-                <FileInfoForm isCreate={isCreate} wrappedComponentRef={form => {this.infoFormRef = form} } />
-              </Col>
-              <Col span={10} offset={2} style={{overflow: 'auto'}}>
-                <FileGoodsList isCreate={isCreate} wrappedComponentRef={form => {this.goodsFormRef = form}} {...this.props}/>
-              </Col>
-              <Col span={22}><Button type="primary" block onClick={this.createFile}>完 成</Button></Col>
-            </Row>
-          </TabPane>
-          <TabPane tab="数据录入" disabled={isCreate} key="dataInput">
-            <FileDataInput />
-          </TabPane>
-          {/* {
-            wList.map(w => (
-              <TabPane onClick={() => {console.log(w)}} disabled={isCreate} tab={`${w.name}`} key={`warehouse-${w.id}`}>
-                <FileGoodsDetail warehouse={w} />
+          {
+            fileWarehouseList ? fileWarehouseList.map(wid => (
+              <TabPane onClick={() => {console.log(w)}} tab={`${warehouseMap[wid].name}`} key={`warehouse_${wid}`}>
+                <FileOrderInput data={recordsMap[wid]} />
               </TabPane>
-            ))
-          } */}
+            )) : null
+          }
         </Tabs>
       </>
     )
   }
 }
+
+const mapStateToProps = state => ({
+  warehouseMap: state.warehouse.map,
+  records: state.fileRecord.records,
+  fileGoods: state.fileRecord.goods,
+  fileWarehouseList: state.fileRecord.warehouse,
+})
+
+const mapDispatchToProps = {
+
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateOrder)
