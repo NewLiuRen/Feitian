@@ -12,16 +12,27 @@ class FileOrder extends Component {
   }
 
   render() {
-    const { data, goodsMap } = this.props;
-    const dataSource = data.map(d => ({
-      key: `record_${d.goods_id}`,
-      goods: goodsMap[d.goods_id].name, 
-      category: goodsMap[d.goods_id].category_id,
-      max_count: goodsMap[d.goods_id].max_count,
-      count: d.count,
-      order_number: d.order_number,
-      goods_id: d.goods_id,
-    })).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
+    const { data, goodsMap, warehouse_id } = this.props;
+    const orderMap = {};
+    const dataSource = data.map(d => {
+      const { order_number } = d;
+      if (!orderMap[order_number]) orderMap[order_number] = [];
+      orderMap[order_number].push(goodsMap[d.goods_id]);
+      return {
+        key: `record_${d.goods_id}`,
+        goods: goodsMap[d.goods_id].name, 
+        category: goodsMap[d.goods_id].category_id,
+        max_count: goodsMap[d.goods_id].max_count,
+        count: d.count,
+        order_number: d.order_number,
+        goods_id: d.goods_id,
+      }
+    }).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
+    const orderDataSource = Object.entries(orderMap).map(([order_number, goods]) => ({
+      k: `${warehouse_id}_${order_number}`,
+      order_number,
+      goods: goods.sort((p, c) => p.id - c.id).map(g => g.name).join('，'),
+    }));
     const columns = [
       {
         title: '商品',
@@ -79,7 +90,6 @@ class FileOrder extends Component {
       key: 'goods',
       dataIndex: 'goods',
     }];
-    const orderDataSource = [];
 
     return (
       <>

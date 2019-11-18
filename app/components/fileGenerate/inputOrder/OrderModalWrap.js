@@ -54,6 +54,7 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
       if (!order_number.trim()) false
       console.log('order_number :', order_number);
       if (type === TYPE_MAP.create) addRecordsOrderNumber(fileInfo.id, {warehouse_id, goodsIdList, order_number})
+      this.hideModal()
     });
   }
 

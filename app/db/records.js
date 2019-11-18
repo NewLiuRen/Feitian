@@ -109,9 +109,10 @@ export const deleteRecords = (file_id, params) => fileDB.getFileById(file_id).th
 
 // 设置记录箱号
 export const updateRecordsOrderNumber = (file_id, params) => fileDB.getFileById(file_id).then(file => {
-  if (!file || file.is_import) return { success: false }
+  if (!file || !file.is_import) return null
   return db.getDateByIndex(STORE_NAME, 'file_id', file_id)
 }).then(rs => {
+  if (!rs) throw new Error('不存在文件，或文件导入状态错误');
   if (!Array.isArray(params)) params = [params];
   params.forEach(p => compareObject(recordObj, p));
   const { records } = rs;

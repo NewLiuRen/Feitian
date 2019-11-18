@@ -76,17 +76,14 @@ function* deleteRecords({ payload: {file_id, records} }) {
 // 添加记录集箱贴
 function* addRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdList, order_number} }) {
   const rs = yield call(recordsDB.getRecordsByFileId, file_id);
-  console.log('warehouse_id :', warehouse_id);
-  console.log('goodsIdList :', goodsIdList);
-  console.log('order_number :', order_number);
   const uRecords = rs.records.map(r => {
     if (parseInt(r.warehouse_id, 10) === parseInt(warehouse_id, 10) && goodsIdList.find(gid => parseInt(r.goods_id, 10) === parseInt(gid, 10))) return Object.assign({}, r, {order_number})
     return r;
   })
   
   console.log('uRecords :', uRecords);
-  // const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, records);
-  // if (res.success) yield put(actionTypes.setRecords(res.data.records));
+  const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, uRecords);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
 // 修改记录集箱贴
