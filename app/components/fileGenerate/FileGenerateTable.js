@@ -41,10 +41,11 @@ class FileGenerateTable extends Component {
 
   // 创建文件
   createFile = () => {
-    const { file, fileGoods, setFileInfo, initRecords, addToRecords, setAllGoodsExist, fileWarehouseList, warehouseList } = this.props;
+    const { file, fileGoods, setFileInfo, initRecords, addToRecords, setAllGoodsExist, fileWarehouseList, warehouseList, setAllFileWarehouse } = this.props;
     
     const { isCreate } = this.state;
     let goodsIdList = [];
+    let warehouseIdList = [];
     Promise.all([
       this.infoFormRef.props.form.validateFields(),
       this.goodsFormRef.props.form.validateFields(),
@@ -66,7 +67,7 @@ class FileGenerateTable extends Component {
       
       setFileInfo(file);
       // 如果redux的file中warehouse为空，否则为新建状态，仓库列表从redux的warehouse中获取
-      const warehouseIdList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList.map(w => w.id);
+      warehouseIdList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList.map(w => w.id);
       if (isCreate) {
         return initRecords(file.id, {warehouseIdList, goodsIdList}) 
       } 
@@ -76,6 +77,7 @@ class FileGenerateTable extends Component {
       return null
     }).then(res => {
       // const wList = fileWarehouseList.length>0 ? fileWarehouseList : warehouseList;
+      setAllFileWarehouse(warehouseIdList);
       setAllGoodsExist();
       this.setState({activeTab: 'dataInput'});
       return null;
@@ -201,6 +203,7 @@ const mapDispatchToProps = {
   initRecords: actions.fetchInitRecords,
   addToRecords: actions.fetchAddToRecords,
   updateFileImport: actions.fetchUpdateFileImport,
+  setAllFileWarehouse: actions.setAllWarehouse,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateTable)

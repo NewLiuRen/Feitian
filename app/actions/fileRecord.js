@@ -23,6 +23,7 @@ export const FETCH_ADD_TO_RECORDS = 'FETCH_ADD_TO_RECORDS';
 export const FETCH_ADD_RECORDS = 'FETCH_ADD_RECORDS';
 export const FETCH_UPDATE_RECORDS = 'FETCH_UPDATE_RECORDS';
 export const FETCH_DELETE_RECORDS = 'FETCH_DELETE_RECORDS';
+export const FETCH_ADD_RECORDS_ORDER_NUMBER = 'FETCH_ADD_RECORDS_ORDER_NUMBER';
 export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUMBER';
 
 // 添加文件基础信息
@@ -97,6 +98,9 @@ export const fetchUpdateRecords = (file_id, records) => ({ type: FETCH_UPDATE_RE
 
 // 向数据库中删除记录集
 export const fetchDeleteRecords = (file_id, records) => ({ type: FETCH_DELETE_RECORDS, payload: {file_id, records} })
+
+// 向数据库中修改记录集箱贴
+export const fetchAddRecordsOrderNumber = (file_id, {warehouse_id, goodsIdList, order_number}) => ({ type: FETCH_ADD_RECORDS_ORDER_NUMBER, payload: {file_id, warehouse_id, goodsIdList, order_number} })
 
 // 向数据库中修改记录集箱贴
 export const fetchUpdateRecordsOrderNumber = (file_id, records) => ({ type: FETCH_UPDATE_RECORDS_ORDER_NUMBER, payload: {file_id, records} })

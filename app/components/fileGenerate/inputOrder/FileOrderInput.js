@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Table, Button } from 'antd';
 import CategoryTag from '../../common/CategoryTag';
+import OrderModalWrap from './OrderModalWrap';
+import * as actions from '../../../actions/fileRecord';
 
-class FileOrderInput extends Component {
+class FileOrder extends Component {
 
   addOrder = () => {
-
+    this.props.add(this.props.warehouse_id)
   }
 
   render() {
@@ -18,7 +20,8 @@ class FileOrderInput extends Component {
       max_count: goodsMap[d.goods_id].max_count,
       count: d.count,
       order_number: d.order_number,
-    }))
+      goods_id: d.goods_id,
+    })).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
     const columns = [
       {
         title: '商品',
@@ -63,6 +66,7 @@ class FileOrderInput extends Component {
       title: '',
       width: 10,
       key: 'index',
+      dataIndex: 'index',
       render: (text,record,index) => `${index + 1}`
     }, {
       title: '订单号',
@@ -84,7 +88,7 @@ class FileOrderInput extends Component {
             className="file-data-input"
             columns={columns}
             dataSource={dataSource}
-            scroll={{ x: '100%', y: 'calc(100vh - 400px)' }}
+            scroll={{ x: '100%', y: 'calc(100vh - 480px)' }}
             bordered
             pagination={false}
             size="small"
@@ -96,7 +100,7 @@ class FileOrderInput extends Component {
             className="file-data-input"
             columns={orderColumns}
             dataSource={orderDataSource}
-            scroll={{ x: '100%', y: 'calc(100vh - 900px)' }}
+            scroll={{ x: '100%', y: 'calc(100vh - 1000px)' }}
             bordered
             pagination={false}
             size="small"
@@ -110,11 +114,15 @@ class FileOrderInput extends Component {
 
 const mapStateToProps = state => ({
   categoryMap: state.category.map,
-  goodsMap: state.goods.map
+  goodsMap: state.goods.map,
+  fileInfo: state.fileRecord.file,
+  fileGoodsList: state.fileRecord.goods,
 })
 
 const mapDispatchToProps = {
-
+  addRecordsOrderNumber: actions.fetchAddRecordsOrderNumber
 }
+
+const FileOrderInput = OrderModalWrap(FileOrder);
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileOrderInput);

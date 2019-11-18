@@ -16,7 +16,6 @@ class FileGenerateOrder extends Component {
 
   componentDidMount() {
     const { fileWarehouseList } = this.props;
-    console.log('fileWarehouseList :', fileWarehouseList);
     if (fileWarehouseList) this.setState({activeTab: `warehouse_${fileWarehouseList[0]}`})
   }
 
@@ -52,7 +51,7 @@ class FileGenerateOrder extends Component {
           {
             fileWarehouseList ? fileWarehouseList.map(wid => (
               <TabPane onClick={() => {console.log(w)}} tab={`${warehouseMap[wid].name}`} key={`warehouse_${wid}`}>
-                <FileOrderInput data={recordsMap[wid]} />
+                <FileOrderInput data={recordsMap[wid]} warehouse_id={wid} />
               </TabPane>
             )) : null
           }
