@@ -90,16 +90,6 @@ export const deleteRecords = (file_id, params) => fileDB.getFileById(file_id).th
     }
   }
 
-  // const recordsArr = rs.records.map(r => {
-  //   const index = params.findIndex(p => (parseInt(p.warehouse_id, 10) === parseInt(r.warehouse_id, 10) && parseInt(p.goods_id, 10) === parseInt(r.goods_id, 10)))
-  //   if (index !== -1) {
-  //     const { count, goods_id, warehouse_id } = params[index];
-  //     return Object.assign({}, recordObj, { count, goods_id: parseInt(goods_id, 10), warehouse_id: parseInt(warehouse_id, 10) });
-  //   } else {
-  //     return r
-  //   }
-  // });
-
   const uRecords = Object.assign({}, rs, {records: recordsArr})
 
   return new Promise(resolve => {

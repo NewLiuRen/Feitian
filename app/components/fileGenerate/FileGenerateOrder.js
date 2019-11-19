@@ -37,7 +37,7 @@ class FileGenerateOrder extends Component {
       if (!recordsMap[wid]) recordsMap[wid] = [];
       recordsMap[wid].push(r)
     })
-console.log('recordsMap :', recordsMap);
+
     return (
       <>
         <Row style={{padding: '5px 20px', background: '#fff'}}>
