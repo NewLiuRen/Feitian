@@ -75,11 +75,21 @@ a:hover {
   background-color: #AAA;  
 }  
 
-/**/
+/*数据*/
 .file-data-input .ant-form-item-children {
     display: inline-block;
     width: 100%;
 }
 .file-data-input .ant-form-item-children .ant-input-number {
   width: 100%;
+}
+
+.file-order-input .ant-table-placeholder {
+  height: calc(100vh - 550px);
+}
+.file-order-input .ant-table-placeholder .ant-empty-normal {
+  margin: 20px 0;
+}
+.file-order-select .ant-form-item-control {
+  line-height: 0;
 }

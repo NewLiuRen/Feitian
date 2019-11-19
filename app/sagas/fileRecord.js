@@ -81,14 +81,48 @@ function* addRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdList, 
     return r;
   })
   
-  console.log('uRecords :', uRecords);
   const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, uRecords);
   if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
 // 修改记录集箱贴
-function* updateRecordsOrderNumber({ payload: {file_id, records} }) {
-  const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, records);
+function* updateRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdList, old_order_number, order_number} }) {
+  const rs = yield call(recordsDB.getRecordsByFileId, file_id);
+  const uRecords = rs.records.map(r => {
+    if (parseInt(r.warehouse_id, 10) === parseInt(warehouse_id, 10)) {
+      // 若原订单号相同且存在于id列表中，则将订单号修改为新订单号
+      // 若原订单号相同但不存在与id列表中，说明为移除状态，将订单号置为空
+      if (goodsIdList.includes(parseInt(r.goods_id, 10))) return Object.assign({}, r, {order_number})
+      if (parseInt(r.order_number, 10) === parseInt(old_order_number, 10)) Object.assign({}, r, {order_number: ''})
+    }
+    return r;
+  })
+  const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, uRecords);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
+}
+
+// 修改单个记录箱贴
+function* changeRecordOrderNumber({ payload: {file_id, warehouse_id, goods_id, order_number} }) {
+  const rs = yield call(recordsDB.getRecordsByFileId, file_id);
+  const uRecords = rs.records.map(r => {
+    if (parseInt(r.warehouse_id, 10) === parseInt(warehouse_id, 10) && parseInt(r.goods_id, 10) === parseInt(goods_id, 10)) {
+      return Object.assign({}, r, {order_number})
+    }
+    return r;
+  })
+  const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, uRecords);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
+}
+
+// 删除记录集箱贴
+function* deleteRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdList, order_number} }) {
+  const rs = yield call(recordsDB.getRecordsByFileId, file_id);
+  const uRecords = rs.records.map(r => {
+    if (parseInt(r.warehouse_id, 10) === parseInt(warehouse_id, 10) && goodsIdList.find(gid => parseInt(r.goods_id, 10) === parseInt(gid, 10))) return Object.assign({}, r, {order_number: ''})
+    return r;
+  })
+  
+  const res = yield call(recordsDB.updateRecordsOrderNumber, file_id, uRecords);
   if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
@@ -105,5 +139,7 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_DELETE_RECORDS, deleteRecords),
     takeLatest(actionTypes.FETCH_ADD_RECORDS_ORDER_NUMBER, addRecordsOrderNumber),
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS_ORDER_NUMBER, updateRecordsOrderNumber),
+    takeLatest(actionTypes.FETCH_CHANGE_RECORD_ORDER_NUMBER, changeRecordOrderNumber),
+    takeLatest(actionTypes.FETCH_DELETE_RECORDS_ORDER_NUMBER, deleteRecordsOrderNumber),
   ]);
 }

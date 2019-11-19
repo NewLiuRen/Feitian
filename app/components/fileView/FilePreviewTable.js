@@ -72,6 +72,23 @@ class FilePreviewTable extends Component {
       }
     })
 
+    // 仓库合计
+    const totalWarehouse = {
+      key: 'warehouse_total',
+      goods: '合计', 
+      category: '',
+      max_count: '',
+      goods_id: '',
+    }
+    // 箱数合计
+    const totalBox = {
+      key: 'box_total',
+      goods: '箱数', 
+      category: '',
+      max_count: '',
+      goods_id: '',
+    }
+
     // 根据dataSourceGoodsMap，计算dataSource
     dataSource = Object.entries(dataSourceGoodsMap).map(([gid, wobj]) => {
       const category_id = goodsMap[gid].category_id || -1
@@ -85,11 +102,17 @@ class FilePreviewTable extends Component {
       
       if (!categoryFilters.find(c => c.value === category_id)) categoryFilters.push({ text: categoryMap[category_id] ? categoryMap[category_id].name : '其他', value: category_id,})
       Object.entries(wobj).forEach(([wkey, count]) => {
+        if (!totalWarehouse.hasOwnProperty(wkey)) {
+          totalWarehouse[wkey] = count
+        } else {
+          totalWarehouse[wkey] += count
+        }
         record[wkey] = count;
       })
       return record;
     })
 
+    dataSource.push(totalWarehouse);
     columns[1].filters = categoryFilters.sort((a, b) => b.value - a.value);
 
     return (

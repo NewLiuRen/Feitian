@@ -25,6 +25,8 @@ export const FETCH_UPDATE_RECORDS = 'FETCH_UPDATE_RECORDS';
 export const FETCH_DELETE_RECORDS = 'FETCH_DELETE_RECORDS';
 export const FETCH_ADD_RECORDS_ORDER_NUMBER = 'FETCH_ADD_RECORDS_ORDER_NUMBER';
 export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUMBER';
+export const FETCH_CHANGE_RECORD_ORDER_NUMBER = 'FETCH_CHANGE_RECORD_ORDER_NUMBER';
+export const FETCH_DELETE_RECORDS_ORDER_NUMBER = 'FETCH_DELETE_RECORDS_ORDER_NUMBER';
 
 // 添加文件基础信息
 export const setFile = file => ({ type: SET_FILE, payload: file })
@@ -103,4 +105,10 @@ export const fetchDeleteRecords = (file_id, records) => ({ type: FETCH_DELETE_RE
 export const fetchAddRecordsOrderNumber = (file_id, {warehouse_id, goodsIdList, order_number}) => ({ type: FETCH_ADD_RECORDS_ORDER_NUMBER, payload: {file_id, warehouse_id, goodsIdList, order_number} })
 
 // 向数据库中修改记录集箱贴
-export const fetchUpdateRecordsOrderNumber = (file_id, records) => ({ type: FETCH_UPDATE_RECORDS_ORDER_NUMBER, payload: {file_id, records} })
+export const fetchUpdateRecordsOrderNumber = (file_id, {warehouse_id, goodsIdList, order_number, old_order_number}) => ({ type: FETCH_UPDATE_RECORDS_ORDER_NUMBER, payload: {file_id, warehouse_id, goodsIdList, order_number, old_order_number} })
+
+// 向数据库中修改记录集箱贴
+export const fetchChangeRecordOrderNumber = (file_id, {warehouse_id, goods_id, order_number}) => ({ type: FETCH_CHANGE_RECORD_ORDER_NUMBER, payload: {file_id, warehouse_id, goods_id, order_number} })
+
+// 向数据库中删除记录集箱贴
+export const fetchDeleteRecordsOrderNumber = (file_id, {warehouse_id, goodsIdList, order_number}) => ({ type: FETCH_DELETE_RECORDS_ORDER_NUMBER, payload: {file_id, warehouse_id, goodsIdList, order_number} })

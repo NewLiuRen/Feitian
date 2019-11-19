@@ -187,6 +187,13 @@ ipcMain.on('exportDataInput', (event, arg) => {
     })
     return formula.join('+');
   }
+  const generateVerticalFormula = (wList, index) => {
+    const formula = [];
+    wList.forEach((w, i) => {
+      formula.push(`${String.fromCharCode(67+i)}${index}`);
+    })
+    return formula.join('+');
+  }
   warehouseList.forEach(w => {
     columns.push({ header: w.name, key: `warehouse_${w.id}`, width: 8, alignment: { vertical: 'middle', horizontal: 'right' } });
   })
@@ -194,7 +201,7 @@ ipcMain.on('exportDataInput', (event, arg) => {
   sheet.columns = columns;
 
   for(let i=1, len=dataSource.length ; i<=len ; i+=1) {
-    const {name, sku, value} = dataSource[i-1];
+    const {name, sku, value, max_count} = dataSource[i-1];
     const newRow = { name, sku }
     let sum = 0;
     value.forEach(w => {

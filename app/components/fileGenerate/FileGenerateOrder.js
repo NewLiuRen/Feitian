@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Progress, Tabs, Table, Input, Button, Popconfirm, Form } from 'antd';
+import { Icon, Row, Col, Progress, Tabs, Table, Input, Button, Popconfirm, Form } from 'antd';
 import FileOrderInput from './inputOrder/FileOrderInput';
 import * as actions from '../../actions/fileRecord';
 
@@ -19,26 +19,34 @@ class FileGenerateOrder extends Component {
     if (fileWarehouseList) this.setState({activeTab: `warehouse_${fileWarehouseList[0]}`})
   }
 
+  gotoNextTab = (warehouse_id) => {
+    const { fileWarehouseList } = this.props;
+    const index = fileWarehouseList.findIndex(wid => parseInt(wid, 10) === parseInt(warehouse_id, 10));
+    const active = index === fileWarehouseList.length - 1 ? index : index + 1;
+    this.setState({activeTab: `warehouse_${fileWarehouseList[active]}`})
+  }
+
   render() {
     const { fileWarehouseList, warehouseMap, records } = this.props;
     const { activeTab } = this.state;
     const recordsMap = {};
+    const percent = Math.floor(records.filter(r => r.order_number).length / records.length * 100);
 
     records.forEach(r => {
       const wid = r.warehouse_id;
       if (!recordsMap[wid]) recordsMap[wid] = [];
       recordsMap[wid].push(r)
     })
-
+console.log('recordsMap :', recordsMap);
     return (
       <>
         <Row style={{padding: '5px 20px', background: '#fff'}}>
           <Col span={18}>
-            <Progress status="normal" percent={100} />
+            <Progress status="normal" percent={percent} />
           </Col>
           <Col span={5} offset={1} style={{overflow: 'hidden', textAlign: 'right'}}>
             {/* <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button> */}
-            <Button type="primary" disabled onClick={this.changeFileState}>拼箱录入</Button>
+            <Button type="primary" disabled={percent !== 100} onClick={this.changeFileState}>拼箱录入</Button>
           </Col>
         </Row>
         <Tabs
@@ -50,8 +58,14 @@ class FileGenerateOrder extends Component {
         >
           {
             fileWarehouseList ? fileWarehouseList.map(wid => (
-              <TabPane onClick={() => {console.log(w)}} tab={`${warehouseMap[wid].name}`} key={`warehouse_${wid}`}>
-                <FileOrderInput data={recordsMap[wid]} warehouse_id={wid} />
+              <TabPane onClick={() => {console.log(w)}} tab={
+                <span>
+                  {recordsMap[wid].filter(g => !g.order_number).length === 0 ? <Icon type="check" /> : null}
+                  {`${warehouseMap[wid].name}`}
+                </span>
+                } key={`warehouse_${wid}`
+              }>
+                <FileOrderInput data={recordsMap[wid]} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
               </TabPane>
             )) : null
           }

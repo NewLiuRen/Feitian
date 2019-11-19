@@ -4,18 +4,13 @@ import { Transfer, Table } from 'antd';
 import CategoryTag from './CategoryTag';
 
 class TransferGoods extends Component {
-  state = {
-    targetKeys: [],
-  }
-
   onChange = nextTargetKeys => {
-    this.setState({ targetKeys: nextTargetKeys });
-    this.props.onChange(nextTargetKeys.map(k => parseInt(k.split('_')[1],  10)))
+    this.props.onChange(nextTargetKeys);
   };
   
   render() {
-    const { categoryMap, goodsMap, goodsIdList } = this.props;
-    const { targetKeys } = this.state;
+    const { categoryMap, goodsMap, fileGoodsIdList, targetKeys } = this.props;
+
     const columns = [
       {
         title: '商品',
@@ -60,11 +55,11 @@ class TransferGoods extends Component {
     ];
     const categoryFilters = []
 
-    const dataSource = goodsIdList.map(gid => {
+    const dataSource = fileGoodsIdList.map(gid => {
       const categoryObj = categoryMap[goodsMap[gid].category_id];
       if (!categoryFilters.find(c => c.value === categoryObj.id)) categoryFilters.push({ text: categoryObj ? categoryObj.name : '其他', value: categoryObj.id || -1,})
       return {
-        key: `transferGoods_${gid}`,
+        key: gid,
         goods: goodsMap[gid].name,
         category: categoryObj.id,
         sku: goodsMap[gid].sku,
@@ -99,7 +94,7 @@ class TransferGoods extends Component {
                 .filter(item => !item.disabled)
                 .map(({ key }) => key);
               const difference = (target1, target2) => {
-                let result = [];
+                const result = [];
                 for(let i = 0; i < target1.length; i++){
                   if(target1[i] !== target2[i]){
                     result.push(target1[i])
