@@ -86,13 +86,13 @@ class FileGenerateTable extends Component {
 
   // 切换文件状态至输入箱贴
   changeFileState = () => {
-    const { file, updateFileImport, history } = this.props;
+    const { file, updateFileImport, generateFullBoxLabels, history } = this.props;
     confirm({
       title: '提示',
       content: '请确认是否输入箱贴？（更改此状态后，商品数量不可更改）',
       onOk() {
-        console.log('OK');
         updateFileImport(file);
+        generateFullBoxLabels(file);
         history.replace(routes.File_GENERATE_ORDER);
       }
     });
@@ -204,6 +204,7 @@ const mapDispatchToProps = {
   addToRecords: actions.fetchAddToRecords,
   updateFileImport: actions.fetchUpdateFileImport,
   setAllFileWarehouse: actions.setAllWarehouse,
+  generateFullBoxLabels: actions.fetchGenerateFullBoxLabels,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateTable)

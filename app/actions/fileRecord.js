@@ -27,6 +27,7 @@ export const FETCH_ADD_RECORDS_ORDER_NUMBER = 'FETCH_ADD_RECORDS_ORDER_NUMBER';
 export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUMBER';
 export const FETCH_CHANGE_RECORD_ORDER_NUMBER = 'FETCH_CHANGE_RECORD_ORDER_NUMBER';
 export const FETCH_DELETE_RECORDS_ORDER_NUMBER = 'FETCH_DELETE_RECORDS_ORDER_NUMBER';
+export const FETCH_GENERATE_FULL_BOX_LABELS = 'FETCH_GENERATE_FULL_BOX_LABELS';
 
 // 添加文件基础信息
 export const setFile = file => ({ type: SET_FILE, payload: file })
@@ -112,3 +113,6 @@ export const fetchChangeRecordOrderNumber = (file_id, {warehouse_id, goods_id, o
 
 // 向数据库中删除记录集箱贴
 export const fetchDeleteRecordsOrderNumber = (file_id, {warehouse_id, goodsIdList, order_number}) => ({ type: FETCH_DELETE_RECORDS_ORDER_NUMBER, payload: {file_id, warehouse_id, goodsIdList, order_number} })
+
+// 生成整箱箱贴
+export const fetchGenerateFullBoxLabels = (file) => ({ type: FETCH_GENERATE_FULL_BOX_LABELS, payload: file })

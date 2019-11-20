@@ -129,3 +129,32 @@ export const deleteAllRecordsByFileId = file_id => getRecordsByFileId(file_id).t
     if (!rs) return { success: false }
     return db.deleteData(STORE_NAME, rs.id)
   }).then(({success}) => ({ success }))
+
+// 生成整箱箱贴号
+export const generateFullBoxLabelByFileId = file_id => getRecordsByFileId(file_id).then(rs => {
+    if (!rs) return { success: false }
+    const recordsWarehouseMap = {}
+    rs.records.forEach(r => {
+      if (!recordsWarehouseMap[r.warehouse_id]) recordsWarehouseMap[r.warehouse_id] = [];
+      recordsWarehouseMap[r.warehouse_id].push(r);
+    })
+console.log('recordsWarehouseMap :', recordsWarehouseMap);
+    const records = Object.entries(recordsWarehouseMap).map(([wid, rArr]) => {
+      let index = 1;
+      return rArr.sort((p, c) => p.goods_id - c.goods_id).map(r => {
+        const boxCount = Math.floor(r.count / r.max_count);
+        const labels = []
+        for(let i=0, len=boxCount; i<len ; i+=1) {
+          labels.push(index);
+          index += 1;
+        }
+        return Object.assign({}, r, {labels})
+      })
+    }).flat()
+console.log('records :', records);
+    const uRecords = Object.assign({}, rs, {records});
+console.log('uRecords :', uRecords);
+    return new Promise(resolve => {
+      db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))
+    })
+  })

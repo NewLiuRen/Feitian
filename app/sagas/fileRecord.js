@@ -6,7 +6,6 @@ import * as recordsDB from '../db/records';
 
 // 获取记录集
 function* getRecordByFileId({ payload: file }) {
-  console.log('file :', file);
   const res = yield call(recordsDB.getRecordsByFileId, file.id);
   yield put(actionTypes.setRecords(res.records));
 }
@@ -126,6 +125,12 @@ function* deleteRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdLis
   if (res.success) yield put(actionTypes.setRecords(res.data.records));
 }
 
+// 生成整箱箱贴
+function* generateFullBoxLabels({ payload: file }) {
+  const res = yield call(recordsDB.generateFullBoxLabelByFileId, file.id);
+  if (res.success) yield put(actionTypes.setRecords(res.data.records));
+}
+
 export default function* root() {
   yield all([
     takeLatest(actionTypes.FETCH_GET_RECORDS, getRecordByFileId),
@@ -141,5 +146,6 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_UPDATE_RECORDS_ORDER_NUMBER, updateRecordsOrderNumber),
     takeLatest(actionTypes.FETCH_CHANGE_RECORD_ORDER_NUMBER, changeRecordOrderNumber),
     takeLatest(actionTypes.FETCH_DELETE_RECORDS_ORDER_NUMBER, deleteRecordsOrderNumber),
+    takeLatest(actionTypes.FETCH_GENERATE_FULL_BOX_LABELS, generateFullBoxLabels),
   ]);
 }
