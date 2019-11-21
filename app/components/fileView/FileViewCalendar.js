@@ -19,6 +19,8 @@ class FileViewCalendar extends Component {
     this.state = {
       fileList: [],
       records: [],
+      share: [],
+      surplus: [],
       currentFile: null,
       visible: false,
     }
@@ -79,8 +81,8 @@ class FileViewCalendar extends Component {
   
   // 显示预览表格
   showPreview = (currentFile) => {
-    getRecordsByFileId(currentFile.id).then(({records}) => {
-      this.setState({records, currentFile, visible: true});
+    getRecordsByFileId(currentFile.id).then(({records, share, surplus}) => {
+      this.setState({records, share, surplus, currentFile, visible: true});
       return null
     })
   }
@@ -92,8 +94,8 @@ class FileViewCalendar extends Component {
 
   // 载入数据
   importFileData = () => {
-    const { setFileInfo, setFileRecords, setAllFileGoods, setAllFileWarehouse } = this.props;
-    const { currentFile, records } = this.state;
+    const { setFileInfo, setFileRecords, setFileShare, setFileSurplus,  setAllFileGoods, setAllFileWarehouse } = this.props;
+    const { currentFile, records, share, surplus } = this.state;
     const goods = new Set();
     const warehouse = new Set();
     records.forEach(r => {
@@ -104,20 +106,29 @@ class FileViewCalendar extends Component {
     setAllFileWarehouse([...warehouse]);
     setFileInfo(currentFile);
     setFileRecords(records);
+    setFileShare(share);
+    setFileSurplus(surplus);
   }
 
   // 载入文件数据并跳转至数据录入页
   gotoInputData = () => {
     const { history } = this.props;
     this.importFileData()
-    history.replace(`${routes.File_GENERATE_TABLE}/edit`);
+    history.replace(`${routes.FILE_GENERATE_TABLE}/edit`);
   }
 
   // 载入文件数据并跳转至数据录入页
   gotoInputOrder = () => {
     const { history } = this.props;
     this.importFileData()
-    history.replace(`${routes.File_GENERATE_ORDER}`);
+    history.replace(`${routes.FILE_GENERATE_ORDER}`);
+  }
+  
+  // 载入文件数据并跳转至数据录入页
+  gotoInputLabel = () => {
+    const { history } = this.props;
+    this.importFileData()
+    history.replace(`${routes.FILE_GENERATE_LABEL}`);
   }
 
   render() {
@@ -205,7 +216,7 @@ class FileViewCalendar extends Component {
             (<Button type="primary" block onClick={this.gotoInputData}>数据录入</Button>) :
             (<ButtonGroup style={{width: '100%'}}>
               <Button type="primary" onClick={this.gotoInputOrder} style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>
-              <Button type="primary" style={{width: '50%', background: '#f1a250', borderColor: '#f1a250'}}>箱贴导出</Button>
+              <Button type="primary" disabled={currentFile && !currentFile.is_order} onClick={this.gotoInputLabel} style={{width: '50%', background: (currentFile && !currentFile.is_order) ? '#d9d9d9' : '#f1a250', borderColor: (currentFile && !currentFile.is_order) ? '#d9d9d9' : '#f1a250'}}>箱贴导出</Button>
             </ButtonGroup>)
           }</Row>
         </Drawer>
@@ -218,6 +229,8 @@ class FileViewCalendar extends Component {
 const mapDispatchToProps = {
   setFileInfo: actions.setFile,
   setFileRecords: actions.setRecords,
+  setFileShare: actions.setShare,
+  setFileSurplus: actions.setSurplus,
   setAllFileGoods: actions.setAllGoods,
   setAllFileWarehouse: actions.setAllWarehouse,
   clearFile: actions.clearFileRecord

@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Icon, Row, Col, Progress, Tabs, Table, Input, Button, Popconfirm, Modal } from 'antd';
-import FileOrderInput from './inputOrder/FileOrderInput';
-import routes from '../../constants/routes';
-import * as actions from '../../actions/fileRecord';
+import { Drawer, Layout,  Alert, Icon, Row, Col, Progress, Tabs, Button, } from 'antd';
+import FileLabelInput from './exportLabel/FileLabelInput';
+import FilePreviewTable from './exportLabel/FilePreviewTable';
 
 const { TabPane } = Tabs;
-const { confirm } = Modal;
 
 class FileGenerateOrder extends Component {
   constructor(props) {
     super(props);
     this.state = {
       activeTab: '',
+      visible: false,
     }
   }
 
@@ -21,34 +20,27 @@ class FileGenerateOrder extends Component {
     if (fileWarehouseList) this.setState({activeTab: `warehouse_${fileWarehouseList[0]}`})
   }
 
-  // 切换至下一页签
   gotoNextTab = (warehouse_id) => {
     const { fileWarehouseList } = this.props;
     const index = fileWarehouseList.findIndex(wid => parseInt(wid, 10) === parseInt(warehouse_id, 10));
     const active = index === fileWarehouseList.length - 1 ? index : index + 1;
     this.setState({activeTab: `warehouse_${fileWarehouseList[active]}`})
-    if (active === index) this.changeFileState();
   }
 
-  // 跳转至拼箱录入
-  changeFileState = () => {
-    const { fileInfo, updateFileOrder, history } = this.props;
-    console.log('file', fileInfo)
-    confirm({
-      title: '提示',
-      content: `请确认是否输入拼箱箱贴？${fileInfo.is_order ? '(从此进入后已存在拼箱箱贴数据将会清空)' : ''}`,
-      onOk() {
-        updateFileOrder(fileInfo)
-        history.replace(routes.FILE_GENERATE_LABEL);
-      }
-    });
+  // 显示预览表格
+  showPreview = () => {
+    this.setState({ visible: true, });
+  }
+
+  // 隐藏预览表格
+  hidePreview = () => {
+    this.setState({ visible: false, });
   }
 
   render() {
-    const { fileWarehouseList, warehouseMap, records } = this.props;
-    const { activeTab } = this.state;
+    const { fileWarehouseList, warehouseMap, records, surplus } = this.props;
+    const { activeTab, visible } = this.state;
     const recordsMap = {};
-    const percent = Math.floor(records.filter(r => r.order_number).length / records.length * 100);
 
     records.forEach(r => {
       const wid = r.warehouse_id;
@@ -59,14 +51,30 @@ class FileGenerateOrder extends Component {
     return (
       <>
         <Row style={{padding: '5px 20px', background: '#fff'}}>
-          <Col span={18}>
-            <Progress status="normal" percent={percent} />
-          </Col>
-          <Col span={5} offset={1} style={{overflow: 'hidden', textAlign: 'right'}}>
-            {/* <Button type="primary" ghost style={{marginRight: 5}}>数据预览</Button> */}
-            <Button type="primary" disabled={percent !== 100} onClick={this.changeFileState}>拼箱录入</Button>
+          {/* <Col span={18}>
+            <Progress status="normal" percent={0} />
+          </Col> */}
+          <Col span={24} style={{overflow: 'hidden', textAlign: 'right'}}>
+            <Button type="primary" ghost style={{marginRight: 5}} onClick={this.showPreview}>数据预览</Button>
+            <Button type="primary" onClick={this.changeFileState}>箱贴导出</Button>
           </Col>
         </Row>
+        <Drawer
+          title="剩余商品数量一览"
+          style={{overflow: 'hidden'}}
+          placement="right"
+          width="80%"
+          onClose={this.hidePreview}
+          visible={this.state.visible}
+        >
+          <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下未成整箱商品的剩余数量(“-”表示该商品全部为整箱，不含剩余数量)" showIcon />
+          <Layout style={{height: 'calc(100vh - 220px)', background: '#ffffff'}}>
+            <FilePreviewTable />
+          </Layout>
+          <Row style={{marginTop: 20}}>
+            <Button type="primary" ghost block onClick={this.hidePreview}>关闭</Button>
+          </Row>
+        </Drawer>
         <Tabs
           tabPosition="left"
           defaultActiveKey={`warehouse_${fileWarehouseList ? fileWarehouseList[0] : ''}`}
@@ -76,14 +84,14 @@ class FileGenerateOrder extends Component {
         >
           {
             fileWarehouseList ? fileWarehouseList.map(wid => (
-              <TabPane tab={
+              <TabPane onClick={() => {console.log(w)}} tab={
                 <span>
                   {recordsMap[wid].filter(g => !g.order_number).length === 0 ? <Icon type="check" /> : null}
                   {`${warehouseMap[wid].name}`}
                 </span>
                 } key={`warehouse_${wid}`
               }>
-                <FileOrderInput data={recordsMap[wid]} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
+                <FileLabelInput data={recordsMap[wid]} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
               </TabPane>
             )) : null
           }
@@ -96,13 +104,13 @@ class FileGenerateOrder extends Component {
 const mapStateToProps = state => ({
   warehouseMap: state.warehouse.map,
   records: state.fileRecord.records,
-  fileInfo: state.fileRecord.file,
+  surplus: state.fileRecord.surplus,
   fileGoods: state.fileRecord.goods,
   fileWarehouseList: state.fileRecord.warehouse,
 })
 
 const mapDispatchToProps = {
-  updateFileOrder: actions.fetchUpdateFileOrder
+
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateOrder)

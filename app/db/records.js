@@ -1,7 +1,7 @@
 import { compareObject } from '../utils/check'
 import * as db from './index'
 import * as fileDB from './file'
-import recordsObj, { RECORD } from '../constants/records'
+import recordsObj, { RECORD, SHARE, SURPLUS } from '../constants/records'
 
 const STORE_NAME = 'records'
 const recordObj = Object.assign({}, RECORD)
@@ -130,31 +130,76 @@ export const deleteAllRecordsByFileId = file_id => getRecordsByFileId(file_id).t
     return db.deleteData(STORE_NAME, rs.id)
   }).then(({success}) => ({ success }))
 
-// 生成整箱箱贴号
-export const generateFullBoxLabelByFileId = file_id => getRecordsByFileId(file_id).then(rs => {
+// 生成整箱箱贴号并计算剩余商品数量
+export const generateFullBoxLabelByFileId = (file_id, goodsMap) => getRecordsByFileId(file_id).then(rs => {
     if (!rs) return { success: false }
     const recordsWarehouseMap = {}
     rs.records.forEach(r => {
       if (!recordsWarehouseMap[r.warehouse_id]) recordsWarehouseMap[r.warehouse_id] = [];
       recordsWarehouseMap[r.warehouse_id].push(r);
     })
-console.log('recordsWarehouseMap :', recordsWarehouseMap);
-    const records = Object.entries(recordsWarehouseMap).map(([wid, rArr]) => {
+
+    const records = [];
+    const surplus = [];
+    Object.entries(recordsWarehouseMap).forEach(([wid, rArr]) => {
       let index = 1;
       return rArr.sort((p, c) => p.goods_id - c.goods_id).map(r => {
-        const boxCount = Math.floor(r.count / r.max_count);
+        const boxCount = Math.floor(r.count / goodsMap[r.goods_id].max_count);
+        const surplusCount = r.count % goodsMap[r.goods_id].max_count;
         const labels = []
         for(let i=0, len=boxCount; i<len ; i+=1) {
           labels.push(index);
           index += 1;
         }
-        return Object.assign({}, r, {labels})
+        if (surplusCount !== 0) {
+          surplus.push({warehouse_id: parseInt(wid, 10), goods_id: parseInt(r.goods_id, 10), count: parseInt(surplusCount, 10)})
+        }
+        records.push(Object.assign({}, r, {labels}))
       })
-    }).flat()
-console.log('records :', records);
-    const uRecords = Object.assign({}, rs, {records});
-console.log('uRecords :', uRecords);
+    })
+
+    const uRecords = Object.assign({}, rs, {records, surplus});
+
     return new Promise(resolve => {
       db.updateData(STORE_NAME, uRecords).then(({success, result}) => resolve({ success, data: uRecords }))
     })
   })
+
+// 添加拼箱
+export const addFileShare = (file_id, params) => fileDB.getRecordsByFileId(file_id).then(rs => {
+  if (!rs) return { success: false }
+  compareObject(SHARE, params)
+  const { label, order_number, warehouse_id, goods, } = params;
+  const flag = rs.share.find(s => parseInt(s.warehouse_id, 10) === parseInt(warehouse_id, 10) && parseInt(s.label, 10) === parseInt(label, 10));
+
+  const share = flag ? rs.share : rs.share.concat(params);
+  const records = Object.assign({}, recordsObj, {file_id, share});
+
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, records).then(({success, result}) => resolve({ success, data: records }))
+  })
+})
+
+// 删除拼箱
+export const deleteFileShare = (file_id, params) => fileDB.getRecordsByFileId(file_id).then(rs => {
+  if (!rs) return { success: false }
+  compareObject(SHARE, params)
+  const { label, order_number, warehouse_id, goods, } = params;
+
+  const share = [];
+  for (const s of rs.share) {
+    if (parseInt(s.warehouse_id, 10) === parseInt(warehouse_id, 10)) {
+      if (parseInt(s.label, 10) === parseInt(label, 10)) {
+        continue;
+      }
+      if (parseInt(s.label, 10) > parseInt(label, 10)) {
+        share.push({label: s.label - 1, order_number, warehouse_id, goods})
+      }
+    } 
+  }
+  const records = Object.assign({}, recordsObj, {file_id, share});
+
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, records).then(({success, result}) => resolve({ success, data: records }))
+  })
+})

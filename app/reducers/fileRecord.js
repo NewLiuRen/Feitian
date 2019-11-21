@@ -5,6 +5,10 @@ import { GOODS_TMP } from '../constants/goods';
 const initState = {
   file: {},
   records: [],
+  // 拼箱数据
+  share: [],
+  // 剩余数量
+  surplus: [],
   // 仓库缓存，用于读取历史文件用（因冻结仓库，历史文件中仓库状态可能同当前不一致）
   warehouse: [],
   // 当前所选的商品列表
@@ -19,6 +23,10 @@ const fileRecord = (state = initState, action) => {
       return Object.assign({}, state, {file: {...payload}});
     case actionTypes.SET_RECORDS:
       return Object.assign({}, state, {records: [...payload]});
+    case actionTypes.SET_SHARE:
+      return Object.assign({}, state, {share: [...payload]});
+    case actionTypes.SET_SURPLUS:
+      return Object.assign({}, state, {surplus: [...payload]});
     case actionTypes.ADD_FILE_GOODS:
       const newGoods = state.goods.concat(Object.assign({}, GOODS_TMP));
       return Object.assign({}, state, {goods: newGoods})

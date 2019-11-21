@@ -93,7 +93,7 @@ class FileGenerateTable extends Component {
       onOk() {
         updateFileImport(file);
         generateFullBoxLabels(file);
-        history.replace(routes.File_GENERATE_ORDER);
+        history.replace(routes.FILE_GENERATE_ORDER);
       }
     });
   }

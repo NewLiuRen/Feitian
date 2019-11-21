@@ -84,10 +84,12 @@ a:hover {
   width: 100%;
 }
 
-.file-order-input .ant-table-placeholder {
+.file-order-input .ant-table-placeholder,
+.file-label-input .ant-table-placeholder {
   height: calc(100vh - 550px);
 }
-.file-order-input .ant-table-placeholder .ant-empty-normal {
+.file-order-input .ant-table-placeholder .ant-empty-normal,
+.file-label-input .ant-table-placeholder .ant-empty-normal {
   margin: 20px 0;
 }
 .file-order-select .ant-form-item-control {

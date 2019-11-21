@@ -1,5 +1,7 @@
 export const SET_FILE = 'SET_FILE';
 export const SET_RECORDS = 'SET_RECORDS';
+export const SET_SHARE = 'SET_SHARE';
+export const SET_SURPLUS = 'SET_SURPLUS';
 export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
 export const REMOVE_FILE_GOODS = 'REMOVE_FILE_GOODS';
 export const SET_FILE_GOODS = 'SET_FILE_GOODS';
@@ -18,6 +20,7 @@ export const FETCH_GET_RECORDS = 'FETCH_GET_RECORDS';
 export const FETCH_ADD_FILE = 'FETCH_ADD_FILE';
 export const FETCH_UPDATE_FILE = 'FETCH_UPDATE_FILE';
 export const FETCH_UPDATE_FILE_IMPORT = 'FETCH_UPDATE_FILE_IMPORT';
+export const FETCH_UPDATE_FILE_ORDER = 'FETCH_UPDATE_FILE_ORDER';
 export const FETCH_INIT_RECORDS = 'FETCH_INIT_RECORDS';
 export const FETCH_ADD_TO_RECORDS = 'FETCH_ADD_TO_RECORDS';
 export const FETCH_ADD_RECORDS = 'FETCH_ADD_RECORDS';
@@ -28,12 +31,20 @@ export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUM
 export const FETCH_CHANGE_RECORD_ORDER_NUMBER = 'FETCH_CHANGE_RECORD_ORDER_NUMBER';
 export const FETCH_DELETE_RECORDS_ORDER_NUMBER = 'FETCH_DELETE_RECORDS_ORDER_NUMBER';
 export const FETCH_GENERATE_FULL_BOX_LABELS = 'FETCH_GENERATE_FULL_BOX_LABELS';
+export const FETCH_ADD_LABEL = 'FETCH_ADD_LABEL';
+export const FETCH_DELETE_LABEL = 'FETCH_DELETE_LABEL';
 
 // 添加文件基础信息
 export const setFile = file => ({ type: SET_FILE, payload: file })
 
 // 添加记录集
 export const setRecords = records => ({ type: SET_RECORDS, payload: records })
+
+// 添加拼箱记录
+export const setShare = share => ({ type: SET_SHARE, payload: share })
+
+// 添加剩余商品数量
+export const setSurplus = surplus => ({ type: SET_SURPLUS, payload: surplus })
 
 // 动态添加一个空的元素
 // 用来适配antd的动态Form（此处为被动实现，与业务无关）
@@ -87,6 +98,9 @@ export const fetchUpdateFile = file => ({ type: FETCH_UPDATE_FILE, payload: file
 // 向数据库中修改文件导入状态
 export const fetchUpdateFileImport = file => ({ type: FETCH_UPDATE_FILE_IMPORT, payload: file })
 
+// 向数据库中修改文件订单录入状态
+export const fetchUpdateFileOrder = file => ({ type: FETCH_UPDATE_FILE_ORDER, payload: file })
+
 // 向数据库中初始化记录集（选定仓库及商品后的初始化操作）
 export const fetchInitRecords = (file_id, {warehouseIdList, goodsIdList}) => ({ type: FETCH_INIT_RECORDS, payload: {file_id, warehouseIdList, goodsIdList}})
 
@@ -116,3 +130,9 @@ export const fetchDeleteRecordsOrderNumber = (file_id, {warehouse_id, goodsIdLis
 
 // 生成整箱箱贴
 export const fetchGenerateFullBoxLabels = (file) => ({ type: FETCH_GENERATE_FULL_BOX_LABELS, payload: file })
+
+// 添加一个拼箱箱贴
+export const fetchAddLabel = (file_id, {label, order_number, warehouse_id, goods}) => ({ type: FETCH_ADD_LABEL, payload: {file_id, label, order_number, warehouse_id, goods} })
+
+// 删除一个拼箱箱贴
+export const fetchDeleteLabel = (file_id, {label, order_number, warehouse_id, goods}) => ({ type: FETCH_DELETE_LABEL, payload: {file_id, label, order_number, warehouse_id, goods} })

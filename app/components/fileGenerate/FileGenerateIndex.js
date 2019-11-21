@@ -56,10 +56,10 @@ class FileGenerateIndex extends Component {
         <Col span={3}></Col>
         <Col span={6}>{
           (warehouse.length>0 && goods.length>0) ?
-          (<Link to={`${routes.File_GENERATE_TABLE}/new`}><div className={style['file-generate-btn']}>新建数据文件</div></Link>) :
+          (<Link to={`${routes.FILE_GENERATE_TABLE}/new`}><div className={style['file-generate-btn']}>新建数据文件</div></Link>) :
           (<div className={style['file-generate-btn']}>新建数据文件</div>)
         }</Col>
-        <Col span={6}><Link to={routes.File_VIEW_TABLE}><div className={style['file-generate-btn']}>模板新建文件</div></Link></Col>
+        <Col span={6}><Link to={routes.FILE_VIEW_TABLE}><div className={style['file-generate-btn']}>模板新建文件</div></Link></Col>
         <Col span={6}><div className={style['file-generate-btn']}>文件导入合并</div></Col>
         <Col span={3}></Col>
       </Row>

@@ -86,7 +86,7 @@ class FileDataInput extends Component {
       }</div>
     )
     // 根据warehouseList，计算表格列
-    warehouseList.sort((a, b) => a.id - b.id).forEach(w => {
+    warehouseList.sort((a, b) => a.id - b.id).forEach((w, j) => {
       columns.push({
         title: `${w.name}`,
         dataIndex: `warehouse_${w.id}`,
@@ -106,9 +106,10 @@ class FileDataInput extends Component {
                 </Popover>
               )
             } 
+
             return (
               <Form.Item validateStatus={(validate && !text) ? "error" : ""} style={{marginBottom: 0}}>
-                <InputNumber value={text} min={0} size="small" onChange={val => {
+                <InputNumber autoFocus={index === 0 && j === 0} value={text} min={0} size="small" onChange={val => {
                   if (val < 0 || typeof val !== 'number') return;
                   this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}
                 } />

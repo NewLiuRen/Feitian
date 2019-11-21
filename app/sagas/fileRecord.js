@@ -28,6 +28,12 @@ function* updateFileImport({ payload: file }) {
   if (res.success) yield put(actionTypes.setFile(res.data));
 }
 
+// 修改文件为订单录入完成状态
+function* updateFileOrder({ payload: file }) {
+  const res = yield call(fileDB.updateFileToOrder, file);
+  if (res.success) yield put(actionTypes.setFile(res.data));
+}
+
 // 初始化记录集
 function* initRecords({ payload: { file_id, warehouseIdList, goodsIdList } }) {
   const records = []
@@ -127,8 +133,24 @@ function* deleteRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdLis
 
 // 生成整箱箱贴
 function* generateFullBoxLabels({ payload: file }) {
-  const res = yield call(recordsDB.generateFullBoxLabelByFileId, file.id);
-  if (res.success) yield put(actionTypes.setRecords(res.data.records));
+  const goodsMap = yield select(state => state.goods.map);
+  const res = yield call(recordsDB.generateFullBoxLabelByFileId, file.id, goodsMap);
+  if (res.success) {
+    yield put(actionTypes.setShare(res.data.share));
+    yield put(actionTypes.setSurplus(res.data.surplus));
+  }
+}
+
+// 添加一条拼箱箱贴
+function* addShareLabel({ payload: {file_id, label, order_number, warehouse_id, goods} }) {
+  const res = yield call(recordsDB.addFileRecords, file_id, {label, order_number, warehouse_id, goods});
+  if (res.success) yield put(actionTypes.setShare(res.data.share));
+}
+
+// 删除一条拼箱箱贴
+function* deleteShareLabel({ payload: {file_id, label, order_number, warehouse_id, goods} }) {
+  const res = yield call(recordsDB.addFileRecords, file_id, {label, order_number, warehouse_id, goods});
+  if (res.success) yield put(actionTypes.setShare(res.data.share));
 }
 
 export default function* root() {
@@ -137,6 +159,7 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_ADD_FILE, addFile),
     takeLatest(actionTypes.FETCH_UPDATE_FILE, updateFile),
     takeLatest(actionTypes.FETCH_UPDATE_FILE_IMPORT, updateFileImport),
+    takeLatest(actionTypes.FETCH_UPDATE_FILE_ORDER, updateFileOrder),
     takeLatest(actionTypes.FETCH_INIT_RECORDS, initRecords),
     takeLatest(actionTypes.FETCH_ADD_TO_RECORDS, addToRecords),
     takeLatest(actionTypes.FETCH_ADD_RECORDS, addRecords),
@@ -147,5 +170,7 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_CHANGE_RECORD_ORDER_NUMBER, changeRecordOrderNumber),
     takeLatest(actionTypes.FETCH_DELETE_RECORDS_ORDER_NUMBER, deleteRecordsOrderNumber),
     takeLatest(actionTypes.FETCH_GENERATE_FULL_BOX_LABELS, generateFullBoxLabels),
+    takeLatest(actionTypes.FETCH_ADD_LABEL, addShareLabel),
+    takeLatest(actionTypes.FETCH_DELETE_LABEL, deleteShareLabel),
   ]);
 }

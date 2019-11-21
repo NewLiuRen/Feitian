@@ -22,10 +22,22 @@ export const RECORD = {
  * goods 商品数据[{goods_id: null, count: 0}]
  */
 export const SHARE = {
-  label: '',
+  label: null,
   order_number: '',
   warehouse_id: null,
   goods: null,
+}
+
+/**
+ * 不满足整箱的剩余商品数量
+ * warehouse_id 仓库id
+ * goods_id 商品id 
+ * count 数量
+ */
+export const SURPLUS = {
+  warehouse_id: null,
+  goods_id: null,
+  count: null,
 }
 
 /**
@@ -38,6 +50,7 @@ export const RECORDS = {
   file_id: '',
   records: [],
   share: [],
+  surplus: [],
 }
 
 export default RECORDS

@@ -1,22 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Table, Form, Button, Select, Popover, Popconfirm } from 'antd';
+import { Table, Form, Button, Slider, Popover, Popconfirm } from 'antd';
 import CategoryTag from '../../common/CategoryTag';
-import OrderModalWrap from './OrderModalWrap';
+import LabelModalWrap from './LabelModalWrap';
 import * as actions from '../../../actions/fileRecord';
 
-const { Option } = Select;
-
-class FileOrder extends Component {
+class FileLabel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      validate: false,
+
     }
   }
 
   // 批量添加订单号
-  addOrder = () => {
+  addLabel = () => {
     const { data } = this.props;
     const fileGoodsIdList = data.filter(d => !d.order_number).map(d => d.goods_id);
     this.props.add(this.props.warehouse_id, fileGoodsIdList)
@@ -43,25 +41,13 @@ class FileOrder extends Component {
     changeRecordOrderNumber(fileInfo.id, {warehouse_id, goods_id, order_number})
   }
 
-  // 校验并跳转
-  validateOpen = () => {
-    const { data, gotoNextTab, warehouse_id } = this.props;
-    this.setState({validate: true}, () => {
-      if (data.find(d => !d.order_number)) return null;
-      gotoNextTab(warehouse_id);
-    })
-  }
-
   render() {
     const { data, goodsMap, warehouse_id, } = this.props;
-    const { validate } = this.state;
     const done = data.filter(d => !d.order_number).length === 0;
-    let allHasOrderFlag = true;
 
     const orderMap = {};
     const dataSource = data.map(d => {
       const { order_number } = d;
-      if (!order_number) allHasOrderFlag = false;
       if (!orderMap[order_number]) orderMap[order_number] = [];
       orderMap[order_number].push(goodsMap[d.goods_id]);
       return {
@@ -70,6 +56,7 @@ class FileOrder extends Component {
         category: goodsMap[d.goods_id].category_id,
         max_count: goodsMap[d.goods_id].max_count,
         count: d.count,
+        labels: d.labels,
         order_number: d.order_number,
         goods_id: d.goods_id,
       }
@@ -98,61 +85,47 @@ class FileOrder extends Component {
         render: (text, record) => (<CategoryTag category_id={text} />)
       }, {
         title: '个数/箱',
-        width: 65,
+        width: 50,
         key: 'max_count',
         dataIndex: 'max_count',
         // fixed: 'left',
         align: 'right',
       }, {
         title: '数量',
-        width: 65,
+        width: 50,
         key: 'count',
         dataIndex: 'count',
         // fixed: 'left',
         align: 'right',
       }, {
         title: '采购订单号',
-        width: 120,
+        width: 100,
         key: 'order_number',
         dataIndex: 'order_number',
         // fixed: 'left',
         align: 'right',
-        render: (text, record) => {
-          const orders = Object.keys(orderMap);
-          if (orders.length <= 1) return (<span>{text}</span>)
-          return (
-            <Form>
-              <Form.Item
-                style={{marginBottom: 0}}
-                validateStatus={validate && !text.trim() ? 'error' : ''}
-                hasFeedback ={validate && !text.trim()}
-              >
-                <Select size="small" style={{width: '100%'}} value={text} onChange={(val) => {this.changOrderNumber(record.goods_id, val)}}>
-                  {
-                    orders.map((o, i) => (
-                      <Option key={`option_order_${record.goods_id}_${i}`} value={o} disabled={o === text}>
-                        {o}
-                      </Option>
-                    ))
-                  }
-                </Select>
-              </Form.Item>
-            </Form>
-          )
-        }
+      }, {
+        title: '箱号',
+        width: 100,
+        key: 'labels',
+        dataIndex: 'labels',
+        // fixed: 'left',
+        align: 'right',
+        render: (text, record) => { 
+          console.log('record :', record);
+          return record.labels.join('，') }
       }
     ];
     const orderColumns = [{
-      title: '',
-      width: 10,
-      key: 'index',
-      dataIndex: 'index',
-      render: (text,record,index) => `${index + 1}`
-    }, {
-      title: '订单号',
+      title: '箱采购订单号',
       width: 50,
       key: 'order_number',
       dataIndex: 'order_number',
+    }, {
+      title: '箱号',
+      width: 50,
+      key: 'label',
+      dataIndex: 'label',
     }, {
       title: '包含商品',
       width: 150,
@@ -178,14 +151,11 @@ class FileOrder extends Component {
       }
     }, {
       title: '操作',
-      width: 30,
+      width: 20,
       dataIndex: 'operation',
       key: 'operation',
       render: (text, record) => (
         <>
-          <a onClick={() => this.editOrder(record)} style={{marginRight: 15}}>
-            编辑
-          </a> 
           <Popconfirm
             placement="topRight"
             title={`是否确定删除，订单： ${record.order_number}`}
@@ -203,7 +173,7 @@ class FileOrder extends Component {
       <>
         <div style={{height: 'calc(100vh - 180px)'}}>
           <Table
-            className="file-order-select"
+            className="file-label-show"
             columns={columns}
             dataSource={dataSource}
             scroll={{ x: '100%', y: 'calc(100vh - 440px)' }}
@@ -212,10 +182,10 @@ class FileOrder extends Component {
             size="small"
           />
           <div style={{marginTop: 10, marginBottom: 10, overflow: 'hidden'}}>
-            <Button type="primary" style={{float: 'right'}} onClick={this.addOrder} disabled={allHasOrderFlag}>新增订单</Button>
+            <Button type="primary" style={{float: 'right'}} onClick={this.addLabel}>新增拼箱</Button>
           </div>
           <Table
-            className="file-order-input"
+            className="file-label-input"
             columns={orderColumns}
             dataSource={orderDataSource}
             scroll={{ x: '100%', y: 'calc(100vh - 550px)' }}
@@ -245,6 +215,6 @@ const mapDispatchToProps = {
   deleteRecordsOrderNumber: actions.fetchDeleteRecordsOrderNumber,
 }
 
-const FileOrderInput = OrderModalWrap(FileOrder);
+const FileOrderInput = LabelModalWrap(FileLabel);
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileOrderInput);
