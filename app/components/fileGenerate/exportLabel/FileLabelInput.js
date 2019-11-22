@@ -15,17 +15,29 @@ class FileLabel extends Component {
 
   // 批量添加订单号
   addLabel = () => {
-    const { data } = this.props;
-    const fileGoodsIdList = data.filter(d => !d.order_number).map(d => d.goods_id);
-    this.props.add(this.props.warehouse_id, fileGoodsIdList)
+    const { records, surplus, share, } = this.props;
+    const data = {}
+    surplus.forEach(s => {
+      if (!data[s.order_number]) data[s.order_number] = {};
+      data[s.order_number][s.goods_id] = s.count;
+    })
+    share.forEach(s => {
+      if (data[s.order_number] && data[s.order_number][s.goods_id]) {
+        data[s.order_number][s.goods_id] -= s.count;
+      }
+      if (data[s.order_number][s.goods_id] === 0) delete data[s.order_number][s.goods_id]
+      if (Object.keys(data[s.order_number]).length === 0) delete data[s.order_number]
+    })
+    // const fileGoodsIdList = records.filter(d => !d.order_number).map(d => d.goods_id);
+    this.props.add(this.props.warehouse_id, data)
   }
   
   // 批量修改订单号
   editOrder = (record) => {
-    const { data } = this.props;
+    const { records } = this.props;
     const { order_number, goods } = record;
     const goodsIdList = goods.split('，').map(gid => parseInt(gid, 10));
-    const fileGoodsIdList = data.filter(d => !d.order_number).map(d => d.goods_id).concat(goodsIdList);
+    const fileGoodsIdList = records.filter(d => !d.order_number).map(d => d.goods_id).concat(goodsIdList);
     this.props.edit(this.props.warehouse_id, fileGoodsIdList, goodsIdList, order_number)
   }
   
@@ -42,30 +54,30 @@ class FileLabel extends Component {
   }
 
   render() {
-    const { data, goodsMap, warehouse_id, } = this.props;
-    const done = data.filter(d => !d.order_number).length === 0;
+    const { records, surplus, share, goodsMap, warehouse_id, } = this.props;
+    const done = records.filter(d => !d.order_number).length === 0;
 
-    const orderMap = {};
-    const dataSource = data.map(d => {
-      const { order_number } = d;
-      if (!orderMap[order_number]) orderMap[order_number] = [];
-      orderMap[order_number].push(goodsMap[d.goods_id]);
+    const dataSource = records.map(d => {
+      const { goods_id, order_number, count, labels } = d;
       return {
-        key: `record_${d.goods_id}`,
-        goods: goodsMap[d.goods_id].name, 
-        category: goodsMap[d.goods_id].category_id,
-        max_count: goodsMap[d.goods_id].max_count,
-        count: d.count,
-        labels: d.labels,
-        order_number: d.order_number,
-        goods_id: d.goods_id,
+        key: `record_${goods_id}`,
+        goods: goodsMap[goods_id].name, 
+        category: goodsMap[goods_id].category_id,
+        max_count: goodsMap[goods_id].max_count,
+        count,
+        labels,
+        order_number,
+        goods_id,
       }
     }).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
-    const orderDataSource = Object.entries(orderMap).map(([order_number, goods]) => ({
-      key: `${warehouse_id}_${order_number}`,
-      order_number,
-      goods: goods.sort((p, c) => p.id - c.id).map(g => g.id).join('，'),
-    })).filter(d => d.order_number);
+    const shareDataSource = share.map(s => {
+      const { warehouse_id, order_number, goods } = s;
+      return {
+        key: `${warehouse_id}_${order_number}`,
+        order_number,
+        goods: goods.sort((p, c) => p.id - c.id).map(g => g.id).join('，'),
+      }
+    });
     const columns = [
       {
         title: '商品',
@@ -111,9 +123,7 @@ class FileLabel extends Component {
         dataIndex: 'labels',
         // fixed: 'left',
         align: 'right',
-        render: (text, record) => { 
-          console.log('record :', record);
-          return record.labels.join('，') }
+        render: (text, record) => record.labels.join('，')
       }
     ];
     const orderColumns = [{
@@ -187,7 +197,7 @@ class FileLabel extends Component {
           <Table
             className="file-label-input"
             columns={orderColumns}
-            dataSource={orderDataSource}
+            dataSource={shareDataSource}
             scroll={{ x: '100%', y: 'calc(100vh - 550px)' }}
             bordered
             pagination={false}
@@ -215,6 +225,6 @@ const mapDispatchToProps = {
   deleteRecordsOrderNumber: actions.fetchDeleteRecordsOrderNumber,
 }
 
-const FileOrderInput = LabelModalWrap(FileLabel);
+const FileLabelInput = LabelModalWrap(FileLabel);
 
-export default connect(mapStateToProps, mapDispatchToProps)(FileOrderInput);
+export default connect(mapStateToProps, mapDispatchToProps)(FileLabelInput);

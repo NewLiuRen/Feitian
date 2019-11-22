@@ -38,14 +38,26 @@ class FileGenerateOrder extends Component {
   }
 
   render() {
-    const { fileWarehouseList, warehouseMap, records, surplus } = this.props;
+    const { fileWarehouseList, warehouseMap, records, surplus, share } = this.props;
     const { activeTab, visible } = this.state;
     const recordsMap = {};
+    const surplusMap = {};
+    const shareMap = {};
 
     records.forEach(r => {
       const wid = r.warehouse_id;
       if (!recordsMap[wid]) recordsMap[wid] = [];
       recordsMap[wid].push(r)
+    })
+    surplus.forEach(s => {
+      const wid = s.warehouse_id;
+      if (!surplusMap[wid]) surplusMap[wid] = [];
+      surplusMap[wid].push(s)
+    })
+    share.forEach(s => {
+      const wid = s.warehouse_id;
+      if (!shareMap[wid]) shareMap[wid] = [];
+      shareMap[wid].push(s)
     })
 
     return (
@@ -86,12 +98,12 @@ class FileGenerateOrder extends Component {
             fileWarehouseList ? fileWarehouseList.map(wid => (
               <TabPane onClick={() => {console.log(w)}} tab={
                 <span>
-                  {recordsMap[wid].filter(g => !g.order_number).length === 0 ? <Icon type="check" /> : null}
+                  {surplusMap[wid] && surplusMap[wid].every(s => s.count === 0) ? <Icon type="check" /> : <Icon type="" />}
                   {`${warehouseMap[wid].name}`}
                 </span>
                 } key={`warehouse_${wid}`
               }>
-                <FileLabelInput data={recordsMap[wid]} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
+                <FileLabelInput records={recordsMap[wid]} surplus={surplusMap[wid]} share={shareMap[wid] || []} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
               </TabPane>
             )) : null
           }
@@ -105,6 +117,7 @@ const mapStateToProps = state => ({
   warehouseMap: state.warehouse.map,
   records: state.fileRecord.records,
   surplus: state.fileRecord.surplus,
+  share: state.fileRecord.share,
   fileGoods: state.fileRecord.goods,
   fileWarehouseList: state.fileRecord.warehouse,
 })
