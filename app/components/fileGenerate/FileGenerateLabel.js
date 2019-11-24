@@ -98,7 +98,7 @@ class FileGenerateOrder extends Component {
             fileWarehouseList ? fileWarehouseList.map(wid => (
               <TabPane onClick={() => {console.log(w)}} tab={
                 <span>
-                  {surplusMap[wid] && surplusMap[wid].every(s => s.count === 0) ? <Icon type="check" /> : <Icon type="" />}
+                  {surplusMap[wid] && surplusMap[wid].every(s => s.count === 0) ? <Icon type="check" /> : null}
                   {`${warehouseMap[wid].name}`}
                 </span>
                 } key={`warehouse_${wid}`

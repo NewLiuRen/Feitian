@@ -13,22 +13,26 @@ class FileLabel extends Component {
     }
   }
 
-  // 批量添加订单号
+  // 添加拼箱
   addLabel = () => {
     const { records, surplus, share, } = this.props;
     const data = {}
+    console.log('surplus :', surplus);
+    console.log('share :', share);
     surplus.forEach(s => {
-      if (!data[s.order_number]) data[s.order_number] = {};
-      data[s.order_number][s.goods_id] = s.count;
+      if (!data[s.warehouse_id]) data[s.warehouse_id] = {};
+      data[s.warehouse_id][s.goods_id] = s.count;
     })
+    console.log('data1 :', data);
     share.forEach(s => {
-      if (data[s.order_number] && data[s.order_number][s.goods_id]) {
-        data[s.order_number][s.goods_id] -= s.count;
+      if (data[s.warehouse_id] && data[s.warehouse_id][s.goods_id]) {
+        data[s.warehouse_id][s.goods_id] -= s.count;
       }
-      if (data[s.order_number][s.goods_id] === 0) delete data[s.order_number][s.goods_id]
-      if (Object.keys(data[s.order_number]).length === 0) delete data[s.order_number]
+      if (data[s.warehouse_id][s.goods_id] === 0) delete data[s.warehouse_id][s.goods_id]
+      if (Object.keys(data[s.warehouse_id]).length === 0) delete data[s.warehouse_id]
     })
     // const fileGoodsIdList = records.filter(d => !d.order_number).map(d => d.goods_id);
+    console.log('data2 :', data);
     this.props.add(this.props.warehouse_id, data)
   }
   
@@ -56,7 +60,7 @@ class FileLabel extends Component {
   render() {
     const { records, surplus, share, goodsMap, warehouse_id, } = this.props;
     const done = records.filter(d => !d.order_number).length === 0;
-
+console.log('records :', records);
     const dataSource = records.map(d => {
       const { goods_id, order_number, count, labels } = d;
       return {
@@ -178,7 +182,8 @@ class FileLabel extends Component {
         </>
       ),
     }];
-
+console.log('dataSource :', dataSource);
+console.log('shareDataSource :', shareDataSource);
     return (
       <>
         <div style={{height: 'calc(100vh - 180px)'}}>

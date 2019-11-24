@@ -166,7 +166,7 @@ export const generateFullBoxLabelByFileId = (file_id, goodsMap) => getRecordsByF
   })
 
 // 添加拼箱
-export const addFileShare = (file_id, params) => fileDB.getRecordsByFileId(file_id).then(rs => {
+export const addFileShare = (file_id, params) => getRecordsByFileId(file_id).then(rs => {
   if (!rs) return { success: false }
   compareObject(SHARE, params)
   const { label, order_number, warehouse_id, goods, } = params;
@@ -181,7 +181,7 @@ export const addFileShare = (file_id, params) => fileDB.getRecordsByFileId(file_
 })
 
 // 删除拼箱
-export const deleteFileShare = (file_id, params) => fileDB.getRecordsByFileId(file_id).then(rs => {
+export const deleteFileShare = (file_id, params) => getRecordsByFileId(file_id).then(rs => {
   if (!rs) return { success: false }
   compareObject(SHARE, params)
   const { label, order_number, warehouse_id, goods, } = params;

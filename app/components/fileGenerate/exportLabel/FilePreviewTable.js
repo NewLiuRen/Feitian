@@ -85,7 +85,7 @@ class FilePreviewTable extends Component {
       const category_id = goodsMap[gid].category_id || -1
       const max_count = goodsMap[gid].max_count
       const record = {
-        key: `record_${gid}`,
+        key: `prev_record_${gid}`,
         goods: goodsMap[gid].name, 
         category: category_id,
         max_count,
