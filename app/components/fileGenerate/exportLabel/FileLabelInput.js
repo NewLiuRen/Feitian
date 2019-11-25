@@ -9,30 +9,38 @@ class FileLabel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      orderMap: {}
     }
+  }
+
+  componentDidMount() {
+    const { records, } = this.props;
+    const orderMap = {};
+    records.forEach(r => {
+      orderMap[r.goods_id] = r.order_number;
+    })
+    this.setState({orderMap});
   }
 
   // 添加拼箱
   addLabel = () => {
     const { records, surplus, share, } = this.props;
+    const { orderMap } = this.state;
     const data = {}
-    console.log('surplus :', surplus);
-    console.log('share :', share);
+
     surplus.forEach(s => {
-      if (!data[s.warehouse_id]) data[s.warehouse_id] = {};
-      data[s.warehouse_id][s.goods_id] = s.count;
+      const order_number = orderMap[s.goods_id];
+      if (!data[order_number]) data[order_number] = {};
+      data[order_number][s.goods_id] = s.count;
     })
-    console.log('data1 :', data);
     share.forEach(s => {
-      if (data[s.warehouse_id] && data[s.warehouse_id][s.goods_id]) {
-        data[s.warehouse_id][s.goods_id] -= s.count;
+      if (data[s.order_number] && data[s.order_number][s.goods_id]) {
+        data[s.order_number][s.goods_id] -= s.count;
       }
-      if (data[s.warehouse_id][s.goods_id] === 0) delete data[s.warehouse_id][s.goods_id]
-      if (Object.keys(data[s.warehouse_id]).length === 0) delete data[s.warehouse_id]
+      if (data[s.order_number][s.goods_id] === 0) delete data[s.order_number][s.goods_id]
+      if (Object.keys(data[s.order_number]).length === 0) delete data[s.order_number]
     })
-    // const fileGoodsIdList = records.filter(d => !d.order_number).map(d => d.goods_id);
-    console.log('data2 :', data);
+
     this.props.add(this.props.warehouse_id, data)
   }
   
@@ -60,7 +68,7 @@ class FileLabel extends Component {
   render() {
     const { records, surplus, share, goodsMap, warehouse_id, } = this.props;
     const done = records.filter(d => !d.order_number).length === 0;
-console.log('records :', records);
+
     const dataSource = records.map(d => {
       const { goods_id, order_number, count, labels } = d;
       return {
@@ -182,8 +190,7 @@ console.log('records :', records);
         </>
       ),
     }];
-console.log('dataSource :', dataSource);
-console.log('shareDataSource :', shareDataSource);
+
     return (
       <>
         <div style={{height: 'calc(100vh - 180px)'}}>
@@ -197,7 +204,7 @@ console.log('shareDataSource :', shareDataSource);
             size="small"
           />
           <div style={{marginTop: 10, marginBottom: 10, overflow: 'hidden'}}>
-            <Button type="primary" style={{float: 'right'}} onClick={this.addLabel}>新增拼箱</Button>
+            <Button disabled={!surplus} type="primary" style={{float: 'right'}} onClick={this.addLabel}>新增拼箱</Button>
           </div>
           <Table
             className="file-label-input"

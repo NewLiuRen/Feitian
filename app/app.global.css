@@ -95,3 +95,7 @@ a:hover {
 .file-order-select .ant-form-item-control {
   line-height: 0;
 }
+
+.label-modal .ant-modal-body {
+  padding-top: 0;
+}
