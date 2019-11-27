@@ -5,7 +5,7 @@ import CategoryTag from '../../common/CategoryTag';
 
 class FilePreviewTable extends Component {
   render() {
-    const { records, surplus, warehouseMap, categoryMap, goodsMap } = this.props;
+    const { records, surplus, differ, warehouseMap, categoryMap, goodsMap } = this.props;
     const columns = [
       {
         title: '商品',
@@ -36,28 +36,37 @@ class FilePreviewTable extends Component {
     const warehouseList = []
     const categoryFilters = []
     const dataSourceGoodsMap = {}
-    const surplusMap = {}
-    surplus.forEach(s => {
-      if (!surplusMap[s.goods_id]) surplusMap[s.goods_id] = {};
-      surplusMap[s.goods_id][s.warehouse_id] = s.count;
+    // const surplusMap = {}
+    // surplus.forEach(s => {
+    //   if (!surplusMap[s.goods_id]) surplusMap[s.goods_id] = {};
+    //   surplusMap[s.goods_id][s.warehouse_id] = s.count;
+    // })
+    const differMap = {}
+    Object.entries(differ).forEach(([wid, gArr]) => {
+      gArr.forEach(g => {
+        if (!differMap[g.goods_id]) differMap[g.goods_id] = {};
+        differMap[g.goods_id][wid] = g.count;
+      })
     })
 
     // 遍历records，计算warehouse列表，及计算每个商品同仓库的对应关系
     // 商品同仓库对应关系格式：{goods_id: {warehouse_id: count}}
+
     records.forEach(r => {
-      const { warehouse_id, goods_id, count } = r;
+      const { warehouse_id, goods_id } = r;
       if (!warehouseList.find(w => w === warehouse_id)) warehouseList.push(warehouse_id)
       if (!dataSourceGoodsMap[goods_id]) dataSourceGoodsMap[goods_id] = {}
-      dataSourceGoodsMap[goods_id][`warehouse_${warehouse_id}`] = surplusMap[goods_id] && surplusMap[goods_id][warehouse_id] ? count : null;
+      // dataSourceGoodsMap[goods_id][`warehouse_${warehouse_id}`] = surplusMap[goods_id] && surplusMap[goods_id][warehouse_id] ? count : null;
+      dataSourceGoodsMap[goods_id][`warehouse_${warehouse_id}`] = differMap[goods_id] && typeof(differMap[goods_id][warehouse_id]) === 'number' ? differMap[goods_id][warehouse_id] : null;
     })
-
+    
     // 根据warehouseList，计算表格列
     warehouseList.sort((a, b) => a.id - b.id).forEach(wid => {
       columns.push({
         title: `${warehouseMap[wid].name}`,
         dataIndex: `warehouse_${wid}`,
         align: 'right',
-      render: (text, record) => (<span>{!text ? '-' : text}</span>)
+      render: (text, record) => (<span>{typeof(text) !== 'number'  ? '-' : text}</span>)
       })
     })
     
@@ -111,7 +120,7 @@ class FilePreviewTable extends Component {
       <Table
         columns={columns}
         dataSource={dataSource}
-        scroll={{ x: 700, y: 'calc(100vh - 200px)' }}
+        scroll={{ x: 700, y: 'calc(100vh - 260px)' }}
         bordered
         pagination={false}
         size="small"

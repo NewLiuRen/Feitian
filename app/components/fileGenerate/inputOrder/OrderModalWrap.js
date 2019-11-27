@@ -79,7 +79,7 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
           okText="确定"
           cancelText="取消"
           centered
-          forceRender
+          destroyOnClose
         >
           <Form labelCol={{sm: { span: 3 }}} wrapperCol={{sm: { span: 21 }}}>
             <Form.Item

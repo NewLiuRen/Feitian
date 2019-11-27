@@ -19,8 +19,8 @@ class TransferGoods extends Component {
       }, {
         title: '类目',
         key: 'category',
+        dataIndex: 'category',
         width: 70,
-        dataIndex: 'category',
         filters: [],
         filterMultiple: true,
         onFilter: (value, record) => record.category === value,
@@ -32,40 +32,21 @@ class TransferGoods extends Component {
         align: 'right',
       }
     ];
-    const rightColumns = [
-      {
-        title: '商品',
-        key: 'goods',
-        dataIndex: 'goods',
-      }, {
-        title: '类目',
-        key: 'category',
-        width: 50,
-        dataIndex: 'category',
-        filters: [],
-        filterMultiple: true,
-        onFilter: (value, record) => record.category === value,
-        render: (text, record) => (<CategoryTag category_id={text} />)
-      }, {
-        title: 'SKU',
-        key: 'sku',
-        dataIndex: 'sku',
-        align: 'right',
-      }
-    ];
+    
     const categoryFilters = []
 
     const dataSource = fileGoodsIdList.map(gid => {
       const categoryObj = categoryMap[goodsMap[gid].category_id];
-      if (!categoryFilters.find(c => c.value === categoryObj.id)) categoryFilters.push({ text: categoryObj ? categoryObj.name : '其他', value: categoryObj.id || -1,})
+      if (!categoryObj) categoryFilters.push({ text: '其他', value: -1,})
+      if (categoryObj && !categoryFilters.find(c => c.value === categoryObj.id)) categoryFilters.push({ text: categoryObj.name, value: categoryObj.id,})
       return {
         key: gid,
         goods: goodsMap[gid].name,
-        category: categoryObj.id,
+        category: categoryObj ? categoryObj.id : -1,
         sku: goodsMap[gid].sku,
         goods_id: gid,
       }
-    }).sort((p, c) => p.category!== c.category ? p.category - c.category : p.goods_id - c.goods_id)
+    }).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
 
     return (
       <Transfer

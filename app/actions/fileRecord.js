@@ -31,8 +31,9 @@ export const FETCH_UPDATE_RECORDS_ORDER_NUMBER = 'FETCH_UPDATE_RECORDS_ORDER_NUM
 export const FETCH_CHANGE_RECORD_ORDER_NUMBER = 'FETCH_CHANGE_RECORD_ORDER_NUMBER';
 export const FETCH_DELETE_RECORDS_ORDER_NUMBER = 'FETCH_DELETE_RECORDS_ORDER_NUMBER';
 export const FETCH_GENERATE_FULL_BOX_LABELS = 'FETCH_GENERATE_FULL_BOX_LABELS';
-export const FETCH_ADD_LABEL = 'FETCH_ADD_LABEL';
-export const FETCH_DELETE_LABEL = 'FETCH_DELETE_LABEL';
+export const FETCH_ADD_SHARE = 'FETCH_ADD_SHARE';
+export const FETCH_DELETE_SHARE = 'FETCH_DELETE_SHARE';
+export const FETCH_CLEAR_SHARE = 'FETCH_CLEAR_SHARE';
 
 // 添加文件基础信息
 export const setFile = file => ({ type: SET_FILE, payload: file })
@@ -132,7 +133,10 @@ export const fetchDeleteRecordsOrderNumber = (file_id, {warehouse_id, goodsIdLis
 export const fetchGenerateFullBoxLabels = (file) => ({ type: FETCH_GENERATE_FULL_BOX_LABELS, payload: file })
 
 // 添加一个拼箱箱贴
-export const fetchAddLabel = (file_id, {label, order_number, warehouse_id, goods}) => ({ type: FETCH_ADD_LABEL, payload: {file_id, label, order_number, warehouse_id, goods} })
+export const fetchAddLabel = (file_id, {label, order_number, warehouse_id, goods}) => ({ type: FETCH_ADD_SHARE, payload: {file_id, label, order_number, warehouse_id, goods} })
 
 // 删除一个拼箱箱贴
-export const fetchDeleteLabel = (file_id, {label, order_number, warehouse_id, goods}) => ({ type: FETCH_DELETE_LABEL, payload: {file_id, label, order_number, warehouse_id, goods} })
+export const fetchDeleteLabel = (file_id, {label, warehouse_id,}) => ({ type: FETCH_DELETE_SHARE, payload: {file_id, label, warehouse_id,} })
+
+// 清除拼箱箱贴
+export const fetchClearLabel = (file_id) => ({ type: FETCH_CLEAR_SHARE, payload: {file_id} })

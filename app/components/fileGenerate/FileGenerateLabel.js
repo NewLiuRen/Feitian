@@ -43,21 +43,35 @@ class FileGenerateOrder extends Component {
     const recordsMap = {};
     const surplusMap = {};
     const shareMap = {};
+    const differMap = {};
+    const orderMap = {};
 
     records.forEach(r => {
       const wid = r.warehouse_id;
       if (!recordsMap[wid]) recordsMap[wid] = [];
       recordsMap[wid].push(r)
+      if (!orderMap[wid]) orderMap[wid] = {};
+      orderMap[wid][r.goods_id] = r.order_number
     })
+
     surplus.forEach(s => {
       const wid = s.warehouse_id;
       if (!surplusMap[wid]) surplusMap[wid] = [];
       surplusMap[wid].push(s)
+      if (!differMap[wid]) differMap[wid] = [];
+      differMap[wid].push(Object.assign({}, s, {order_number: orderMap[wid][s.goods_id]}))
     })
+
     share.forEach(s => {
       const wid = s.warehouse_id;
       if (!shareMap[wid]) shareMap[wid] = [];
       shareMap[wid].push(s)
+      s.goods.forEach(g => {
+        const obj = differMap[wid].find(d => parseInt(d.goods_id, 10) === parseInt(g.goods_id, 10))
+        if (obj) {
+          obj.count -= g.count;
+        }
+      })
     })
 
     return (
@@ -79,9 +93,9 @@ class FileGenerateOrder extends Component {
           onClose={this.hidePreview}
           visible={this.state.visible}
         >
-          <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下未成整箱商品的剩余数量(“-”表示该商品全部为整箱，不含剩余数量)" showIcon />
+          <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下未成整箱商品的剩余数量(“-”表示该商品全部为整箱或数量为0，无剩余数量)" showIcon />
           <Layout style={{height: 'calc(100vh - 220px)', background: '#ffffff'}}>
-            <FilePreviewTable />
+            <FilePreviewTable differ={differMap} />
           </Layout>
           <Row style={{marginTop: 20}}>
             <Button type="primary" ghost block onClick={this.hidePreview}>关闭</Button>
@@ -98,12 +112,12 @@ class FileGenerateOrder extends Component {
             fileWarehouseList ? fileWarehouseList.map(wid => (
               <TabPane onClick={() => {console.log(w)}} tab={
                 <span>
-                  {surplusMap[wid] && surplusMap[wid].every(s => s.count === 0) ? <Icon type="check" /> : null}
+                  {!differMap[wid] || differMap[wid].every(d => d.count === 0) ? <Icon type="check" /> : null}
                   {`${warehouseMap[wid].name}`}
                 </span>
                 } key={`warehouse_${wid}`
               }>
-                <FileLabelInput records={recordsMap[wid]} surplus={surplusMap[wid]} share={shareMap[wid] || []} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
+                <FileLabelInput records={recordsMap[wid]} surplus={surplusMap[wid]} share={shareMap[wid] || []} differ={differMap[wid]} warehouse_id={wid} gotoNextTab={this.gotoNextTab} />
               </TabPane>
             )) : null
           }

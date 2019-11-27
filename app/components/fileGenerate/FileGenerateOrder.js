@@ -32,13 +32,14 @@ class FileGenerateOrder extends Component {
 
   // 跳转至拼箱录入
   changeFileState = () => {
-    const { fileInfo, updateFileOrder, history } = this.props;
+    const { fileInfo, updateFileOrder, clearLabel, history } = this.props;
     console.log('file', fileInfo)
     confirm({
       title: '提示',
       content: `请确认是否输入拼箱箱贴？${fileInfo.is_order ? '(从此进入后已存在拼箱箱贴数据将会清空)' : ''}`,
       onOk() {
-        updateFileOrder(fileInfo)
+        updateFileOrder(fileInfo);
+        if (fileInfo.is_order) clearLabel(fileInfo.id);
         history.replace(routes.FILE_GENERATE_LABEL);
       }
     });
@@ -57,8 +58,8 @@ class FileGenerateOrder extends Component {
     })
 
     return (
-      <>
-        <Row style={{padding: '5px 20px', background: '#fff'}}>
+      <div className="generate-order-wrap">
+        <Row className="generate-order-header" style={{padding: '5px 20px', background: '#fff'}}>
           <Col span={18}>
             <Progress status="normal" percent={percent} />
           </Col>
@@ -88,7 +89,7 @@ class FileGenerateOrder extends Component {
             )) : null
           }
         </Tabs>
-      </>
+      </div>
     )
   }
 }
@@ -102,7 +103,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-  updateFileOrder: actions.fetchUpdateFileOrder
+  updateFileOrder: actions.fetchUpdateFileOrder,
+  clearLabel: actions.fetchClearLabel,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(FileGenerateOrder)

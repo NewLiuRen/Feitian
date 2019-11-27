@@ -108,7 +108,7 @@ class FileDataInput extends Component {
             } 
 
             return (
-              <Form.Item validateStatus={(validate && !text) ? "error" : ""} style={{marginBottom: 0}}>
+              <Form.Item validateStatus={(validate && typeof(text) !== 'number') ? "error" : ""} style={{marginBottom: 0}}>
                 <InputNumber autoFocus={index === 0 && j === 0} value={text} min={0} size="small" onChange={val => {
                   if (val < 0 || typeof val !== 'number') return;
                   this.setCount({warehouse_id: w.id, goods_id: record.goods_id, count: val})}
@@ -178,7 +178,7 @@ class FileDataInput extends Component {
         record[wkey] = count;
       })
       return record;
-    })
+    }).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
 
     dataSource.push(totalWarehouse);
     dataSource.push(totalBox);

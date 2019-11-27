@@ -143,13 +143,19 @@ function* generateFullBoxLabels({ payload: file }) {
 
 // 添加一条拼箱箱贴
 function* addShareLabel({ payload: {file_id, label, order_number, warehouse_id, goods} }) {
-  const res = yield call(recordsDB.addFileRecords, file_id, {label, order_number, warehouse_id, goods});
+  const res = yield call(recordsDB.addFileShare, file_id, {label, order_number, warehouse_id, goods});
   if (res.success) yield put(actionTypes.setShare(res.data.share));
 }
 
 // 删除一条拼箱箱贴
-function* deleteShareLabel({ payload: {file_id, label, order_number, warehouse_id, goods} }) {
-  const res = yield call(recordsDB.addFileRecords, file_id, {label, order_number, warehouse_id, goods});
+function* deleteShareLabel({ payload: {file_id, label, warehouse_id,} }) {
+  const res = yield call(recordsDB.deleteFileShare, file_id, {label,  warehouse_id,});
+  if (res.success) yield put(actionTypes.setShare(res.data.share));
+}
+
+// 清空拼箱數據
+function* clearShareLabel({ payload: {file_id} }) {
+  const res = yield call(recordsDB.clearFileShare, file_id);
   if (res.success) yield put(actionTypes.setShare(res.data.share));
 }
 
@@ -170,7 +176,8 @@ export default function* root() {
     takeLatest(actionTypes.FETCH_CHANGE_RECORD_ORDER_NUMBER, changeRecordOrderNumber),
     takeLatest(actionTypes.FETCH_DELETE_RECORDS_ORDER_NUMBER, deleteRecordsOrderNumber),
     takeLatest(actionTypes.FETCH_GENERATE_FULL_BOX_LABELS, generateFullBoxLabels),
-    takeLatest(actionTypes.FETCH_ADD_LABEL, addShareLabel),
-    takeLatest(actionTypes.FETCH_DELETE_LABEL, deleteShareLabel),
+    takeLatest(actionTypes.FETCH_ADD_SHARE, addShareLabel),
+    takeLatest(actionTypes.FETCH_DELETE_SHARE, deleteShareLabel),
+    takeLatest(actionTypes.FETCH_CLEAR_SHARE, clearShareLabel),
   ]);
 }

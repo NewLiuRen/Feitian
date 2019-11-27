@@ -27,6 +27,7 @@ class FileLabel extends Component {
     const { records, surplus, share, } = this.props;
     const { orderMap } = this.state;
     const data = {}
+    const label = records.map(r => r.labels.length).reduce((p, c) => p+c, 0) + share.length + 1;
 
     surplus.forEach(s => {
       const order_number = orderMap[s.goods_id];
@@ -41,32 +42,23 @@ class FileLabel extends Component {
       if (Object.keys(data[s.order_number]).length === 0) delete data[s.order_number]
     })
 
-    this.props.add(this.props.warehouse_id, data)
-  }
-  
-  // 批量修改订单号
-  editOrder = (record) => {
-    const { records } = this.props;
-    const { order_number, goods } = record;
-    const goodsIdList = goods.split('，').map(gid => parseInt(gid, 10));
-    const fileGoodsIdList = records.filter(d => !d.order_number).map(d => d.goods_id).concat(goodsIdList);
-    this.props.edit(this.props.warehouse_id, fileGoodsIdList, goodsIdList, order_number)
-  }
-  
-  // 批量删除订单号
-  deleteOrder = (record) => {
-    const { deleteRecordsOrderNumber, fileInfo, warehouse_id } = this.props;
-    deleteRecordsOrderNumber(fileInfo.id, {warehouse_id, goodsIdList: record.goods.split('，').map(g => parseInt(g, 10)), order_number: record.order_number})
+    this.props.add(this.props.warehouse_id, label, data)
   }
 
-  // 修改单个订单号
-  changOrderNumber = (goods_id, order_number) => {
-    const { changeRecordOrderNumber, fileInfo, warehouse_id } = this.props;
-    changeRecordOrderNumber(fileInfo.id, {warehouse_id, goods_id, order_number})
+  // 删除拼箱
+  delLabel = ({label}) => {
+    const { deleteLabel, fileInfo, warehouse_id } = this.props;
+    deleteLabel(fileInfo.id, {warehouse_id, label});
+  }
+
+  // 跳转下一tab
+  gotoNext = () => {
+    const { data, gotoNextTab, warehouse_id } = this.props;
+    gotoNextTab(warehouse_id);
   }
 
   render() {
-    const { records, surplus, share, goodsMap, warehouse_id, } = this.props;
+    const { records, surplus, share, differ, goodsMap, warehouse_id, } = this.props;
     const done = records.filter(d => !d.order_number).length === 0;
 
     const dataSource = records.map(d => {
@@ -83,13 +75,15 @@ class FileLabel extends Component {
       }
     }).sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id)
     const shareDataSource = share.map(s => {
-      const { warehouse_id, order_number, goods } = s;
+      const { warehouse_id, order_number, goods, label } = s;
       return {
-        key: `${warehouse_id}_${order_number}`,
+        key: `${warehouse_id}_${label}_${order_number}`,
         order_number,
-        goods: goods.sort((p, c) => p.id - c.id).map(g => g.id).join('，'),
+        label,
+        goods: goods.sort((p, c) => p.id - c.id),
       }
     });
+
     const columns = [
       {
         title: '商品',
@@ -144,33 +138,40 @@ class FileLabel extends Component {
       key: 'order_number',
       dataIndex: 'order_number',
     }, {
-      title: '箱号',
-      width: 50,
-      key: 'label',
-      dataIndex: 'label',
-    }, {
-      title: '包含商品',
+      title: '包含商品（括号中为数量）',
       width: 150,
       key: 'goods',
       dataIndex: 'goods',
-      render: (text,record,index) => {
-        const idList = text.split('，');
-        return (
+      render: (text,record,index) => (
           <div>{
-            idList.map((gid, i) => (
+            text.map(({goods_id: gid, count}, i) => (
               <Popover key={`order_number_${gid}`} placement="topLeft" title="商品信息" content={
                 <div>
                   <CategoryTag category_id={goodsMap[gid].category_id} />
-                  <span>{`${goodsMap[gid].name}(${goodsMap[gid].sku})`}</span>
+                  <span>{`${goodsMap[gid].name}（${goodsMap[gid].sku}）`}</span>
                 </div>
               }>
-                <span style={{cursor: 'default'}}>{`${goodsMap[gid].name}${i !== idList.length - 1 ? '，' : ''}`}</span>
+                <span style={{cursor: 'default'}}>{`${goodsMap[gid].name}（${count}）${i !== text.length - 1 ? '，' : ''}`}</span>
               </Popover>
               
             ))
           }</div>
         )
-      }
+    }, {
+      title: '箱号',
+      width: 40,
+      key: 'label',
+      align: 'right',
+      dataIndex: 'label',
+    render: (text, record) => {
+      const total = record.goods.reduce((p, c) => p + c.count, 0)
+      return (
+        <>
+          <span>{text}</span>
+          <span style={{display: 'inline-block', width: 80,}}>{`（共${total}件）`}</span>
+        </>
+      )
+    }
     }, {
       title: '操作',
       width: 20,
@@ -180,8 +181,8 @@ class FileLabel extends Component {
         <>
           <Popconfirm
             placement="topRight"
-            title={`是否确定删除，订单： ${record.order_number}`}
-            onConfirm={() => this.deleteOrder(record)}
+            title={`是否确定删除该拼箱，箱号： ${record.label}`}
+            onConfirm={() => this.delLabel(record)}
           >
             <a onClick={() => {}}>
               删除
@@ -204,7 +205,7 @@ class FileLabel extends Component {
             size="small"
           />
           <div style={{marginTop: 10, marginBottom: 10, overflow: 'hidden'}}>
-            <Button disabled={!surplus} type="primary" style={{float: 'right'}} onClick={this.addLabel}>新增拼箱</Button>
+            <Button disabled={!surplus || differ.every(d => d.count === 0)} type="primary" style={{float: 'right'}} onClick={this.addLabel}>新增拼箱</Button>
           </div>
           <Table
             className="file-label-input"
@@ -216,7 +217,7 @@ class FileLabel extends Component {
             size="small"
           />
         </div>
-        <Button disabled={!done} block type="primary" style={{marginTop: 15}} onClick={this.validateOpen}>完成</Button>
+        <Button disabled={!done} block type="primary" style={{marginTop: 15}} onClick={this.gotoNext}>完成</Button>
       </>
     )
   }
@@ -231,10 +232,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-  addRecordsOrderNumber: actions.fetchAddRecordsOrderNumber,
-  updateRecordsOrderNumber: actions.fetchUpdateRecordsOrderNumber,
-  changeRecordOrderNumber: actions.fetchChangeRecordOrderNumber,
-  deleteRecordsOrderNumber: actions.fetchDeleteRecordsOrderNumber,
+  addLabel: actions.fetchAddLabel,
+  deleteLabel: actions.fetchDeleteLabel,
 }
 
 const FileLabelInput = LabelModalWrap(FileLabel);

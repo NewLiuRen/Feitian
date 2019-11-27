@@ -143,7 +143,7 @@ export const generateFullBoxLabelByFileId = (file_id, goodsMap) => getRecordsByF
     const surplus = [];
     Object.entries(recordsWarehouseMap).forEach(([wid, rArr]) => {
       let index = 1;
-      return rArr.sort((p, c) => p.goods_id - c.goods_id).map(r => {
+      return rArr.sort((p, c) => p.category !== c.category ? p.category - c.category : p.goods_id - c.goods_id).map(r => {
         const boxCount = Math.floor(r.count / goodsMap[r.goods_id].max_count);
         const surplusCount = r.count % goodsMap[r.goods_id].max_count;
         const labels = []
@@ -173,7 +173,7 @@ export const addFileShare = (file_id, params) => getRecordsByFileId(file_id).the
   const flag = rs.share.find(s => parseInt(s.warehouse_id, 10) === parseInt(warehouse_id, 10) && parseInt(s.label, 10) === parseInt(label, 10));
 
   const share = flag ? rs.share : rs.share.concat(params);
-  const records = Object.assign({}, recordsObj, {file_id, share});
+  const records = Object.assign({}, recordsObj, rs, {file_id, share});
 
   return new Promise(resolve => {
     db.updateData(STORE_NAME, records).then(({success, result}) => resolve({ success, data: records }))
@@ -184,20 +184,31 @@ export const addFileShare = (file_id, params) => getRecordsByFileId(file_id).the
 export const deleteFileShare = (file_id, params) => getRecordsByFileId(file_id).then(rs => {
   if (!rs) return { success: false }
   compareObject(SHARE, params)
-  const { label, order_number, warehouse_id, goods, } = params;
+  const { label, warehouse_id, } = params;
 
   const share = [];
-  for (const s of rs.share) {
+  rs.share.forEach(s => {
     if (parseInt(s.warehouse_id, 10) === parseInt(warehouse_id, 10)) {
-      if (parseInt(s.label, 10) === parseInt(label, 10)) {
-        continue;
-      }
       if (parseInt(s.label, 10) > parseInt(label, 10)) {
-        share.push({label: s.label - 1, order_number, warehouse_id, goods})
+        share.push(Object.assign({}, s, {label: s.label - 1}));
+      } else if (parseInt(s.label, 10) < parseInt(label, 10)) {
+        share.push(Object.assign({}, s));
       }
-    } 
-  }
-  const records = Object.assign({}, recordsObj, {file_id, share});
+    } else {
+      share.push(Object.assign({}, s));
+    }
+  })
+  const records = Object.assign({}, recordsObj, rs, {file_id, share});
+
+  return new Promise(resolve => {
+    db.updateData(STORE_NAME, records).then(({success, result}) => resolve({ success, data: records }))
+  })
+})
+
+// 清除拼箱记录
+export const clearFileShare = (file_id) => getRecordsByFileId(file_id).then(rs => {
+  if (!rs) return { success: false }
+  const records = Object.assign({}, recordsObj, rs, {file_id, share: []});
 
   return new Promise(resolve => {
     db.updateData(STORE_NAME, records).then(({success, result}) => resolve({ success, data: records }))

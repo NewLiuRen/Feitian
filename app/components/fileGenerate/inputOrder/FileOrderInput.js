@@ -166,7 +166,7 @@ class FileOrder extends Component {
               <Popover key={`order_number_${gid}`} placement="topLeft" title="商品信息" content={
                 <div>
                   <CategoryTag category_id={goodsMap[gid].category_id} />
-                  <span>{`${goodsMap[gid].name}(${goodsMap[gid].sku})`}</span>
+                  <span>{`${goodsMap[gid].name}（${goodsMap[gid].sku}）`}</span>
                 </div>
               }>
                 <span style={{cursor: 'default'}}>{`${goodsMap[gid].name}${i !== idList.length - 1 ? '，' : ''}`}</span>
@@ -200,7 +200,7 @@ class FileOrder extends Component {
     }];
 
     return (
-      <>
+      <div className="generate-order-input">
         <div style={{height: 'calc(100vh - 180px)'}}>
           <Table
             className="file-order-select"
@@ -225,7 +225,7 @@ class FileOrder extends Component {
           />
         </div>
         <Button disabled={!done} block type="primary" style={{marginTop: 15}} onClick={this.validateOpen}>完成</Button>
-      </>
+      </div>
     )
   }
 }

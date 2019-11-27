@@ -15,3 +15,4 @@ the application is input data and change it. then export to excel. for my wife
 5. 导出入仓明细时增加对单个仓库内商品数量及箱数的计算
 6. 新建文件时增加批量添加商品功能
 7. 历史文件预览点击日期时，可新建对应日期的文件
+8. 按照历史文件模板创建新文件

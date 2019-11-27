@@ -22,20 +22,23 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
   }
 
   // 弹出新建订单号Modal
-  addGoods = (warehouse_id, data) => {
-    const { goodsMap } = this.props;
+  addGoods = (warehouse_id, label, data) => {
+    const { goodsMap, differ } = this.props;
     const dataFormat = {};
-    Object.entries(data).forEach(([order, gObj]) => {
-      if (!dataFormat[order]) dataFormat[order] = [];
-      Object.entries(gObj).forEach(([gid, c]) => {
-        dataFormat[order].push({
-          goods_id: parseInt(gid, 10),
-          count: parseInt(c, 10),
-          category_id: goodsMap[gid].category_id,
+
+    differ.forEach(d => {
+      const { goods_id, order_number, count } = d;
+      if (count > 0) {
+        if (!dataFormat[order_number]) dataFormat[order_number] = [];
+        dataFormat[order_number].push({
+          goods_id: parseInt(goods_id, 10),
+          count: parseInt(count, 10),
+          category_id: goodsMap[goods_id].category_id,
         })
-      })
+      }
     })
-    this.setState({ visible: true, warehouse_id, data: dataFormat, activeTab: data ? `order_${Object.keys(data)[0]}` : '', goods: [] });
+
+    this.setState({ visible: true, warehouse_id, label, data: dataFormat, activeTab: Object.keys(dataFormat).length > 0 ? `order_${Object.keys(dataFormat)[0]}` : '', goods: [] });
   }
   
   // 隐藏Modal
@@ -44,10 +47,10 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
   }
 
   // 存储选择的商品数量
-  goodsChange = debounce((count, goods_id) => {
+  goodsChange = (count, goods_id) => {
     const { goods } = this.state;
     let newGoods = [];
-    console.log('goods :', goods);
+
     // {goods_id: null, count: 0}
     if (goods.find(g => parseInt(g.goods_id, 10) === parseInt(goods_id, 10))) {
       newGoods = goods.map(g => {
@@ -59,23 +62,28 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
     } else {
       newGoods = goods.concat({goods_id, count});
     }
-    console.log('newGoods :', newGoods);
+
     this.setState({goods: newGoods});
-  }, 300)
+  }
 
   // 提交Modal
   submit = () => {
-    const { fileInfo, addRecordsOrderNumber, updateRecordsOrderNumber } = this.props;
-    const { warehouse_id, } = this.state;
-    this.setState({validate: true}, () => {
-      this.hideModal()
-    });
+    const { addLabel, fileInfo } = this.props;
+    const { warehouse_id, label, goods, activeTab } = this.state;
+    const order_number = activeTab.split('_')[1];
+    if (goods.every(g => g.count === 0)) {
+      message.error('商品数量不能全部为0')
+      return;
+    }
+
+    addLabel(fileInfo.id, {label, order_number, warehouse_id, goods: goods.filter(g => g.count !== 0)});
+    this.hideModal();
   }
 
   render() {
     const { warehouseMap, goodsMap } = this.props;
     const { visible, validate, warehouse_id, data, activeTab, goods } = this.state;
-console.log('goods :', goods);
+
     const columns = [
       {
         title: '商品',
@@ -109,17 +117,27 @@ console.log('goods :', goods);
         dataIndex: 'count',
         // fixed: 'left',
         align: 'right',
-        render: (text, record) => (
-          <>
-            <div style={{display: 'inline-block', width: '75%', marginRight: 20, verticalAlign: 'middle',}}>
-              <Slider defaultValue={0} max={text} style={{margin: '0'}} onChange={val => {this.goodsChange(val, record.goods_id)}} />
-            </div>
-            <span>{`${Object.keys(goods).length>0 ? goods.find(g => parseInt(g.goods_id) === parseInt(record.goods_id)).count : 0}/${text}`}</span>
-          </>
-        )
+        render: (text, record) => {
+          const flag = Object.keys(goods).length > 0;
+          let count = 0;
+
+          if (flag) {
+            const g = goods.find(g => parseInt(g.goods_id, 10) === parseInt(record.goods_id, 10))
+            if (g) count = g.count;
+          }
+
+          return (
+            <>
+              <div style={{display: 'inline-block', width: '70%', marginRight: 20, verticalAlign: 'middle',}}>
+                <Slider value={count} defaultValue={0} max={text} style={{margin: '0'}} onChange={val => {this.goodsChange(val, record.goods_id)}} />
+              </div>
+              <span style={{display: 'inline-block', width: 40,}}>{`${count}/${text}`}</span>
+            </>
+          )
+        }
       }
     ];
-    
+
     return (
       <>
         <Modal
@@ -138,7 +156,7 @@ console.log('goods :', goods);
             tabPosition="top"
             activeKey={activeTab}
             style={{ height: '100%', background: '#fff' }}
-            onChange = {(key) => { this.setState({ activeTab: key }) }}
+            onChange = {(key) => { this.setState({ activeTab: key, goods: [] }) }}
           >
             {
               data ? Object.entries(data).map(([order_number, dataSource]) => (
