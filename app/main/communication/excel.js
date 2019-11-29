@@ -238,3 +238,92 @@ ipcMain.on('exportDataInput', (event, arg) => {
       event.sender.send('exportDataInputReply', {success: false, msg: '导出失败，请检查该文件是否已被打开'})
     });
 })
+
+// 导出箱贴
+ipcMain.on('exportOrderLabel', (event, file) => {
+  // 创建工作簿
+  const workbook = new Excel.Workbook();
+
+  // 添加工作表
+  // const sheet = workbook.addWorksheet('商品模板', {views:[{state: 'frozen', xSplit: 2, ySplit: 1}]});
+  const generateLabel = (worksheet, data, params, rowIndex) => {
+    // { order_number: '', goods: [{name: '', count: null}] }
+    const { warehouseName, label, } = params;
+    const { order_number, goods, } = data;
+    const setStyle = (node, styleName, style={}) => {
+      const defaultStyle = {
+        font: { name: 'SimSun', size: 20, bold: true, },
+        border: {
+          top: {style:'thin'},
+          bottom: {style:'thin'},
+          left: {style:'thick'},
+          right: {style:'thick'},
+        },
+        alignment: { 
+          vertical: 'middle',
+          horizontal: 'left',
+        }
+      };
+      const styleAssign = Object.assign({}, defaultStyle, style);
+      let styleNameArr = styleName;
+      if (!Array.isArray(styleName)) styleNameArr = [...styleNameArr];
+      styleNameArr.forEach(s => {
+        node[s] =  styleAssign[s];
+      })
+    }
+
+    worksheet.addRow(['供应商名称', '天津飞天孚泽科技股份有限公司']);
+    worksheet.addRow(['采购单号', order_number]);
+    worksheet.addRow(['目的城市', warehouseName]);
+    worksheet.addRow(['商品名称', goods.map(g => `${g.name} ${g.count}`).join('\r\n')]);
+    worksheet.addRow(['实装数量', goods.reduce((p, c) => p + c.count, 0)]);
+    worksheet.addRow(['箱号', `${warehouseName}${label}`]);
+    worksheet.addRow();
+
+    const row1 = worksheet.getRow(rowIndex);
+    const row2 = worksheet.getRow(rowIndex+1);
+    const row3 = worksheet.getRow(rowIndex+2);
+    const row4 = worksheet.getRow(rowIndex+3);
+    const row5 = worksheet.getRow(rowIndex+4);
+    const row6 = worksheet.getRow(rowIndex+5);
+
+    // 样式设置
+    setStyle(row1, ['font', 'alignment']);
+  }
+
+  // 生成工作表
+  const generateWorksheet = (workbook, warehouseName, data) => {
+    let sheet = null;
+    
+    if (data.some(d => d.goods.length > 3)) {
+      sheet = workbook.addWorksheet(warehouseName, {properties:{tabColor:{argb:'FC00000'}}});
+    } else {
+      sheet = workbook.addWorksheet(warehouseName);
+    }
+    data.forEach((d, i) => {
+      generateLabel(sheet, d, {warehouseName, label: i+1}, (i+1)*7+1)
+    })
+  }
+
+  /*
+  full: { count: 12, goods_id: 253, labels: [2, 3], name: "双面绒拉链被雅致灰", order_number: "103" },
+  share: { goods: [{count: 6, goods_id: 268}], label: 14, order_number: "103", }
+  */
+  Object.values(file).forEach(labels => {
+    const { name, full, share } = labels;
+    // { order_number: '', goods: [{name: '', count: null}], [label: null,] }
+    let data = [];
+    full.forEach(f => {
+      const { labels, count, name, order_number } = f;
+      labels.forEach(l => {
+        data[l] = { order_number, goods: [{ name, count }] }
+      })
+    })
+    share.forEach(s => {
+      const { label, order_number, goods } = s;
+      data[label] = { order_number, goods: goods.map(({name, count}) => ({name, count})) }
+    })
+    data = data.filter(d => d);
+    generateWorksheet(workbook, name, data);
+  })
+})

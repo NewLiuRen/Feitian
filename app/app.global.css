@@ -121,6 +121,9 @@ a:hover {
 .generate-order-wrap .ant-tabs-nav .ant-tabs-tab-active {
   color: #52C41A;
 }
+.generate-order-wrap .ant-tabs-ink-bar {
+  background-color: #52C41A;
+}
 .generate-order-wrap .ant-tabs-nav .ant-tabs-tab:hover,
 .generate-order-wrap .ant-tabs-nav .ant-tabs-tab-active:hover {
   color: #94d678;

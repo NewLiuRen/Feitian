@@ -1,9 +1,11 @@
+import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Drawer, Layout,  Alert, Icon, Row, Col, Progress, Tabs, Button, } from 'antd';
+import { Drawer, Layout,  Alert, Icon, Row, Col, Modal, Tabs, Button, } from 'antd';
 import FileLabelInput from './exportLabel/FileLabelInput';
 import FilePreviewTable from './exportLabel/FilePreviewTable';
 
+const { confirm } = Modal;
 const { TabPane } = Tabs;
 
 class FileGenerateOrder extends Component {
@@ -35,6 +37,46 @@ class FileGenerateOrder extends Component {
   // 隐藏预览表格
   hidePreview = () => {
     this.setState({ visible: false, });
+  }
+
+  // 导出箱贴
+  exportLabel = (differMap) => {
+    const totalSurplusCount = Object.entries(differMap).reduce((p, c) => {
+      const [wid, dArr] = c;
+      return p + dArr.reduce((p, c) => p + c.count, 0);
+    }, 0)
+    
+    if (totalSurplusCount > 0) {
+      this.setState({visible: true}, () => {
+        confirm({
+          title: '提示',
+          content: '当前还有未进行拼箱的商品，是否继续导出箱贴？',
+          onOk() {
+            this.sendDataToMain();
+          },
+        });
+      });
+    } else {
+      this.sendDataToMain();
+    }
+  }
+
+  // 向主进程发送数据
+  sendDataToMain = () => {
+    const { warehouseMap, goodsMap, records, share } = this.props;
+    const fileLabelMap = {};
+
+    records.forEach(r => {
+      const { count, order_number, goods_id, warehouse_id, labels } = r;
+      if (!fileLabelMap[warehouse_id]) fileLabelMap[warehouse_id] = {name: warehouseMap[warehouse_id].name, warehouse_id, full: [], share: []}
+      if (labels.length > 0) fileLabelMap[warehouse_id].full.push({count, order_number, goods_id, name: goodsMap[goods_id].name, labels})
+    })
+    share.forEach(s => {
+      const { label, order_number, warehouse_id, goods } = s;
+      fileLabelMap[warehouse_id].share.push({ label, order_number, goods: goods.map(({count, goods_id}) => ({count, goods_id, name: goodsMap[goods_id].name})) })
+    })
+console.log('fileLabelMap :', fileLabelMap);
+    ipcRenderer.send('exportOrderLabel', { ...fileLabelMap })
   }
 
   render() {
@@ -82,7 +124,7 @@ class FileGenerateOrder extends Component {
           </Col> */}
           <Col span={24} style={{overflow: 'hidden', textAlign: 'right'}}>
             <Button type="primary" ghost style={{marginRight: 5}} onClick={this.showPreview}>数据预览</Button>
-            <Button type="primary" onClick={this.changeFileState}>箱贴导出</Button>
+            <Button type="primary" onClick={() => this.exportLabel(differMap)}>箱贴导出</Button>
           </Col>
         </Row>
         <Drawer
@@ -129,6 +171,7 @@ class FileGenerateOrder extends Component {
 
 const mapStateToProps = state => ({
   warehouseMap: state.warehouse.map,
+  goodsMap: state.goods.map,
   records: state.fileRecord.records,
   surplus: state.fileRecord.surplus,
   share: state.fileRecord.share,
