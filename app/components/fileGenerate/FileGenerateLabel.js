@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Drawer, Layout,  Alert, Icon, Row, Col, Modal, Tabs, Button, } from 'antd';
+import { Drawer, Layout,  Alert, Icon, Row, Col, Modal, Tabs, Button, message, } from 'antd';
 import FileLabelInput from './exportLabel/FileLabelInput';
 import FilePreviewTable from './exportLabel/FilePreviewTable';
 
@@ -20,6 +20,14 @@ class FileGenerateOrder extends Component {
   componentDidMount() {
     const { fileWarehouseList } = this.props;
     if (fileWarehouseList) this.setState({activeTab: `warehouse_${fileWarehouseList[0]}`})
+    ipcRenderer.on('exportOrderLabelReply', (event, res) => {
+      if (res.success) message.success(res.msg)
+      else message.error(res.msg)
+    })
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeAllListeners('exportOrderLabelReply')
   }
 
   gotoNextTab = (warehouse_id) => {
@@ -63,7 +71,7 @@ class FileGenerateOrder extends Component {
 
   // 向主进程发送数据
   sendDataToMain = () => {
-    const { warehouseMap, goodsMap, records, share } = this.props;
+    const { warehouseMap, goodsMap, records, share, fileInfo } = this.props;
     const fileLabelMap = {};
 
     records.forEach(r => {
@@ -76,7 +84,7 @@ class FileGenerateOrder extends Component {
       fileLabelMap[warehouse_id].share.push({ label, order_number, goods: goods.map(({count, goods_id}) => ({count, goods_id, name: goodsMap[goods_id].name})) })
     })
 console.log('fileLabelMap :', fileLabelMap);
-    ipcRenderer.send('exportOrderLabel', { ...fileLabelMap })
+    ipcRenderer.send('exportOrderLabel', { path: localStorage.getItem('exportPath'), create_date: fileInfo.create_date, dataSource: fileLabelMap })
   }
 
   render() {
@@ -170,6 +178,7 @@ console.log('fileLabelMap :', fileLabelMap);
 }
 
 const mapStateToProps = state => ({
+  fileInfo: state.fileRecord.file,
   warehouseMap: state.warehouse.map,
   goodsMap: state.goods.map,
   records: state.fileRecord.records,

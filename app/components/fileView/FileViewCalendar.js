@@ -215,7 +215,7 @@ class FileViewCalendar extends Component {
             currentFile && !currentFile.is_import ? 
             (<Button type="primary" block onClick={this.gotoInputData}>数据录入</Button>) :
             (<ButtonGroup style={{width: '100%'}}>
-              <Button type="primary" onClick={this.gotoInputOrder} style={{width: '50%', background: '#53d06e', borderColor: '#53d06e'}}>箱贴录入</Button>
+              <Button type="primary" onClick={this.gotoInputOrder} style={{width: '50%', background: '#87D068', borderColor: '#87D068'}}>箱贴录入</Button>
               <Button type="primary" disabled={currentFile && !currentFile.is_order} onClick={this.gotoInputLabel} style={{width: '50%', background: (currentFile && !currentFile.is_order) ? '#d9d9d9' : '#f1a250', borderColor: (currentFile && !currentFile.is_order) ? '#d9d9d9' : '#f1a250'}}>箱贴导出</Button>
             </ButtonGroup>)
           }</Row>

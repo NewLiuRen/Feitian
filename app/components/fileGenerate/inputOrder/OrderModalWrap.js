@@ -87,7 +87,7 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
               validateStatus={validate && !order_number.trim() ? 'error' : ''}
               help={validate && !order_number.trim() ? '请输入采购订单号' : ''}
             >
-              <Input placeholder="请输入采购订单号" value={order_number} onChange={e => this.inputOrderNumber(e)}/>
+              <Input autoFocus placeholder="请输入采购订单号" value={order_number} onChange={e => this.inputOrderNumber(e)}/>
             </Form.Item>
           </Form>
           <TransferGoods fileGoodsIdList={fileGoodsIdList} onChange={this.changeGoodsIdList} targetKeys={targetKeys} />
