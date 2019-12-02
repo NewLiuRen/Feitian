@@ -180,14 +180,13 @@ ipcMain.on('exportDataInput', (event, arg) => {
     { header: 'SKU', key: 'sku', width: 15, alignment: { vertical: 'middle', horizontal: 'right' } },
     { header: '名称', key: 'name', width: 25, alignment: { vertical: 'middle', horizontal: 'left' } }
   ];
+  // 仓库总数
+  const totalWarehouseCount = {};
+  // 仓库箱数
+  const totalBox = {};
+  // 仓库剩余商品数量
+  const surplus = {}
   const generateHorizontalFormula = (wList, index) => {
-    const formula = [];
-    wList.forEach((w, i) => {
-      formula.push(`${String.fromCharCode(67+i)}${index}`);
-    })
-    return formula.join('+');
-  }
-  const generateVerticalFormula = (wList, index) => {
     const formula = [];
     wList.forEach((w, i) => {
       formula.push(`${String.fromCharCode(67+i)}${index}`);
@@ -205,6 +204,24 @@ ipcMain.on('exportDataInput', (event, arg) => {
     const newRow = { name, sku }
     let sum = 0;
     value.forEach(w => {
+      const { id: wkey, count } = w;
+      // 计算仓库总数
+      if (!totalWarehouseCount[wkey]) {
+        totalWarehouseCount[wkey] = count;
+      } else {
+        totalWarehouseCount[wkey] += count;
+      }
+      // 计算仓库总箱数
+      if (!totalBox[wkey]) {
+        totalBox[wkey] = Math.floor(count/max_count);
+      } else {
+        totalBox[wkey] += Math.floor(count/max_count);
+      }
+      // 计算剩余商品数量
+      if (count%max_count !== 0) {
+        if (!surplus[wkey]) surplus[wkey] = []
+        surplus[wkey].push({goods: name, count: count % max_count});
+      }
       newRow[`warehouse_${w.id}`] = w.count;
       sum += w.count;
     })
@@ -215,6 +232,63 @@ ipcMain.on('exportDataInput', (event, arg) => {
     row.height = 22;
   }
 
+  const warehouseCountRow = { name: '合计' };
+  const boxCountRow = { name: '箱数' };
+  const surplusRow = {};
+  warehouseList.forEach(w => {
+    warehouseCountRow[`warehouse_${w.id}`] = totalWarehouseCount[w.id];
+    boxCountRow[`warehouse_${w.id}`] = `${totalBox[w.id]}${surplus[w.id] ? `(${surplus[w.id].reduce((p, c) => p + c.count, 0)})` : ''}`;
+    surplusRow[`warehouse_${w.id}`] = surplus[w.id] ? surplus[w.id].map(s => `${s.goods}(${s.count})`).join('\r\n') : '';
+  })
+  // 添加仓库总数行
+  sheet.addRow(warehouseCountRow);
+  sheet.lastRow.getCell('total').value = { formula: generateHorizontalFormula(warehouseList, dataSource.length+1), result: Object.values(totalWarehouseCount).reduce((p, c) => p + c, 0) }
+  sheet.lastRow.height = 22;
+  sheet.lastRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    cell.border = {
+      top: {style:'thin'},
+      left: {style:'thin'},
+      bottom: {style:'thin'},
+      right: {style:'thin'}
+    };
+    cell.alignment = { vertical: 'middle', horizontal: 'right' };
+    if (colNumber > 2) {
+      cell.value = { formula: `SUM(${String.fromCharCode(67+Number(colNumber-3))}2:${String.fromCharCode(67+Number(colNumber-3))}${1+dataSource.length})`, result: parseInt(cell.text, 10) };
+    }
+  });
+  // 添加仓库箱数
+  sheet.addRow(boxCountRow);
+  sheet.lastRow.getCell('total').value = { formula: generateHorizontalFormula(warehouseList, dataSource.length+2), result: Object.values(totalBox).reduce((p, c) => p + c, 0) }
+  sheet.lastRow.height = 22;
+  sheet.lastRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    cell.border = {
+      top: {style:'thin'},
+      left: {style:'thin'},
+      bottom: {style:'thin'},
+      right: {style:'thin'}
+    };
+    cell.alignment = { vertical: 'middle', horizontal: 'right' };
+  });
+  // 添加剩余商品明细
+  sheet.addRow(surplusRow);
+  sheet.lastRow.height = 22;
+  sheet.lastRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    cell.alignment = { wrapText: true };
+    cell.border = {
+      top: {style:'thin'},
+      left: {style:'thin'},
+      bottom: {style:'thin'},
+      right: {style:'thin'}
+    };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+  sheet.lastRow.getCell('total').border = {
+    top: {style:'thin'},
+    left: {style:'thin'},
+    bottom: {style:'thin'},
+    right: {style:'thin'}
+  };
+  // 设置第一行样式
   sheet.getRow(1).height = 25
   setRowStyle(columns, sheet, 1, DEFAULT_STYLE, ['border', 'alignment']);
   sheet.getRow(1).getCell('sku').fill = {

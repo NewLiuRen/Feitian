@@ -132,7 +132,7 @@ class FileViewCalendar extends Component {
   }
 
   render() {
-    const { currentFile, records } = this.state;
+    const { currentFile, records, share, surplus, } = this.state;
     const headerComp = ({ value, type, onChange, onTypeChange }) => {
       const start = 0;
       const end = 12;
@@ -209,7 +209,7 @@ class FileViewCalendar extends Component {
         >
           {/* <Alert style={{marginBottom: 20}} type="info" message="仓库内数值为该仓库下商品的每箱最大数量" showIcon /> */}
           <Layout style={{height: 'calc(100vh - 160px)', background: '#ffffff'}}>
-            <FilePreviewTable records={records} />
+            <FilePreviewTable records={records} share={share} surplus={surplus} fileInfo={currentFile} />
           </Layout>
           <Row style={{marginTop: 20}}>{
             currentFile && !currentFile.is_import ? 

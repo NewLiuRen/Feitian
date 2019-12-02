@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Popconfirm } from 'antd';
-import GoodsModalWrap from '../../dataManage/GoodsModalWrap';
 import { fetchAddGoods } from '../../../actions/goods';
 import { addGoods, setAllGoods, removeGoods, fetchDeleteRecords } from '../../../actions/fileRecord';
 import style from './FileGoodsList.scss';
+import GoodsModalWrap from '../../dataManage/GoodsModalWrap';
+import InputModalWrap from './InputModalWrap';
 
 const { TreeNode } = TreeSelect;
 const ButtonGroup = Button.Group;
@@ -26,6 +27,22 @@ class FileGoods extends Component {
     addFileGoods();
     setTimeout(() => {layout.scrollTop = layout.scrollHeight}, 0);
   };
+
+  // 批量添加数据
+  batchAdd = () => {
+    const { goodsList, fileGoods } = this.props;
+    const fileGoodsIdList = []
+    const existIds = fileGoods.map(g => g.id);
+    goodsList.forEach(g => {
+      if (!existIds.includes(g.id)) fileGoodsIdList.push(g.id);
+    })
+    this.props.batchAdd('', fileGoodsIdList)
+  }
+
+  // 提交批量添加数据
+  batchAddSubmit = (goodsIdList) => {
+    console.log('enter');
+  }
 
   // 删除表单项
   remove = index => {
@@ -181,7 +198,7 @@ class FileGoods extends Component {
                   <Icon type="plus" /> 添加商品
                 </Button>
                 <Tooltip title="批量添加商品">
-                  <Button type="dashed" style={{width: '15%'}} onClick={this.props.batchAdd}>
+                  <Button type="dashed" style={{width: '15%'}} onClick={this.batchAdd}>
                     <Icon type="plus-circle" />
                   </Button>
                 </Tooltip>
@@ -200,6 +217,7 @@ class FileGoods extends Component {
 }
 
 const FileGoodsWithGoodsModal = GoodsModalWrap(FileGoods);
+const FileGoodsWithGoodsAndBatchModal = InputModalWrap(FileGoodsWithGoodsModal)
 
 // 不得不说，antd该版本的Form双向绑定真是不好用......
 const FileGoodsForm = Form.create({
@@ -223,7 +241,7 @@ const FileGoodsForm = Form.create({
     })
     return p
   }
-})(FileGoodsWithGoodsModal);
+})(FileGoodsWithGoodsAndBatchModal);
 
 const mapStateToProps = state => ({
   categoryMap: state.category.map,

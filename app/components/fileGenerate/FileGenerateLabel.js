@@ -83,7 +83,7 @@ class FileGenerateOrder extends Component {
       const { label, order_number, warehouse_id, goods } = s;
       fileLabelMap[warehouse_id].share.push({ label, order_number, goods: goods.map(({count, goods_id}) => ({count, goods_id, name: goodsMap[goods_id].name})) })
     })
-console.log('fileLabelMap :', fileLabelMap);
+
     ipcRenderer.send('exportOrderLabel', { path: localStorage.getItem('exportPath'), create_date: fileInfo.create_date, dataSource: fileLabelMap })
   }
 
@@ -125,8 +125,8 @@ console.log('fileLabelMap :', fileLabelMap);
     })
 
     return (
-      <>
-        <Row style={{padding: '5px 20px', background: '#fff'}}>
+      <div className="generate-label-wrap">
+        <Row className="generate-label-header" style={{padding: '5px 20px', background: '#fff'}}>
           {/* <Col span={18}>
             <Progress status="normal" percent={0} />
           </Col> */}
@@ -172,7 +172,7 @@ console.log('fileLabelMap :', fileLabelMap);
             )) : null
           }
         </Tabs>
-      </>
+      </div>
     )
   }
 }

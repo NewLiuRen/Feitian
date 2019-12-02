@@ -38,8 +38,8 @@ class FileLabel extends Component {
       if (data[s.order_number] && data[s.order_number][s.goods_id]) {
         data[s.order_number][s.goods_id] -= s.count;
       }
-      if (data[s.order_number][s.goods_id] === 0) delete data[s.order_number][s.goods_id]
-      if (Object.keys(data[s.order_number]).length === 0) delete data[s.order_number]
+      if (data[s.order_number] && data[s.order_number][s.goods_id] === 0) delete data[s.order_number][s.goods_id]
+      if (data[s.order_number] && Object.keys(data[s.order_number]).length === 0) delete data[s.order_number]
     })
 
     this.props.add(this.props.warehouse_id, label, data)
@@ -193,7 +193,7 @@ class FileLabel extends Component {
     }];
 
     return (
-      <>
+      <div className="generate-label-input">
         <div style={{height: 'calc(100vh - 180px)'}}>
           <Table
             className="file-label-show"
@@ -218,7 +218,7 @@ class FileLabel extends Component {
           />
         </div>
         <Button disabled={!done} block type="primary" style={{marginTop: 15}} onClick={this.gotoNext}>完成</Button>
-      </>
+      </div>
     )
   }
 }
