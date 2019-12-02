@@ -111,8 +111,8 @@ class FilePreviewTable extends Component {
         if (key === 'box_total' && fileInfo.is_import && fileInfo.is_order) {
           let s = 0
           Object.values(labelMap).forEach(v => {
-            s += v.full;
-            s += v.share;
+            if (v.full) s += v.full;
+            if (v.share) s += v.share;
           })
           return (<span>{s}</span>)
         }

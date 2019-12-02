@@ -33,14 +33,14 @@ const InputModalWrap = (WrappedComponent) => class InputModal extends Component 
 
   // 提交Modal
   submit = () => {
-    const { fileInfo } = this.props;
+    const { fileInfo, addToGoods } = this.props;
     const { targetKeys } = this.state;
     if (targetKeys.length === 0) {
       message.error('请选择商品');
       return
     }
-    console.log('targetKeys :', targetKeys.sort());
-    console.log('props :', this.props);
+    addToGoods(targetKeys);
+    this.hideModal();
   }
 
   render() {

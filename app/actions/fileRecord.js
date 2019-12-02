@@ -3,6 +3,7 @@ export const SET_RECORDS = 'SET_RECORDS';
 export const SET_SHARE = 'SET_SHARE';
 export const SET_SURPLUS = 'SET_SURPLUS';
 export const ADD_FILE_GOODS = 'ADD_FILE_GOODS';
+export const ADD_TO_FILE_GOODS = 'ADD_TO_FILE_GOODS';
 export const REMOVE_FILE_GOODS = 'REMOVE_FILE_GOODS';
 export const SET_FILE_GOODS = 'SET_FILE_GOODS';
 export const SET_ALL_FILE_GOODS_EXIST = 'SET_ALL_FILE_GOODS_EXIST';
@@ -50,6 +51,9 @@ export const setSurplus = surplus => ({ type: SET_SURPLUS, payload: surplus })
 // 动态添加一个空的元素
 // 用来适配antd的动态Form（此处为被动实现，与业务无关）
 export const addGoods = () => ({ type: ADD_FILE_GOODS })
+
+// 添加一组goods
+export const addToGoods = (goodsIdList) => ({ type: ADD_TO_FILE_GOODS, payload: {goodsIdList} })
 
 // 设置某个位置的商品id（用于记录需填写的商品列表）
 export const setGoods = ({index, goods_id}) => ({ type: SET_FILE_GOODS, payload: {index, goods_id} })

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Layout, Divider, Form, TreeSelect, Icon, Button, Tooltip, Popconfirm } from 'antd';
 import { fetchAddGoods } from '../../../actions/goods';
-import { addGoods, setAllGoods, removeGoods, fetchDeleteRecords } from '../../../actions/fileRecord';
+import { addGoods, addToGoods, setAllGoods, removeGoods, fetchDeleteRecords } from '../../../actions/fileRecord';
 import style from './FileGoodsList.scss';
 import GoodsModalWrap from '../../dataManage/GoodsModalWrap';
 import InputModalWrap from './InputModalWrap';
@@ -37,11 +37,6 @@ class FileGoods extends Component {
       if (!existIds.includes(g.id)) fileGoodsIdList.push(g.id);
     })
     this.props.batchAdd('', fileGoodsIdList)
-  }
-
-  // 提交批量添加数据
-  batchAddSubmit = (goodsIdList) => {
-    console.log('enter');
   }
 
   // 删除表单项
@@ -253,6 +248,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   addGoods: fetchAddGoods,
+  addToGoods,
   setFileGoods: setAllGoods,
   addFileGoods: addGoods,
   removeFileGoods: removeGoods,

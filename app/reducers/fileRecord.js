@@ -30,6 +30,14 @@ const fileRecord = (state = initState, action) => {
     case actionTypes.ADD_FILE_GOODS:
       const newGoods = state.goods.concat(Object.assign({}, GOODS_TMP));
       return Object.assign({}, state, {goods: newGoods})
+    case actionTypes.ADD_TO_FILE_GOODS:
+      const { goodsIdList } = payload;
+      const newGoodsList = goodsIdList.map(id => ({...Object.assign({}, GOODS_TMP, {id})}));
+      const oldGoodsList = state.goods.slice();
+      let addToGoodsList = [];
+      if (oldGoodsList[oldGoodsList.length - 1].id) addToGoodsList = oldGoodsList.concat(newGoodsList)
+      else addToGoodsList = oldGoodsList.slice(0, -1).concat(newGoodsList)
+      return Object.assign({}, state, {goods: addToGoodsList})
     case actionTypes.SET_FILE_GOODS:
       const { index: setIndex, goods_id } = payload;
       const setGoodsList = state.goods.slice();

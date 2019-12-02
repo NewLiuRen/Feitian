@@ -55,12 +55,13 @@ class FileGenerateOrder extends Component {
     }, 0)
     
     if (totalSurplusCount > 0) {
+      const self = this;
       this.setState({visible: true}, () => {
         confirm({
           title: '提示',
           content: '当前还有未进行拼箱的商品，是否继续导出箱贴？',
           onOk() {
-            this.sendDataToMain();
+            self.sendDataToMain();
           },
         });
       });

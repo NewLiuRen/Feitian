@@ -17,11 +17,11 @@ class LayoutPage extends Component {
     const getCurrentPathKey = (pathname) => {
       if (pathname.includes(routes.DATA_MANAGE)) {
         return '3';
-      } else if (pathname.includes(routes.File_GENERATE)) {
-        return '2';
-      } else {
-        return '1';
       }
+      if (pathname.includes(routes.FILE_GENERATE)) {
+        return '2';
+      } 
+      return '1';
     }
 
     return (
@@ -39,7 +39,7 @@ class LayoutPage extends Component {
             <Menu.Item key="3"><NavLink to={routes.DATA_MANAGE}>数据管理</NavLink></Menu.Item>
           </Menu>
         </Header>
-        <Layout style={{ height: 'calc(100vh - 76px)', overflow: 'auto' }}>
+        <Layout style={{ height: 'calc(100vh - 76px)', background: '#fff',overflow: 'auto' }}>
           <Switch>
             <Route path={routes.FILE_VIEW} component={RouteFileView} />
             <Route path={routes.FILE_GENERATE} component={RouteFileGenerate} />
