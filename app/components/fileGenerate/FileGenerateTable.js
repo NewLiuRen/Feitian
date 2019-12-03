@@ -29,7 +29,7 @@ class FileGenerateTable extends Component {
   static getDerivedStateFromProps(props, state) {
     const { file, records } = props;
     return {
-      isDone: !records.some(r => typeof r.count !== 'number'),
+      isDone: records.length > 0 && !records.some(r => typeof r.count !== 'number'),
       isCreate: Object.keys(file).length === 0 && records.length === 0,
     }
   }

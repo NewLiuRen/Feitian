@@ -10,7 +10,7 @@
  *
  * @flow
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { join } from 'path';
 import log from 'electron-log';
@@ -80,9 +80,12 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  // 去除顶部菜单
+  Menu.setApplicationMenu(null)
+
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1028,
+    width: 1280,
     height: 768
   });
 

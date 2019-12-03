@@ -2,6 +2,7 @@ import { createReadStream } from 'fs';
 import { ipcMain, dialog, shell } from 'electron';
 import Excel from 'exceljs';
 import { mainWindow } from '../../main.dev';
+import { RECORD } from '../../constants/records';
 
 // excel通用样式
 const DEFAULT_STYLE = {
@@ -162,6 +163,101 @@ ipcMain.on('importGoodsTemplate', (event) => {
         });
         event.sender.send('importGoodsTemplateSendData', {list})
         event.sender.send('importGoodsTemplateReply', {success: true, msg: ''});
+        return null;
+      });
+  })
+})
+
+// 导入入仓数(订单)模板
+ipcMain.on('importRecordsTemplate', (event, arg) => {
+  const { warehouseList, goodsList } = arg;
+  const workbook = new Excel.Workbook();
+  // 仓库名称同id的映射关系
+  const warehouseName2IdMap = {};
+  warehouseList.sort((a, b) => a.id - b.id).forEach(w => {
+    warehouseName2IdMap[w.name] = w.id;
+  })
+  // 商品sku同id的映射关系
+  const goodsSKU2IdMap = {}
+  goodsList.sort((a, b) => a.id - b.id).forEach(g => {
+    goodsSKU2IdMap[g.sku] = g.id;
+  })
+  // 序号映射关系
+  const indexMap = {}
+  dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [
+      { name: 'Excel', extensions: ['xlsx', 'xls'] }
+    ]
+  }, path => {
+    if (!path) {
+      event.sender.send('importRecordsTemplateReply', {success: false, msg: ''});
+      return
+    }
+    workbook.xlsx.readFile(path[0])
+      .then(() => {
+        const worksheet = workbook.getWorksheet(1)
+        const rowsLen = worksheet._rows.length;
+        const list = {records: [], error: []};
+        let inexistenceWarehouseIdList = null;
+        let skuIndex = null;
+        let data = {};
+        if (rowsLen === 0) {
+          event.sender.send('importRecordsTemplateReply', {success: false, msg: '模板中不存在数据'});
+          return;
+        }
+        worksheet.eachRow((row, rowNumber) => {
+          let sku = '';
+          let recordMap = {};
+          row.eachCell((cell, colNumber) => {
+            const cellVal = cell.value;
+            // 第一列的话查找序号同key的映射
+            if (rowNumber === 1 && cellVal in warehouseName2IdMap) {
+              // 将warehouse_id存入indexMap
+              indexMap[colNumber] = warehouseName2IdMap[cellVal];
+            } else if (rowNumber === 1 && cellVal.trim().toLocaleLowerCase() === 'sku') {
+              skuIndex = colNumber;
+            } else if (rowNumber > 1) {
+              if (skuIndex === colNumber) sku = cellVal;
+              recordMap[indexMap[colNumber]] = cellVal;
+            }
+          });
+          console.log('recordMap :', recordMap);
+          // 遍历完第一行后进行后续操作
+          if (rowNumber === 1) {
+            // 对sku列进行校验
+            if (!skuIndex) {
+              event.sender.send('importRecordsTemplateReply', {success: false, msg: '模板中不存在必要列“SKU”'});
+              return;
+            }
+            // 对仓库列进行校验
+            if (Object.keys(indexMap).length === 0) {
+              event.sender.send('importRecordsTemplateReply', {success: false, msg: '模板中不存在仓库记录或数据管理中不包含文件中的仓库'});
+              return;
+            }
+            // 统计不存在的仓库
+            if (warehouseList.length > Object.keys(indexMap).length) {
+              const existWarehouseIdList = Object.values(indexMap);
+              inexistenceWarehouseIdList = warehouseList.filter(w => !existWarehouseIdList.includes(w.id))
+            }
+          } else  {
+            Object.entries(recordMap).forEach((wid, count) => {
+              if (goodsSKU2IdMap[sku]) {
+                list.records.push(Object.assign({}, RECORD, {goods_id: goodsSKU2IdMap[sku],warehouse_id: wid, count}));
+              } else if (!!sku) {
+                list.error.push({sku, rowNumber});
+              }
+            })
+            // 补充未存在的仓库数据
+            if (inexistenceWarehouseIdList && inexistenceWarehouseIdList.length > 0 && goodsSKU2IdMap[sku]) {
+              inexistenceWarehouseIdList.forEach(wid => {
+                list.records.push(Object.assign({}, RECORD, {goods_id: goodsSKU2IdMap[sku], warehouse_id: wid, count: null}));
+              })
+            }
+          }
+        });
+        event.sender.send('importRecordsTemplateSendData', {...list})
+        event.sender.send('importRecordsTemplateReply', {success: true, msg: ''});
         return null;
       });
   })
