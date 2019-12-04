@@ -172,6 +172,7 @@ ipcMain.on('importGoodsTemplate', (event) => {
 ipcMain.on('importRecordsTemplate', (event, arg) => {
   const { warehouseList, goodsList } = arg;
   const workbook = new Excel.Workbook();
+  let flag = true;
   // 仓库名称同id的映射关系
   const warehouseName2IdMap = {};
   warehouseList.sort((a, b) => a.id - b.id).forEach(w => {
@@ -191,6 +192,7 @@ ipcMain.on('importRecordsTemplate', (event, arg) => {
     ]
   }, path => {
     if (!path) {
+      flag = false;
       event.sender.send('importRecordsTemplateReply', {success: false, msg: ''});
       return
     }
@@ -201,14 +203,14 @@ ipcMain.on('importRecordsTemplate', (event, arg) => {
         const list = {records: [], error: []};
         let inexistenceWarehouseIdList = null;
         let skuIndex = null;
-        let data = {};
+        const data = {};
         if (rowsLen === 0) {
           event.sender.send('importRecordsTemplateReply', {success: false, msg: '模板中不存在数据'});
           return;
         }
         worksheet.eachRow((row, rowNumber) => {
           let sku = '';
-          let recordMap = {};
+          const recordMap = {};
           row.eachCell((cell, colNumber) => {
             const cellVal = cell.value;
             // 第一列的话查找序号同key的映射
@@ -219,32 +221,33 @@ ipcMain.on('importRecordsTemplate', (event, arg) => {
               skuIndex = colNumber;
             } else if (rowNumber > 1) {
               if (skuIndex === colNumber) sku = cellVal;
-              recordMap[indexMap[colNumber]] = cellVal;
+              if (indexMap[colNumber]) recordMap[indexMap[colNumber]] = cellVal;
             }
           });
-          console.log('recordMap :', recordMap);
           // 遍历完第一行后进行后续操作
           if (rowNumber === 1) {
             // 对sku列进行校验
             if (!skuIndex) {
+              flag = false;
               event.sender.send('importRecordsTemplateReply', {success: false, msg: '模板中不存在必要列“SKU”'});
               return;
             }
             // 对仓库列进行校验
             if (Object.keys(indexMap).length === 0) {
+              flag = false;
               event.sender.send('importRecordsTemplateReply', {success: false, msg: '模板中不存在仓库记录或数据管理中不包含文件中的仓库'});
               return;
             }
             // 统计不存在的仓库
             if (warehouseList.length > Object.keys(indexMap).length) {
               const existWarehouseIdList = Object.values(indexMap);
-              inexistenceWarehouseIdList = warehouseList.filter(w => !existWarehouseIdList.includes(w.id))
+              inexistenceWarehouseIdList = warehouseList.filter(w => !existWarehouseIdList.includes(w.id)).map(w => w.id)
             }
           } else  {
-            Object.entries(recordMap).forEach((wid, count) => {
+            Object.entries(recordMap).forEach(([wid, count]) => {
               if (goodsSKU2IdMap[sku]) {
-                list.records.push(Object.assign({}, RECORD, {goods_id: goodsSKU2IdMap[sku],warehouse_id: wid, count}));
-              } else if (!!sku) {
+                list.records.push(Object.assign({}, RECORD, {goods_id: goodsSKU2IdMap[sku], warehouse_id: parseInt(wid, 10), count}));
+              } else if (sku && !list.error.find(e => e.sku === sku)) {
                 list.error.push({sku, rowNumber});
               }
             })
@@ -256,8 +259,10 @@ ipcMain.on('importRecordsTemplate', (event, arg) => {
             }
           }
         });
-        event.sender.send('importRecordsTemplateSendData', {...list})
-        event.sender.send('importRecordsTemplateReply', {success: true, msg: ''});
+        if (flag) {
+          event.sender.send('importRecordsTemplateSendData', {...list})
+          event.sender.send('importRecordsTemplateReply', {success: true, msg: ''});
+        }
         return null;
       });
   })
