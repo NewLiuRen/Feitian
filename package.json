@@ -1,7 +1,7 @@
 {
   "name": "Feitian",
   "productName": "ElectronReact",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "the application is input data and change it. then export to excel. for my wife",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",

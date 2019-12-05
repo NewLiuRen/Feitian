@@ -60,4 +60,4 @@ export const updateFileToOrder = params => getFileById(params.id).then(f => {
 export const deleteFile = key => getFileById(key).then(f => {
   if (!f) return { success: false }
   return recordsDB.getRecordsByFileId(f.id)
-}).then(r => Promise.all([db.deleteData(STORE_NAME, key), recordsDB.deleteRecords(r.id)])).then(([fileRes, recordsRes]) => ({success: fileRes.success && recordsRes.success}))
+}).then(r => Promise.all([db.deleteData(STORE_NAME, key), recordsDB.deleteAllRecordsByFileId(key)])).then(([fileRes, recordsRes]) => ({success: fileRes.success && recordsRes.success}))

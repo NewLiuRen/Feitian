@@ -52,6 +52,7 @@ const OrderModalWrap = (WrappedComponent) => class OrderModal extends Component 
   submit = () => {
     const { fileInfo, addRecordsOrderNumber, updateRecordsOrderNumber } = this.props;
     const { type, order_number, old_order_number, warehouse_id, targetKeys } = this.state;
+    
     this.setState({validate: true}, () => {
       if (!order_number.trim()) return
       if (type === TYPE_MAP.create && targetKeys.length === 0) {

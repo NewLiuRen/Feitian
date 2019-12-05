@@ -2,7 +2,11 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
 import { Row, Col, Button, Modal, Alert, List, Typography, message, notification } from 'antd';
+import { FILE } from '../../constants/file';
+import { GOODS_TMP } from '../../constants/goods';
+import { addFile } from '../../db/file';
 import routes from '../../constants/routes.json';
 import style from './FileGenerateIndex.scss';
 import * as actions from '../../actions/fileRecord';
@@ -21,20 +25,40 @@ class FileGenerateIndex extends Component {
   }
 
   componentDidMount() {
-    const { warehouse, goods, history, clearFile } = this.props;
+    const { warehouse, goods, history, clearFile, setFileInfo, setFileGoods, setAllGoodsExist, setAllFileWarehouse, addRecords, addFileGoods } = this.props;
     
     ipcRenderer.on('importRecordsTemplateReply', (event, arg) => {
       if (arg.success) {
         message.success('导入成功');
         this.show();
-      } else {
-        message.error(`导入失败, ${arg.msg}`);
+      } else if (arg.msg) {
+        message.error(`${arg.msg}`);
       }
     });
     ipcRenderer.on('importRecordsTemplateSendData', (event, arg) => {
       const { error, records } = arg;
       this.setState({errorList: error, errorCount: error.length, totalCount: records.length});
-      
+      if (records.length > 0) {
+        const d = new Date();
+        const fileInfo = Object.assign({}, FILE, {name: `${moment(d).format('YY.MM.DD')}入仓数fcs`, create_date: d.getTime(),})
+        addFile(fileInfo).then(({success, data: file}) => {
+          if (!success) {
+            message.error('文件创建失败');
+            return {success: false}
+          } 
+          setFileInfo(file);
+          setAllFileWarehouse(warehouse.map(w => w.id));
+          return addRecords(file.id, records)
+        }).then(({success}) => {
+          if (success !== false) {
+            const fileGoods = [...new Set(records.map(d => d.goods_id))].forEach((goods_id, index) => {
+              if (index > 0) addFileGoods();
+              setFileGoods({index, goods_id})
+            });
+            setAllGoodsExist();
+          }
+        })
+      }
     });
 
     // 进入新建时清空数据
@@ -96,7 +120,9 @@ class FileGenerateIndex extends Component {
 
   // 关闭提示Modal
   hide = () => {
+    const { history } = this.props;
     this.setState({visible: false});
+    history.replace(`${routes.FILE_GENERATE_TABLE}/edit`);
   }
 
   render() {
@@ -123,19 +149,23 @@ class FileGenerateIndex extends Component {
           <Row>
             <Alert message={`导入结束：成功（${totalCount - errorCount}/${totalCount}），失败（${errorCount}/${totalCount}）`} type="info" style={{marginBottom: 15}} />
           </Row>
-          <Row>
-            <List
-              size="small"
-              style={{height: 300, overflow: 'auto'}}
-              bordered
-              dataSource={errorList}
-              renderItem={({sku, rowNumber}) => (
-                <List.Item>
-                  <Text type="danger">{`不存在SKU为: ${sku}的数据(行号: ${rowNumber})`}</Text>
-                </List.Item>
-              )}
-            />
-          </Row>
+          {
+            errorList.length > 0 ? (
+              <Row>
+                <List
+                  size="small"
+                  style={{height: 300, overflow: 'auto'}}
+                  bordered
+                  dataSource={errorList}
+                  renderItem={({sku, rowNumber}) => (
+                    <List.Item>
+                      <Text type="danger">{`不存在SKU为: ${sku}的数据(行号: ${rowNumber})`}</Text>
+                    </List.Item>
+                  )}
+                />
+              </Row>
+            ) : null
+          }
         </Modal>
         <Row style={{height: '100%', margin: 0,}} align="middle" justify="space-around" type="flex" gutter={16}>
           <Col span={8} offset={2}>{
@@ -162,6 +192,12 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
+  setFileInfo: actions.setFile,
+  setFileGoods: actions.setGoods,
+  addFileGoods: actions.addGoods,
+  setAllGoodsExist: actions.setAllGoodsExist,
+  addRecords: actions.fetchAddRecords,
+  setAllFileWarehouse: actions.setAllWarehouse,
   clearFile: actions.clearFileRecord
 }
 

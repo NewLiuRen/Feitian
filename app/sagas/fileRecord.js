@@ -98,7 +98,7 @@ function* updateRecordsOrderNumber({ payload: {file_id, warehouse_id, goodsIdLis
       // 若原订单号相同且存在于id列表中，则将订单号修改为新订单号
       // 若原订单号相同但不存在与id列表中，说明为移除状态，将订单号置为空
       if (goodsIdList.includes(parseInt(r.goods_id, 10))) return Object.assign({}, r, {order_number})
-      if (parseInt(r.order_number, 10) === parseInt(old_order_number, 10)) Object.assign({}, r, {order_number: ''})
+      if (!goodsIdList.includes(parseInt(r.goods_id, 10)) && parseInt(r.order_number, 10) === parseInt(old_order_number, 10)) return Object.assign({}, r, {order_number: ''})
     }
     return r;
   })
