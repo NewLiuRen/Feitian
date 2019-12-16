@@ -18,12 +18,14 @@ class ConfigForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      path: ''
+      path: '',
+      companyName: '',
     }
   }
 
   componentDidMount() {
     const path = localStorage.getItem('exportPath');
+    const companyName = localStorage.getItem('companyName');
     if (path) this.setState({path})
   }
 
@@ -39,6 +41,15 @@ class ConfigForm extends Component {
     return (
       <div style={{width: '80%', marginTop: 50}}>
         <Form layout="horizontal" labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
+          {/* <Form.Item label="公司名称">
+            <Input 
+              value={path}
+              enterButton="选择文件夹"
+              size="large"
+              placeholder="请选择文件夹"
+              onSearch={value => this.setSelectPathCommand()}
+            />
+          </Form.Item> */}
           <Form.Item label="导出路径">
             <Search
               readOnly
