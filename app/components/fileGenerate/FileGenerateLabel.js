@@ -78,7 +78,7 @@ class FileGenerateOrder extends Component {
     records.forEach(r => {
       const { count, order_number, goods_id, warehouse_id, labels } = r;
       if (!fileLabelMap[warehouse_id]) fileLabelMap[warehouse_id] = {name: warehouseMap[warehouse_id].name, warehouse_id, full: [], share: []}
-      if (labels.length > 0) fileLabelMap[warehouse_id].full.push({count, order_number, goods_id, name: goodsMap[goods_id].name, labels})
+      if (labels.length > 0) fileLabelMap[warehouse_id].full.push({count: goodsMap[goods_id].max_count, order_number, goods_id, name: goodsMap[goods_id].name, labels})
     })
     share.forEach(s => {
       const { label, order_number, warehouse_id, goods } = s;

@@ -225,6 +225,8 @@ ipcMain.on('importRecordsTemplate', (event, arg) => {
             }
           });
           // 遍历完第一行后进行后续操作
+          // 若为第一行，则进行必要的校验操作
+          // 不为第一行，则进行导入数据的收集操作
           if (rowNumber === 1) {
             // 对sku列进行校验
             if (!skuIndex) {
