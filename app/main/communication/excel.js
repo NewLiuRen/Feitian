@@ -495,13 +495,14 @@ ipcMain.on('exportOrderLabel', (event, arg) => {
     // 产生公式
     row1cellC.value = { formula: 'SUMIF(A$1:A$59261,A5,B$1:B$59261)', result: totalCount };
     // 样式设置
-    row1.height = 36;
-    row2.height = 36;
-    row3.height = 36;
-    row4.height = goods.length > 2 ? 36 + (goods.length - 2)*20 : 36;
-    row5.height = 36;
-    row6.height = 36;
-    row7.height = 36;
+    const defaultHeight = 34.5
+    row1.height = defaultHeight;
+    row2.height = defaultHeight;
+    row3.height = defaultHeight;
+    row4.height = goods.length > 2 ? defaultHeight + (goods.length - 2)*20 : defaultHeight;
+    row5.height = defaultHeight;
+    row6.height = defaultHeight;
+    row7.height = defaultHeight;
     setStyle(row1cellL, ['font', 'alignment', 'border'], { border: { top: {style:'thick'}, right: {style:'thin'}, }, });
     setStyle(row1cellR, ['font', 'alignment', 'border'], { border: { top: {style:'thick'}, left: {style:'thin'}, }, });
     setStyle(row2cellL, ['font', 'alignment', 'border'], { border: { right: {style:'thin'} } });

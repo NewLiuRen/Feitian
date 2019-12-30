@@ -1,7 +1,7 @@
 {
   "name": "Feitian",
-  "productName": "ElectronReact",
-  "version": "1.0.1",
+  "productName": "箱贴生成器",
+  "version": "1.0.2",
   "description": "the application is input data and change it. then export to excel. for my wife",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
@@ -56,7 +56,7 @@
   },
   "main": "./app/main.prod.js",
   "build": {
-    "productName": "ElectronReact",
+    "productName": "箱贴生成器",
     "appId": "org.develar.ElectronReact",
     "files": [
       "app/dist/",
