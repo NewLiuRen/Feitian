@@ -21,3 +21,4 @@ the application is input data and change it. then export to excel. for my wife
 - ~~生成的箱贴中，整箱数量错误~~
 
 1.0.1: 修复生成的箱贴中，整箱数量错误的问题
+1.0.2: 修改导出的excel单元格高度
